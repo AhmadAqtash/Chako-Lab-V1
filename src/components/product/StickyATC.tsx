@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
 import { MoneyV2 } from '@/types/shopify';
@@ -12,9 +13,10 @@ interface Props {
   variantId: string;
   available: boolean;
   triggerRef: React.RefObject<HTMLElement>;
+  featuredImage?: string | null;
 }
 
-export default function StickyATC({ title, price, variantId, available, triggerRef }: Props) {
+export default function StickyATC({ title, price, variantId, available, triggerRef, featuredImage }: Props) {
   const { addItem, isLoading } = useCart();
   const [visible, setVisible] = useState(false);
   const [added, setAdded] = useState(false);
@@ -43,6 +45,11 @@ export default function StickyATC({ title, price, variantId, available, triggerR
         visible ? 'translate-y-0' : 'translate-y-full'
       }`}
     >
+      {featuredImage && (
+        <div className="relative w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-chako-accent">
+          <Image src={featuredImage} alt={title} fill className="object-cover" sizes="48px" />
+        </div>
+      )}
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium truncate text-chako-dark/60">{title}</p>
         <p className="text-sm font-bold">{formatPrice(price)}</p>

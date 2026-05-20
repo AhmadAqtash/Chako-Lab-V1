@@ -180,10 +180,10 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
           </div>
 
           {activeTab === 'Description' && (
-            <div className="text-sm text-chako-dark/65 leading-relaxed">
+            <div className="text-sm text-chako-dark/65 leading-relaxed px-4 md:px-0">
               {product.descriptionHtml ? (
                 <div
-                  className="prose prose-sm max-w-none prose-p:leading-relaxed prose-li:marker:text-chako-dark/40"
+                  className="prose prose-sm max-w-none prose-p:leading-relaxed prose-p:my-2 prose-ul:pl-4 prose-ol:pl-4 prose-li:marker:text-chako-dark/40"
                   dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
                 />
               ) : product.description ? (
@@ -259,6 +259,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
           variantId={selectedVariant.id}
           available={selectedVariant.availableForSale}
           triggerRef={atcRef as React.RefObject<HTMLElement>}
+          featuredImage={product.featuredImage?.url}
         />
       )}
     </>

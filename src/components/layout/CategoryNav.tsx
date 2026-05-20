@@ -14,7 +14,7 @@ export default function CategoryNav() {
         <Link
           href="/collections"
           className={cn(
-            'flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap',
+            'flex-shrink-0 px-4 min-h-[36px] inline-flex items-center rounded-full text-sm font-medium transition-colors whitespace-nowrap',
             pathname === '/collections'
               ? 'bg-chako-dark text-chako-bg'
               : 'text-chako-dark/60 hover:text-chako-dark hover:bg-black/5'
@@ -27,7 +27,7 @@ export default function CategoryNav() {
             key={handle}
             href={`/collections/${handle}`}
             className={cn(
-              'flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap',
+              'flex-shrink-0 px-4 min-h-[36px] inline-flex items-center rounded-full text-sm font-medium transition-colors whitespace-nowrap',
               pathname === `/collections/${handle}`
                 ? 'bg-chako-dark text-chako-bg'
                 : 'text-chako-dark/60 hover:text-chako-dark hover:bg-black/5'

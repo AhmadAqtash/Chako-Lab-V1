@@ -23,7 +23,7 @@ export default function ColorSwatches({ siblings, currentHandle, colorName, coll
       <p className="text-sm text-chako-dark/60">
         Color: <span className="font-semibold text-chako-dark">{colorName ?? 'Default'}</span>
       </p>
-      <div className="flex flex-wrap gap-2 items-center">
+      <div className="flex flex-wrap gap-2 items-center pl-0.5 md:pl-0">
         {visible.map((sibling) => {
           const isActive = sibling.handle === currentHandle;
           const isOOS = sibling.variants.nodes.every((v) => !v.availableForSale);

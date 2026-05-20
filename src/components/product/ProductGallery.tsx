@@ -53,10 +53,10 @@ export default function ProductGallery({ images, title }: Props) {
 
   return (
     <>
-      <div className="flex flex-col-reverse md:flex-row gap-3">
+      <div className="-mx-4 md:mx-0 flex flex-col-reverse md:flex-row gap-3">
         {/* Thumbnails */}
         {images.length > 1 && (
-          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[560px] scrollbar-hide md:w-[72px] flex-shrink-0">
+          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[560px] scrollbar-hide md:w-[72px] flex-shrink-0 px-4 md:px-0">
             {images.map((img, i) => (
               <button
                 key={i}
@@ -85,7 +85,7 @@ export default function ProductGallery({ images, title }: Props) {
           <div
             ref={imgRef}
             className={cn(
-              'relative aspect-square rounded-3xl overflow-hidden bg-chako-accent select-none',
+              'relative aspect-[4/5] md:aspect-square rounded-none md:rounded-3xl overflow-hidden bg-chako-accent select-none',
               zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'
             )}
             onClick={() => setZoomed(!zoomed)}
