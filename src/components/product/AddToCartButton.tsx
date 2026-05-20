@@ -1,0 +1,61 @@
+'use client';
+
+import { useCart } from '@/context/CartContext';
+import { ShoppingBag } from 'lucide-react';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+
+interface Props {
+  variantId: string;
+  available: boolean;
+  quantityAvailable: number;
+  quantity?: number;
+}
+
+export default function AddToCartButton({ variantId, available, quantityAvailable, quantity = 1 }: Props) {
+  const { addItem, isLoading } = useCart();
+  const [added, setAdded] = useState(false);
+
+  async function handleAdd() {
+    if (!available) return;
+    await addItem(variantId, quantity);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  }
+
+  if (!available) {
+    return (
+      <button
+        disabled
+        className="w-full py-4 bg-black/5 text-chako-dark/40 font-semibold rounded-2xl text-sm cursor-not-allowed"
+      >
+        Sold Out
+      </button>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {quantityAvailable > 0 && quantityAvailable <= 5 && (
+        <p className="text-xs font-semibold text-amber-600 flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse inline-block" />
+          Only {quantityAvailable} left in stock
+        </p>
+      )}
+      <button
+        onClick={handleAdd}
+        disabled={isLoading}
+        className={cn(
+          'w-full py-4 font-semibold rounded-2xl text-sm flex items-center justify-center gap-2 transition-all',
+          added
+            ? 'bg-green-600 text-white'
+            : 'bg-chako-dark text-chako-bg hover:bg-chako-dark/90 active:scale-[0.98]',
+          isLoading && 'opacity-70 cursor-wait'
+        )}
+      >
+        <ShoppingBag size={18} />
+        {added ? 'Added to Cart ✓' : 'Add to Cart'}
+      </button>
+    </div>
+  );
+}
