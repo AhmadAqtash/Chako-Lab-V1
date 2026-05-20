@@ -25,7 +25,7 @@ export default function Hero() {
           <p className="text-chako-dark text-sm font-semibold tracking-widest uppercase mb-6">
             Chako Lab × UAE
           </p>
-          <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6 text-chako-dark">
+          <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6 text-chako-dark">
             Drink
             <br />
             <span className="text-chako-dark/70">beautifully.</span>

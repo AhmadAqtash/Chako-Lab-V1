@@ -12,7 +12,7 @@ export default async function FeaturedProducts() {
       <div className="flex items-end justify-between mb-8">
         <div>
           <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">Bestsellers</p>
-          <h2 className="font-display text-2xl md:text-3xl font-bold">Featured Products</h2>
+          <h2 className="text-2xl md:text-3xl font-bold">Featured Products</h2>
         </div>
         <Link
           href="/collections"

@@ -29,7 +29,7 @@ export default async function CategoryBar() {
       <div className="flex items-end justify-between mb-6">
         <div>
           <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1">Browse</p>
-          <h2 className="font-display text-2xl font-bold">Shop by Category</h2>
+          <h2 className="text-2xl font-bold">Shop by Category</h2>
         </div>
       </div>
 

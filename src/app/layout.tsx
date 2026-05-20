@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import { Archivo_Black } from 'next/font/google';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
@@ -19,12 +18,6 @@ const inter = localFont({
   weight: '100 900',
 });
 
-const archivoBlack = Archivo_Black({
-  weight: '400',
-  subsets: ['latin'],
-  variable: '--font-display',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: {
@@ -42,7 +35,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${archivoBlack.variable}`} suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen font-sans bg-chako-bg text-chako-dark" suppressHydrationWarning>
         <CartProvider>
           <DemoBanner />

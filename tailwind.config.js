@@ -17,7 +17,6 @@ module.exports = {
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
       },
       animation: {
         marquee: 'marquee 30s linear infinite',

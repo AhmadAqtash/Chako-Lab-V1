@@ -71,7 +71,7 @@ export default function ProductCard({ product }: Props) {
 
       <div className="p-3 flex-1 flex flex-col">
         <p className="text-xs text-chako-dark/40 font-medium mb-0.5">{product.productType}</p>
-        <h3 className="font-display text-sm font-bold leading-snug line-clamp-2 flex-1">{product.title}</h3>
+        <h3 className="text-sm font-semibold leading-snug line-clamp-2 flex-1">{product.title}</h3>
         <div className="flex items-baseline gap-2 mt-2">
           <span className="font-semibold text-sm">{formatPrice(price)}</span>
           {compareAt && parseFloat(compareAt.amount) > parseFloat(price.amount) && (

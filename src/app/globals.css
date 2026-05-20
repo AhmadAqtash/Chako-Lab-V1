@@ -15,18 +15,18 @@
 
   /* Bullet points for Shopify HTML product descriptions */
   .chako-description p {
-    position: relative;
-    padding-left: 1.25rem;
+    display: flex;
+    gap: 0.625rem;
+    align-items: flex-start;
     margin-bottom: 0.5rem;
   }
   .chako-description p::before {
     content: "•";
-    position: absolute;
-    left: 0;
-    top: 0;
+    flex-shrink: 0;
+    margin-top: 1px;
     color: rgba(23, 23, 23, 0.4);
-    font-weight: bold;
-    line-height: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
   }
   .chako-description p:last-child {
     margin-bottom: 0;

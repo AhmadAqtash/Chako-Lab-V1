@@ -76,7 +76,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
             {product.productType}
           </p>
           <div className="flex items-start justify-between gap-4">
-            <h1 className="font-display text-2xl md:text-3xl font-bold leading-tight">{product.title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold leading-tight">{product.title}</h1>
             <button
               onClick={handleShare}
               className="flex-shrink-0 mt-1 p-2 rounded-full hover:bg-black/5 transition-colors text-chako-dark/40 hover:text-chako-dark"
@@ -194,7 +194,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                     .filter(Boolean)
                     .map((sentence, i) => (
                       <li key={i} className="flex gap-2.5 items-start">
-                        <span className="mt-[5px] w-1.5 h-1.5 rounded-full bg-chako-dark/35 flex-shrink-0" />
+                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-chako-dark/40 flex-shrink-0" />
                         <span>{sentence.endsWith('.') ? sentence : `${sentence}.`}</span>
                       </li>
                     ))}
