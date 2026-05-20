@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
 import { MoneyV2 } from '@/types/shopify';
@@ -20,6 +19,11 @@ export default function StickyATC({ title, price, variantId, available, triggerR
   const { addItem, isLoading } = useCart();
   const [visible, setVisible] = useState(false);
   const [added, setAdded] = useState(false);
+
+  // TODO: remove after verifying image URL in browser console
+  if (typeof window !== 'undefined') {
+    console.log('[StickyATC] featuredImage:', featuredImage);
+  }
 
   useEffect(() => {
     const el = triggerRef.current;
@@ -46,8 +50,9 @@ export default function StickyATC({ title, price, variantId, available, triggerR
       }`}
     >
       {featuredImage && (
-        <div className="relative w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-chako-accent">
-          <Image src={featuredImage} alt={title} fill className="object-cover" sizes="48px" />
+        <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-chako-accent">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={featuredImage} alt={title} className="w-full h-full object-cover" />
         </div>
       )}
       <div className="flex-1 min-w-0">
