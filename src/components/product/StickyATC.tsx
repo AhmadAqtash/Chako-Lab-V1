@@ -20,10 +20,6 @@ export default function StickyATC({ title, price, variantId, available, triggerR
   const [visible, setVisible] = useState(false);
   const [added, setAdded] = useState(false);
 
-  // TODO: remove after verifying image URL in browser console
-  if (typeof window !== 'undefined') {
-    console.log('[StickyATC] featuredImage:', featuredImage);
-  }
 
   useEffect(() => {
     const el = triggerRef.current;
