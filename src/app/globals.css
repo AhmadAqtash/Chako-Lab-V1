@@ -12,6 +12,26 @@
 
 @layer utilities {
   /* Tailwind JIT does not generate pseudo-element variants — keep these here */
+
+  /* Bullet points for Shopify HTML product descriptions */
+  .chako-description p {
+    position: relative;
+    padding-left: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  .chako-description p::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: rgba(23, 23, 23, 0.4);
+    font-weight: bold;
+    line-height: inherit;
+  }
+  .chako-description p:last-child {
+    margin-bottom: 0;
+  }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;

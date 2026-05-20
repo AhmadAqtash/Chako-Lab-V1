@@ -40,9 +40,9 @@ export default function Header() {
         <Link href="/" className="flex-shrink-0 mr-2" aria-label="Chako Lab">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/chako-lab-logo.webp"
+            src="/chako-lab-logo.png"
             alt="Chako Lab"
-            style={{ height: '32px', width: 'auto', objectFit: 'contain', display: 'block' }}
+            style={{ height: '28px', width: 'auto', display: 'block' }}
           />
         </Link>
 

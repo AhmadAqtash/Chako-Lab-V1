@@ -24,7 +24,7 @@ export default async function CollectionsPage() {
 
       <div className="mb-6">
         <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1">Collection</p>
-        <h1 className="text-2xl md:text-3xl font-bold">All Products</h1>
+        <h1 className="font-display text-2xl md:text-3xl font-bold">All Products</h1>
         <p className="text-sm text-chako-dark/55 mt-2 max-w-xl leading-relaxed">
           The full Chako Lab collection — crafted drinkware for every ritual.
         </p>

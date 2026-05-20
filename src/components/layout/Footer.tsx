@@ -9,9 +9,9 @@ export default function Footer() {
           <div className="md:col-span-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/chako-lab-logo.webp"
+              src="/chako-lab-logo.png"
               alt="Chako Lab"
-              style={{ height: '28px', width: 'auto', objectFit: 'contain', filter: 'invert(1)', display: 'block', marginBottom: '12px' }}
+              style={{ height: '24px', width: 'auto', filter: 'invert(1)', display: 'block' }}
             />
             <p className="text-chako-bg/60 text-sm leading-relaxed max-w-xs">
               Crafted drinkware for everyday rituals. Every sip, beautifully made.

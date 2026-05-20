@@ -76,7 +76,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
             {product.productType}
           </p>
           <div className="flex items-start justify-between gap-4">
-            <h1 className="text-2xl md:text-3xl font-bold leading-tight">{product.title}</h1>
+            <h1 className="font-display text-2xl md:text-3xl font-bold leading-tight">{product.title}</h1>
             <button
               onClick={handleShare}
               className="flex-shrink-0 mt-1 p-2 rounded-full hover:bg-black/5 transition-colors text-chako-dark/40 hover:text-chako-dark"
@@ -183,11 +183,22 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
             <div className="text-sm text-chako-dark/65 leading-relaxed px-4 md:px-0">
               {product.descriptionHtml ? (
                 <div
-                  className="prose prose-sm max-w-none prose-p:leading-relaxed prose-p:my-2 prose-ul:pl-4 prose-ol:pl-4 prose-li:marker:text-chako-dark/40"
+                  className="chako-description prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:pl-4 prose-ol:pl-4 prose-li:marker:text-chako-dark/40"
                   dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
                 />
               ) : product.description ? (
-                <p>{product.description}</p>
+                <ul className="space-y-2">
+                  {product.description
+                    .split(/\.\s+|\n/)
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .map((sentence, i) => (
+                      <li key={i} className="flex gap-2.5 items-start">
+                        <span className="mt-[5px] w-1.5 h-1.5 rounded-full bg-chako-dark/35 flex-shrink-0" />
+                        <span>{sentence.endsWith('.') ? sentence : `${sentence}.`}</span>
+                      </li>
+                    ))}
+                </ul>
               ) : (
                 <p className="text-chako-dark/35 italic">No description available.</p>
               )}
