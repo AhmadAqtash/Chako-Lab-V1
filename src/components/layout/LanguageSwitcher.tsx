@@ -14,10 +14,10 @@ export default function LanguageSwitcher() {
       aria-label="Switch language"
     >
       <Globe size={14} className="hidden sm:block" />
-      {/* Mobile: compact current-language label only */}
-      <span className="sm:hidden">{isAr ? 'ع' : 'EN'}</span>
-      {/* Desktop: full label */}
-      <span className="hidden sm:inline">{isAr ? 'عربي | EN' : 'EN | عربي'}</span>
+      {/* Mobile: compact target-language label */}
+      <span className="sm:hidden">{isAr ? 'EN' : 'ع'}</span>
+      {/* Desktop: full target-language name */}
+      <span className="hidden sm:inline">{isAr ? 'English' : 'عربي'}</span>
     </button>
   );
 }
