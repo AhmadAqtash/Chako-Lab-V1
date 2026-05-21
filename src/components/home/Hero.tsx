@@ -26,7 +26,12 @@ export default function Hero() {
             src="/chako-lab-logo.png"
             alt="Chako Lab"
             style={{ height: '32px', width: 'auto', marginBottom: '16px' }}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
+            }}
           />
+          <span style={{ display: 'none', marginBottom: '16px' }} className="block font-bold text-xl tracking-tight text-chako-dark">CHAKO LAB®</span>
           <p className="text-chako-dark text-sm font-semibold tracking-widest uppercase mb-6">
             {t('hero_label')}
           </p>

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { cn } from '@/lib/utils';
 
 export default function AnnouncementBar() {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const [idx, setIdx] = useState(0);
   const [visible, setVisible] = useState(true);
 
@@ -22,7 +23,7 @@ export default function AnnouncementBar() {
   }, [messages.length]);
 
   return (
-    <div className="bg-chako-dark text-chako-bg text-xs text-center py-2 px-4 font-medium tracking-wide">
+    <div className={cn('bg-chako-dark text-chako-bg text-xs py-2 px-4 font-medium tracking-wide', isRTL ? 'text-right' : 'text-center')}>
       <span
         className="inline-block transition-opacity duration-300"
         style={{ opacity: visible ? 1 : 0 }}

@@ -46,7 +46,12 @@ export default function Header() {
             src="/chako-lab-logo.png"
             alt="Chako Lab"
             style={{ height: '28px', width: 'auto', display: 'block' }}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
+            }}
           />
+          <span style={{ display: 'none' }} className="font-bold text-lg tracking-tight">CHAKO LAB®</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 flex-1">
@@ -113,6 +118,9 @@ export default function Header() {
               {t(link.key)}
             </Link>
           ))}
+          <div className="pt-2 pb-1 px-3">
+            <LanguageSwitcher />
+          </div>
         </div>
       )}
     </header>

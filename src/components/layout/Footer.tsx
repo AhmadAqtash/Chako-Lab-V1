@@ -17,7 +17,12 @@ export default function Footer() {
               src="/chako-lab-logo.png"
               alt="Chako Lab"
               style={{ height: '24px', width: 'auto', filter: 'invert(1)', display: 'block' }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
+              }}
             />
+            <span style={{ display: 'none' }} className="font-bold text-lg tracking-tight text-chako-bg">CHAKO LAB®</span>
             <p className="text-chako-bg/60 text-sm leading-relaxed max-w-xs mt-4">
               {t('footer_tagline')}
             </p>
