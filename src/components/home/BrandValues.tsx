@@ -1,27 +1,19 @@
-const VALUES = [
-  {
-    icon: '◎',
-    title: 'Thoughtful Design',
-    description: 'Every curve, weight, and finish considered for the hand that holds it and the ritual it serves.',
-  },
-  {
-    icon: '◈',
-    title: 'Built to Last',
-    description: 'Premium-grade materials that resist wear, retain temperature, and improve with use.',
-  },
-  {
-    icon: '◇',
-    title: 'Daily Joy',
-    description: 'We believe the objects you use every day should bring you quiet, consistent delight.',
-  },
-  {
-    icon: '◉',
-    title: 'Ships to UAE',
-    description: 'Priced in AED and shipped directly to your door across the UAE and GCC.',
-  },
-];
+'use client';
+
+import { useLanguage } from '@/context/LanguageContext';
+
+const VALUE_ICONS = ['◎', '◈', '◇', '◉'] as const;
 
 export default function BrandValues() {
+  const { t } = useLanguage();
+
+  const VALUES = [
+    { icon: '◎', title: t('promise_1_title'), description: t('promise_1_desc') },
+    { icon: '◈', title: t('promise_2_title'), description: t('promise_2_desc') },
+    { icon: '◇', title: t('promise_3_title'), description: t('promise_3_desc') },
+    { icon: '◉', title: t('promise_4_title'), description: t('promise_4_desc') },
+  ];
+
   return (
     <section
       className="relative"
@@ -31,14 +23,14 @@ export default function BrandValues() {
 
       <div className="relative z-10 max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20">
         <div className="text-center mb-12">
-          <p className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-2">Why Chako Lab</p>
-          <h2 className="text-2xl md:text-3xl font-bold text-white">Our Promise</h2>
+          <p className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-2">{t('promise_label')}</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-white">{t('promise_heading')}</h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {VALUES.map(({ icon, title, description }) => (
             <div
-              key={title}
+              key={icon}
               className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 flex flex-col gap-3"
             >
               <span className="text-3xl text-white">{icon}</span>

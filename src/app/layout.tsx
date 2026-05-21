@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import { Noto_Sans_Arabic } from 'next/font/google';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
+import { LanguageProvider } from '@/context/LanguageContext';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import Header from '@/components/layout/Header';
 import CategoryNav from '@/components/layout/CategoryNav';
@@ -16,6 +18,13 @@ const inter = localFont({
   variable: '--font-inter',
   display: 'swap',
   weight: '100 900',
+});
+
+const notoSansArabic = Noto_Sans_Arabic({
+  subsets: ['arabic'],
+  variable: '--font-arabic',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
 });
 
 
@@ -35,8 +44,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${notoSansArabic.variable}`} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen font-sans bg-chako-bg text-chako-dark" suppressHydrationWarning>
+        <LanguageProvider>
         <CartProvider>
           <DemoBanner />
           <AnnouncementBar />
@@ -62,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }}
           />
         </CartProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

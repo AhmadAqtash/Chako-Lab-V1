@@ -1,6 +1,7 @@
 import { getProducts } from '@/lib/shopify';
 import ProductCard from '@/components/product/ProductCard';
 import Breadcrumb from '@/components/ui/Breadcrumb';
+import T from '@/components/ui/T';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
@@ -23,16 +24,18 @@ export default async function CollectionsPage() {
       />
 
       <div className="mb-6">
-        <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1">Collection</p>
-        <h1 className="text-2xl md:text-3xl font-bold">All Products</h1>
+        <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1">
+          <T k="collection_all_label" />
+        </p>
+        <h1 className="text-2xl md:text-3xl font-bold"><T k="collection_all_heading" /></h1>
         <p className="text-sm text-chako-dark/55 mt-2 max-w-xl leading-relaxed">
-          The full Chako Lab collection — crafted drinkware for every ritual.
+          <T k="collection_all_sub" />
         </p>
       </div>
 
       {products.length === 0 ? (
         <div className="text-center py-24 bg-chako-accent rounded-3xl">
-          <p className="text-chako-dark/40 text-sm font-medium">No products found.</p>
+          <p className="text-chako-dark/40 text-sm font-medium"><T k="collection_no_products" /></p>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">

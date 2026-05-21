@@ -2,21 +2,24 @@
 
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { Search, ShoppingBag, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const NAV_LINKS = [
-  { href: '/collections/linlin-kettles', label: 'Kettles' },
-  { href: '/collections/kada-bottles', label: 'Bottles' },
-  { href: '/collections/mugs', label: 'Mugs' },
-  { href: '/collections/bobo-tumblers', label: 'Tumblers' },
-  { href: '/collections', label: 'All Products' },
+  { href: '/collections/linlin-kettles', key: 'nav_kettles' as const },
+  { href: '/collections/kada-bottles', key: 'nav_bottles' as const },
+  { href: '/collections/mugs', key: 'nav_mugs' as const },
+  { href: '/collections/bobo-tumblers', key: 'nav_tumblers' as const },
+  { href: '/collections', key: 'nav_all_products' as const },
 ];
 
 export default function Header() {
   const { openCart, totalQuantity } = useCart();
+  const { t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
@@ -58,23 +61,24 @@ export default function Header() {
                   : 'text-chako-dark/55 hover:text-chako-dark hover:bg-black/5'
               )}
             >
-              {link.label}
+              {t(link.key)}
             </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-1 ml-auto">
+          <LanguageSwitcher />
           <Link
             href="/search"
             className="p-2 hover:bg-black/5 rounded-full transition-colors"
-            aria-label="Search"
+            aria-label={t('nav_search')}
           >
             <Search size={20} />
           </Link>
           <button
             onClick={openCart}
             className="p-2 hover:bg-black/5 rounded-full transition-colors relative"
-            aria-label="Cart"
+            aria-label={t('nav_cart')}
           >
             <ShoppingBag size={20} />
             {totalQuantity > 0 && (
@@ -106,7 +110,7 @@ export default function Header() {
                   : 'text-chako-dark/60 hover:text-chako-dark hover:bg-black/5'
               )}
             >
-              {link.label}
+              {t(link.key)}
             </Link>
           ))}
         </div>

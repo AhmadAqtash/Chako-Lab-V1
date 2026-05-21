@@ -1,6 +1,21 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { COLLECTION_DISPLAY_NAMES, ALL_COLLECTION_HANDLES, COLLECTION_HANDLE_TO_TYPE, getProducts } from '@/lib/shopify';
+import T from '@/components/ui/T';
+import type { TranslationKey } from '@/lib/translations';
+
+const HANDLE_TO_CAT_KEY: Record<string, TranslationKey> = {
+  'linlin-kettles':   'cat_linlin',
+  'bawang-cups':      'cat_bawang',
+  'bobo-tumblers':    'cat_bobo',
+  'kada-bottles':     'cat_kada',
+  'pots':             'cat_pots',
+  'mugs':             'cat_mugs',
+  'milk-pods':        'cat_milkpods',
+  'baobao-food-cups': 'cat_baobao',
+  'pangpang-cups':    'cat_pangpang',
+  'square-cups':      'cat_square',
+};
 
 async function getCategoryImages(): Promise<Record<string, string | null>> {
   const results = await Promise.allSettled(
@@ -28,8 +43,10 @@ export default async function CategoryBar() {
     <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-10 md:py-14">
       <div className="flex items-end justify-between mb-6">
         <div>
-          <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1">Browse</p>
-          <h2 className="text-2xl font-bold">Shop by Category</h2>
+          <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1">
+            <T k="browse_label" />
+          </p>
+          <h2 className="text-2xl font-bold"><T k="browse_heading" /></h2>
         </div>
       </div>
 
@@ -54,7 +71,7 @@ export default async function CategoryBar() {
               )}
             </div>
             <span className="text-xs font-semibold text-chako-dark/70 group-hover:text-chako-dark transition-colors leading-tight">
-              {COLLECTION_DISPLAY_NAMES[handle]}
+              <T k={HANDLE_TO_CAT_KEY[handle] ?? 'cat_all'} />
             </span>
           </Link>
         ))}

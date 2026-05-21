@@ -5,16 +5,9 @@ import { Product } from '@/types/shopify';
 import ProductCard from '@/components/product/ProductCard';
 import { SlidersHorizontal, X, ChevronDown, LayoutGrid, Grid2x2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
 
 type SortKey = 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'az';
-
-const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'az', label: 'A → Z' },
-];
 
 interface Props {
   products: Product[];
@@ -24,6 +17,16 @@ interface Props {
 }
 
 export default function CollectionGrid({ products, title, description, showCollectionHeader = true }: Props) {
+  const { t } = useLanguage();
+
+  const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+    { value: 'featured', label: t('collection_sort_featured') },
+    { value: 'price-asc', label: t('collection_sort_price_asc') },
+    { value: 'price-desc', label: t('collection_sort_price_desc') },
+    { value: 'newest', label: t('collection_sort_newest') },
+    { value: 'az', label: t('collection_sort_az') },
+  ];
+
   const [sort, setSort] = useState<SortKey>('featured');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
@@ -96,7 +99,7 @@ export default function CollectionGrid({ products, title, description, showColle
             )}
           >
             <SlidersHorizontal size={12} />
-            In Stock
+            {t('collection_in_stock')}
             {inStockOnly && (
               <X size={10} className="ml-0.5" onClick={(e) => { e.stopPropagation(); setInStockOnly(false); }} />
             )}
@@ -107,7 +110,7 @@ export default function CollectionGrid({ products, title, description, showColle
               onClick={() => setInStockOnly(false)}
               className="text-xs text-chako-dark/40 hover:text-chako-dark transition-colors"
             >
-              Clear
+              {t('collection_clear')}
             </button>
           )}
         </div>
@@ -188,18 +191,17 @@ export default function CollectionGrid({ products, title, description, showColle
         <div className="text-center py-24 bg-chako-accent rounded-3xl">
           {inStockOnly ? (
             <>
-              <p className="text-chako-dark/40 text-sm font-medium">No in-stock products found.</p>
+              <p className="text-chako-dark/40 text-sm font-medium">{t('collection_no_instock')}</p>
               <button
                 onClick={() => setInStockOnly(false)}
                 className="mt-3 text-xs font-semibold text-chako-dark hover:underline"
               >
-                Show all products
+                {t('collection_show_all')}
               </button>
             </>
           ) : (
             <>
-              <p className="text-chako-dark/40 text-sm font-medium">No products in this collection yet.</p>
-              <p className="text-chako-dark/30 text-xs mt-1">Check back soon!</p>
+              <p className="text-chako-dark/40 text-sm font-medium">{t('collection_no_products')}</p>
             </>
           )}
         </div>

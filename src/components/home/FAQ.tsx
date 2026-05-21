@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 const FAQS = [
   {
@@ -31,14 +32,15 @@ const FAQS = [
 ];
 
 export default function FAQ() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState<number | null>(null);
 
   return (
     <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-10">
-          <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">Help</p>
-          <h2 className="text-2xl md:text-3xl font-bold">Frequently Asked Questions</h2>
+          <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">{t('faq_label')}</p>
+          <h2 className="text-2xl md:text-3xl font-bold">{t('faq_heading')}</h2>
         </div>
 
         <div className="space-y-2">

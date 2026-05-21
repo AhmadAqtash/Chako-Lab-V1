@@ -1,29 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-
-const MESSAGES = [
-  'Free shipping on orders over AED 250',
-  'Crafted for those who love their morning ritual',
-  'All products by Chako Lab — made to last',
-  'New arrivals: BoBo Tumblers & LinLin Kettles',
-  'Shop now, pay later with Tabby & Tamara',
-];
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function AnnouncementBar() {
+  const { t } = useLanguage();
   const [idx, setIdx] = useState(0);
   const [visible, setVisible] = useState(true);
+
+  const messages = [t('announce_1'), t('announce_2'), t('announce_3')];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setVisible(false);
       setTimeout(() => {
-        setIdx((i) => (i + 1) % MESSAGES.length);
+        setIdx((i) => (i + 1) % messages.length);
         setVisible(true);
       }, 400);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [messages.length]);
 
   return (
     <div className="bg-chako-dark text-chako-bg text-xs text-center py-2 px-4 font-medium tracking-wide">
@@ -31,7 +27,7 @@ export default function AnnouncementBar() {
         className="inline-block transition-opacity duration-300"
         style={{ opacity: visible ? 1 : 0 }}
       >
-        {MESSAGES[idx]}
+        {messages[idx]}
       </span>
     </div>
   );

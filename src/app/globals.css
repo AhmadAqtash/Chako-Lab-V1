@@ -44,4 +44,14 @@
   .safe-area-pb {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+
+  /* RTL: switch to Arabic font */
+  [dir="rtl"] {
+    font-family: var(--font-arabic), system-ui, sans-serif;
+  }
+
+  /* RTL: description bullet on the right side */
+  [dir="rtl"] .chako-description p {
+    flex-direction: row-reverse;
+  }
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
 import { MoneyV2 } from '@/types/shopify';
 import { ShoppingBag } from 'lucide-react';
@@ -17,6 +18,7 @@ interface Props {
 
 export default function StickyATC({ title, price, variantId, available, triggerRef, featuredImage }: Props) {
   const { addItem, isLoading } = useCart();
+  const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
   const [added, setAdded] = useState(false);
 
@@ -67,7 +69,7 @@ export default function StickyATC({ title, price, variantId, available, triggerR
         }`}
       >
         <ShoppingBag size={16} />
-        {!available ? 'Sold Out' : added ? 'Added ✓' : 'Add to Cart'}
+        {!available ? t('product_out_of_stock') : added ? t('product_added') : t('product_add_to_cart')}
       </button>
     </div>
   );

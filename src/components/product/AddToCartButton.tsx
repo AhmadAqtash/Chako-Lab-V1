@@ -1,6 +1,7 @@
 'use client';
 
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -14,6 +15,7 @@ interface Props {
 
 export default function AddToCartButton({ variantId, available, quantityAvailable, quantity = 1 }: Props) {
   const { addItem, isLoading } = useCart();
+  const { t } = useLanguage();
   const [added, setAdded] = useState(false);
 
   async function handleAdd() {
@@ -29,7 +31,7 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
         disabled
         className="w-full py-4 bg-black/5 text-chako-dark/40 font-semibold rounded-2xl text-sm cursor-not-allowed"
       >
-        Sold Out
+        {t('product_out_of_stock')}
       </button>
     );
   }
@@ -39,7 +41,7 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
       {quantityAvailable > 0 && quantityAvailable <= 5 && (
         <p className="text-xs font-semibold text-amber-600 flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse inline-block" />
-          Only {quantityAvailable} left in stock
+          {t('product_only_left').replace('{n}', String(quantityAvailable))}
         </p>
       )}
       <button
@@ -54,7 +56,7 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
         )}
       >
         <ShoppingBag size={18} />
-        {added ? 'Added to Cart ✓' : 'Add to Cart'}
+        {added ? t('product_added') : t('product_add_to_cart')}
       </button>
     </div>
   );

@@ -1,7 +1,12 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Hero() {
+  const { t } = useLanguage();
+
   return (
     <section className="relative overflow-hidden min-h-[85vh] flex items-center">
       <Image
@@ -23,39 +28,39 @@ export default function Hero() {
             style={{ height: '32px', width: 'auto', marginBottom: '16px' }}
           />
           <p className="text-chako-dark text-sm font-semibold tracking-widest uppercase mb-6">
-            Chako Lab × UAE
+            {t('hero_label')}
           </p>
           <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6 text-chako-dark">
-            Drink
+            {t('hero_heading1')}
             <br />
-            <span className="text-chako-dark/70">beautifully.</span>
+            <span className="text-chako-dark/70">{t('hero_heading2')}</span>
           </h1>
           <p className="text-chako-dark/60 text-lg md:text-xl leading-relaxed mb-10 max-w-lg">
-            Thoughtfully designed drinkware for your morning ritual, afternoon focus, and evening wind-down.
+            {t('hero_subtext')}
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
               href="/collections"
               className="inline-flex items-center gap-2 px-7 py-3.5 bg-chako-dark text-chako-bg font-semibold rounded-2xl hover:bg-chako-dark/90 transition-colors text-sm"
             >
-              Shop All Products
+              {t('hero_cta_shop')}
             </Link>
             <Link
               href="/collections/linlin-kettles"
               className="inline-flex items-center gap-2 px-7 py-3.5 border border-chako-dark/20 text-chako-dark font-semibold rounded-2xl hover:bg-chako-dark/10 transition-colors text-sm"
             >
-              View Kettles
+              {t('hero_cta_kettles')}
             </Link>
           </div>
 
           <div className="flex gap-8 mt-14">
             {[
-              { number: '10+', label: 'Product lines' },
-              { number: 'UAE', label: 'Based In' },
-              { number: '100%', label: 'Quality assured' },
-            ].map(({ number, label }) => (
+              { value: t('hero_stat1_value'), label: t('hero_stat1_label') },
+              { value: t('hero_stat2_value'), label: t('hero_stat2_label') },
+              { value: t('hero_stat3_value'), label: t('hero_stat3_label') },
+            ].map(({ value, label }) => (
               <div key={label}>
-                <p className="text-2xl font-bold text-chako-dark">{number}</p>
+                <p className="text-2xl font-bold text-chako-dark">{value}</p>
                 <p className="text-xs text-chako-dark/40 mt-0.5">{label}</p>
               </div>
             ))}

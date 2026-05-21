@@ -1,7 +1,12 @@
+'use client';
+
 import Link from 'next/link';
 import NewsletterForm from './NewsletterForm';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="bg-chako-dark text-chako-bg mt-auto">
       <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-16">
@@ -13,8 +18,8 @@ export default function Footer() {
               alt="Chako Lab"
               style={{ height: '24px', width: 'auto', filter: 'invert(1)', display: 'block' }}
             />
-            <p className="text-chako-bg/60 text-sm leading-relaxed max-w-xs">
-              Crafted drinkware for everyday rituals. Every sip, beautifully made.
+            <p className="text-chako-bg/60 text-sm leading-relaxed max-w-xs mt-4">
+              {t('footer_tagline')}
             </p>
             <div className="flex gap-3 mt-6">
               <a
@@ -43,7 +48,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <p className="font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">Shop</p>
+            <p className="font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">{t('footer_shop')}</p>
             <ul className="space-y-2">
               {[
                 { href: '/collections/linlin-kettles', label: 'LinLin Kettles' },
@@ -62,46 +67,45 @@ export default function Footer() {
           </div>
 
           <div>
-            <p className="font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">Help</p>
+            <p className="font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">{t('footer_help')}</p>
             <ul className="space-y-2 mb-8">
               {[
-                { href: '/pages/faq', label: 'FAQ' },
-                { href: '/pages/shipping', label: 'Shipping & Returns' },
-                { href: '/pages/contact', label: 'Contact Us' },
-                { href: '/pages/about', label: 'About Chako Lab' },
-              ].map(({ href, label }) => (
+                { href: '/pages/faq', key: 'footer_faq' as const },
+                { href: '/pages/shipping', key: 'footer_shipping' as const },
+                { href: '/pages/contact', key: 'footer_contact' as const },
+                { href: '/pages/about', key: 'footer_about' as const },
+              ].map(({ href, key }) => (
                 <li key={href}>
                   <Link href={href} className="text-sm text-chako-bg/55 hover:text-chako-bg transition-colors">
-                    {label}
+                    {t(key)}
                   </Link>
                 </li>
               ))}
             </ul>
 
-            <p className="font-semibold text-sm mb-3 text-chako-bg/80 uppercase tracking-wider">Newsletter</p>
+            <p className="font-semibold text-sm mb-3 text-chako-bg/80 uppercase tracking-wider">{t('footer_newsletter')}</p>
             <NewsletterForm />
           </div>
         </div>
 
         <div className="border-t border-white/10 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
           <p className="text-xs text-chako-bg/40">
-            © 2026 Chako Lab UAE | Owned By{' '}
+            {t('footer_copyright')}{' '}
             <a
               href="https://wegallop.com/"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-chako-bg/70 transition-colors underline underline-offset-2"
             >
-              Gallop Enterprises LLC
+              {t('footer_company')}
             </a>
-            .
           </p>
           <div className="flex gap-4">
             <Link href="/pages/privacy" className="text-xs text-chako-bg/40 hover:text-chako-bg/70 transition-colors">
-              Privacy
+              {t('footer_privacy')}
             </Link>
             <Link href="/pages/terms" className="text-xs text-chako-bg/40 hover:text-chako-bg/70 transition-colors">
-              Terms
+              {t('footer_terms')}
             </Link>
           </div>
         </div>

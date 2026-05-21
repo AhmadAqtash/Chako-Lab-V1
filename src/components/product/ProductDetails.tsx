@@ -10,6 +10,7 @@ import StickyATC from './StickyATC';
 import TrustBadges from './TrustBadges';
 import ColorSwatches from './ColorSwatches';
 import { Minus, Plus, Share2, Check } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Props {
   product: Product;
@@ -18,8 +19,7 @@ interface Props {
   collectionHandle?: string;
 }
 
-const TABS = ['Description', 'Specs', 'Shipping'] as const;
-type Tab = (typeof TABS)[number];
+type Tab = 'Description' | 'Specs' | 'Shipping';
 
 const SHIPPING_INFO = [
   { label: 'Standard (UAE)', value: '2–4 business days', sub: 'Free over AED 250' },
@@ -28,6 +28,14 @@ const SHIPPING_INFO = [
 ];
 
 export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle }: Props) {
+  const { t } = useLanguage();
+
+  const TABS: { key: Tab; label: string }[] = [
+    { key: 'Description', label: t('product_description') },
+    { key: 'Specs', label: t('product_specs') },
+    { key: 'Shipping', label: t('product_shipping') },
+  ];
+
   const getInitialSelection = useCallback((): Record<string, string> => {
     const init: Record<string, string> = {};
     product.options.forEach((opt) => { init[opt.name] = opt.values[0]; });
@@ -163,18 +171,18 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
         {/* Tabs */}
         <div className="border-t border-black/8 pt-4">
           <div className="flex gap-0 border-b border-black/8 mb-4">
-            {TABS.map((tab) => (
+            {TABS.map(({ key, label }) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
+                key={key}
+                onClick={() => setActiveTab(key)}
                 className={cn(
                   'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
-                  activeTab === tab
+                  activeTab === key
                     ? 'border-chako-dark text-chako-dark'
                     : 'border-transparent text-chako-dark/45 hover:text-chako-dark'
                 )}
               >
-                {tab}
+                {label}
               </button>
             ))}
           </div>
