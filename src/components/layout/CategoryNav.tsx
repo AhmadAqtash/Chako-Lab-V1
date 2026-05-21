@@ -18,6 +18,9 @@ const HANDLE_TO_CAT_KEY: Record<string, TranslationKey> = {
   'baobao-food-cups': 'cat_baobao',
   'pangpang-cups':    'cat_pangpang',
   'square-cups':      'cat_square',
+  'tumbler':          'cat_tumbler',
+  'bobo-cup':         'cat_bobo_cup',
+  'baobao-cup':       'cat_baobao',
 };
 
 export default function CategoryNav() {

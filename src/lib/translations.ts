@@ -21,6 +21,8 @@ const translations = {
     cat_baobao: 'Baobao Food Cups',
     cat_pangpang: 'PangPang Cups',
     cat_square: 'Square Cups',
+    cat_tumbler: 'Tumblers',
+    cat_bobo_cup: 'BoBo Cups',
     // Homepage
     hero_label: 'Chako Lab × UAE',
     hero_heading1: 'Drink',
@@ -145,6 +147,8 @@ const translations = {
     cat_baobao: 'أكواب طعام باوباو',
     cat_pangpang: 'أكواب بانج بانج',
     cat_square: 'الأكواب المربعة',
+    cat_tumbler: 'التمبلر',
+    cat_bobo_cup: 'أكواب بوبو',
     // Homepage
     hero_label: 'تشاكو لاب × الإمارات',
     hero_heading1: 'اشرب',
