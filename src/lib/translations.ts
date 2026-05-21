@@ -57,6 +57,7 @@ const translations = {
     announce_2: 'Authentic Chako Lab — Official UAE Distributor',
     announce_3: 'Order before 2PM for next-day delivery',
     // Product
+    product_features: 'Product Features',
     product_color: 'Color',
     product_add_to_cart: 'Add to Cart',
     product_adding: 'Adding...',
@@ -180,6 +181,7 @@ const translations = {
     announce_2: 'تشاكو لاب الأصلية — الموزع الرسمي في الإمارات',
     announce_3: 'اطلب قبل الساعة ٢ ظهراً للتوصيل في اليوم التالي',
     // Product
+    product_features: 'مميزات المنتج',
     product_color: 'اللون',
     product_add_to_cart: 'أضف إلى السلة',
     product_adding: 'جاري الإضافة...',

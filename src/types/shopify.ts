@@ -20,6 +20,15 @@ export interface ProductVariant {
   selectedOptions: { name: string; value: string }[];
 }
 
+export interface ShopifyMetafield {
+  key: string;
+  value: string | null;
+  namespace?: string;
+  reference?: {
+    image?: { url: string; altText: string | null } | null;
+  } | null;
+}
+
 export interface Product {
   id: string;
   handle: string;
@@ -40,7 +49,7 @@ export interface Product {
   };
   variants: { nodes: ProductVariant[] };
   options: { name: string; values: string[] }[];
-  metafields?: { key: string; value: string; namespace: string }[];
+  metafields?: (ShopifyMetafield | null)[];
 }
 
 export interface Collection {

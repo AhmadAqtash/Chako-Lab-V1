@@ -3,6 +3,7 @@ import { getProduct, getColorSiblings, PRODUCT_TYPE_TO_COLLECTION, COLLECTION_DI
 import { extractBaseName, extractColorName } from '@/lib/utils';
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductDetails from '@/components/product/ProductDetails';
+import ProductFeatures from '@/components/product/ProductFeatures';
 import RelatedProducts from '@/components/product/RelatedProducts';
 import Breadcrumb from '@/components/ui/Breadcrumb';
 import type { Metadata } from 'next';
@@ -65,6 +66,8 @@ export default async function ProductPage({ params }: Props) {
           collectionHandle={collectionHandle}
         />
       </div>
+
+      <ProductFeatures metafields={product.metafields} />
 
       <RelatedProducts
         productType={product.productType}

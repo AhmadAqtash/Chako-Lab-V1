@@ -164,9 +164,32 @@ const PRODUCT_DETAIL_QUERY = `
         }
       }
       options { name values }
+      metafields(identifiers: [
+        {namespace: "custom", key: "feature_1_title"},
+        {namespace: "custom", key: "feature_1_desc"},
+        {namespace: "custom", key: "feature_1_image"},
+        {namespace: "custom", key: "feature_2_title"},
+        {namespace: "custom", key: "feature_2_desc"},
+        {namespace: "custom", key: "feature_2_image"},
+        {namespace: "custom", key: "feature_3_title"},
+        {namespace: "custom", key: "feature_3_desc"},
+        {namespace: "custom", key: "feature_3_image"}
+      ]) {
+        key
+        value
+        reference {
+          ... on MediaImage {
+            image { url altText }
+          }
+        }
+      }
     }
   }
 `;
+// Note: for Arabic product content, the Shopify Storefront API supports passing
+// a `language` header (Accept-Language) or @inContext directive. Since language
+// selection is client-side and product queries run server-side, this requires
+// either edge middleware or client-side fetching. Deferred to Phase 2.
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
