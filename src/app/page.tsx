@@ -1,6 +1,7 @@
 export const revalidate = 60;
 
 import HeroSlideshow from '@/components/home/HeroSlideshow';
+import SeriesBanners from '@/components/home/SeriesBanners';
 import HotCategories from '@/components/home/HotCategories';
 import BrandVideo from '@/components/home/BrandVideo';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
@@ -14,6 +15,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSlideshow />
+      <SeriesBanners />
       <HotCategories />
       <BrandVideo />
       <FeaturedProducts />
