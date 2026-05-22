@@ -25,30 +25,27 @@ const SLIDES: Slide[] = [
     enMobile: '/hero/slide-1-en-mobile.png',
     arDesktop: '/hero/slide-1-ar-desktop.png',
     arMobile: '/hero/slide-1-ar-mobile.png',
-    ctaEn: 'Shop All Products',
-    ctaAr: 'تسوق جميع المنتجات',
-    ctaHref: '/collections',
-    ctaSecondaryEn: 'View Kettles',
-    ctaSecondaryAr: 'عرض الأباريق',
-    ctaSecondaryHref: '/collections/linlin-kettles',
+    ctaEn: 'Shop Milk Pod Titanium',
+    ctaAr: 'تسوق ميلك بود تيتانيوم',
+    ctaHref: '/collections/milk-pods',
   },
   {
     enDesktop: '/hero/slide-2-en-desktop.png',
     enMobile: '/hero/slide-2-en-mobile.png',
     arDesktop: '/hero/slide-2-ar-desktop.png',
     arMobile: '/hero/slide-2-ar-mobile.png',
-    ctaEn: 'Shop Kada Bottles',
-    ctaAr: 'تسوق زجاجات كادا',
-    ctaHref: '/collections/kada-bottles',
+    ctaEn: 'Shop Titanium Collection',
+    ctaAr: 'تسوق مجموعة التيتانيوم',
+    ctaHref: '/collections/bobo-tumblers',
   },
   {
     enDesktop: '/hero/slide-3-en-desktop.png',
     enMobile: '/hero/slide-3-en-mobile.png',
     arDesktop: '/hero/slide-3-ar-desktop.png',
     arMobile: '/hero/slide-3-ar-mobile.png',
-    ctaEn: 'Shop Tumblers',
-    ctaAr: 'تسوق التمبلر',
-    ctaHref: '/collections/bobo-tumblers',
+    ctaEn: 'Shop Now — 10% Off',
+    ctaAr: 'تسوق الآن — خصم ١٠٪',
+    ctaHref: '/collections',
   },
 ];
 
@@ -67,7 +64,7 @@ export default function HeroSlideshow() {
 
   useEffect(() => {
     if (paused) return;
-    const id = setInterval(next, 4000);
+    const id = setInterval(next, 6000);
     return () => clearInterval(id);
   }, [next, paused]);
 
@@ -122,12 +119,8 @@ export default function HeroSlideshow() {
         </span>
       </div>
 
-      {/* Push CTAs to bottom */}
-      <div className="flex-1" />
-
       {/* CTA buttons */}
-      <div className="relative z-10 px-6 md:px-8 pb-20 md:pb-16">
-        <div key={current} className="animate-fade-slide-up flex flex-wrap gap-4">
+      <div key={current} className="absolute bottom-16 left-6 md:left-8 z-20 animate-fade-slide-up flex flex-wrap gap-4">
           <Link
             href={slide.ctaHref}
             className="inline-flex items-center gap-2 px-7 py-3.5 bg-chako-dark text-chako-bg font-semibold rounded-2xl hover:bg-chako-dark/90 transition-colors text-sm"
@@ -142,7 +135,6 @@ export default function HeroSlideshow() {
               {ctaSecondaryLabel}
             </Link>
           )}
-        </div>
       </div>
 
       {/* Previous / Next arrows */}
