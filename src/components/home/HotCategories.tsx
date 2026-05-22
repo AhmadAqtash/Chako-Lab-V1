@@ -67,8 +67,8 @@ export default function HotCategories() {
         const data = await res.json();
         const nodes = (data.data?.products?.nodes ?? []) as CardProduct[];
         setAllProducts(nodes.filter((p) => p.vendor === 'Chako Lab'));
-      } catch {
-        // keep empty state — section stays hidden
+      } catch (err) {
+        console.error('[HotCategories] Shopify fetch failed:', err);
       } finally {
         setLoading(false);
       }
@@ -99,7 +99,15 @@ export default function HotCategories() {
     el.scrollBy({ left: dir * el.offsetWidth, behavior: 'smooth' });
   };
 
-  if (!loading && allProducts.length === 0) return null;
+  if (!loading && allProducts.length === 0) return (
+    <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20">
+      <div className="mb-8">
+        <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">Trending Now</p>
+        <h2 className="text-3xl md:text-4xl font-bold">Hot Categories</h2>
+      </div>
+      <p className="text-chako-dark/40 text-sm py-8">Products loading failed — check Shopify API connection.</p>
+    </section>
+  );
 
   return (
     <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20">
