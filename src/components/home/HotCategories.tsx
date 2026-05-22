@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatPrice, extractBaseName } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
 import type { MoneyV2 } from '@/types/shopify';
 
 const STORE = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN!;
@@ -22,11 +23,11 @@ interface CardProduct {
 }
 
 const TABS = [
-  { label: 'LinLin',       productType: 'LinLin Kettle' },
-  { label: 'Milk Pod',     productType: 'Milk Pod'      },
-  { label: 'Bawang',       productType: 'Bawang Cup'    },
-  { label: 'BoBo Tumbler', productType: 'Thermos Cup'   },
-  { label: 'Kada',         productType: 'Kada Bottle'   },
+  { labelEn: 'LinLin',       labelAr: 'لين لين',      productType: 'LinLin Kettle' },
+  { labelEn: 'Milk Pod',     labelAr: 'ميلك بود',      productType: 'Milk Pod'      },
+  { labelEn: 'Bawang',       labelAr: 'باوانج',        productType: 'Bawang Cup'    },
+  { labelEn: 'BoBo Tumbler', labelAr: 'تمبلر بوبو',    productType: 'Thermos Cup'   },
+  { labelEn: 'Kada',         labelAr: 'كادا',          productType: 'Kada Bottle'   },
 ];
 
 const PRODUCTS_GQL = `
@@ -43,6 +44,8 @@ const PRODUCTS_GQL = `
 `;
 
 export default function HotCategories() {
+  const { language } = useLanguage();
+  const isAr = language === 'ar';
   const [allProducts, setAllProducts] = useState<CardProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
@@ -96,26 +99,30 @@ export default function HotCategories() {
   const scrollGrid = (dir: number) => {
     const el = gridRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.offsetWidth, behavior: 'smooth' });
+    el.scrollBy({ left: (isAr ? -dir : dir) * el.offsetWidth, behavior: 'smooth' });
   };
 
   if (!loading && allProducts.length === 0) return (
-    <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20">
+    <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20" dir={isAr ? 'rtl' : 'ltr'}>
       <div className="mb-8">
-        <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">Trending Now</p>
-        <h2 className="text-3xl md:text-4xl font-bold">Hot Categories</h2>
+        <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">
+          {isAr ? 'الأكثر رواجاً' : 'Trending Now'}
+        </p>
+        <h2 className="text-3xl md:text-4xl font-bold">{isAr ? 'الفئات الرائجة' : 'Hot Categories'}</h2>
       </div>
-      <p className="text-chako-dark/40 text-sm py-8">Products loading failed — check Shopify API connection.</p>
+      <p className="text-chako-dark/40 text-sm py-8">
+        {isAr ? 'فشل تحميل المنتجات — تحقق من اتصال Shopify API.' : 'Products loading failed — check Shopify API connection.'}
+      </p>
     </section>
   );
 
   return (
-    <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20">
+    <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20" dir={isAr ? 'rtl' : 'ltr'}>
       <div className="mb-8">
         <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">
-          Trending Now
+          {isAr ? 'الأكثر رواجاً' : 'Trending Now'}
         </p>
-        <h2 className="text-3xl md:text-4xl font-bold">Hot Categories</h2>
+        <h2 className="text-3xl md:text-4xl font-bold">{isAr ? 'الفئات الرائجة' : 'Hot Categories'}</h2>
       </div>
 
       {/* Tab bar */}
@@ -141,7 +148,7 @@ export default function HotCategories() {
                   : 'border border-black/15 text-chako-dark/70 hover:border-black/30 hover:text-chako-dark'
               }`}
             >
-              {tab.label}
+              {isAr ? tab.labelAr : tab.labelEn}
             </button>
           ))}
         </div>
@@ -191,7 +198,7 @@ export default function HotCategories() {
             : tabProducts.length === 0
             ? (
                 <p className="text-chako-dark/40 text-sm py-8">
-                  No products available in this category yet.
+                  {isAr ? 'لا توجد منتجات في هذه الفئة بعد.' : 'No products available in this category yet.'}
                 </p>
               )
             : tabProducts.map((product) => {
@@ -225,7 +232,7 @@ export default function HotCategories() {
                         {soldOut && (
                           <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
                             <span className="-rotate-[10deg] bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-lg">
-                              Sold Out
+                              {isAr ? 'غير متوفر' : 'Sold Out'}
                             </span>
                           </div>
                         )}
@@ -233,7 +240,7 @@ export default function HotCategories() {
                         {!soldOut && (
                           <div className="absolute inset-x-0 bottom-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                             <span className="block w-full text-center py-2 bg-chako-dark text-chako-bg text-xs font-semibold rounded-xl">
-                              Choose Options
+                              {isAr ? 'اختر الخيارات' : 'Choose Options'}
                             </span>
                           </div>
                         )}

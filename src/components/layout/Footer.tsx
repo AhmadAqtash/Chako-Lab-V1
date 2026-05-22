@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import NewsletterForm from './NewsletterForm';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function Footer() {
@@ -56,15 +55,15 @@ export default function Footer() {
             <p className="font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">{t('footer_shop')}</p>
             <ul className="space-y-2">
               {[
-                { href: '/collections/linlin-kettles', label: 'LinLin Kettles' },
-                { href: '/collections/kada-bottles', label: 'Kada Bottles' },
-                { href: '/collections/bobo-tumblers', label: 'BoBo Tumblers' },
-                { href: '/collections/mugs', label: 'Mugs' },
-                { href: '/collections', label: 'All Products' },
-              ].map(({ href, label }) => (
+                { href: '/collections/linlin-kettles', key: 'cat_linlin' as const },
+                { href: '/collections/kada-bottles',   key: 'cat_kada'   as const },
+                { href: '/collections/bobo-tumblers',  key: 'cat_bobo'   as const },
+                { href: '/collections/mugs',           key: 'cat_mugs'   as const },
+                { href: '/collections',                key: 'nav_all_products' as const },
+              ].map(({ href, key }) => (
                 <li key={href}>
                   <Link href={href} className="text-sm text-chako-bg/55 hover:text-chako-bg transition-colors">
-                    {label}
+                    {t(key)}
                   </Link>
                 </li>
               ))}
@@ -73,7 +72,7 @@ export default function Footer() {
 
           <div>
             <p className="font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">{t('footer_help')}</p>
-            <ul className="space-y-2 mb-8">
+            <ul className="space-y-2">
               {[
                 { href: '/pages/faq', key: 'footer_faq' as const },
                 { href: '/pages/shipping', key: 'footer_shipping' as const },
@@ -87,9 +86,6 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-
-            <p className="font-semibold text-sm mb-3 text-chako-bg/80 uppercase tracking-wider">{t('footer_newsletter')}</p>
-            <NewsletterForm />
           </div>
         </div>
 

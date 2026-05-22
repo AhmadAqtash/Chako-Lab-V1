@@ -7,16 +7,16 @@ import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
 
-const NAV = [
-  { href: '/', icon: Home, label: 'Home' },
-  { href: '/collections', icon: Grid, label: 'Shop' },
-  { href: '/search', icon: Search, label: 'Search' },
-];
-
 export default function MobileNav() {
   const pathname = usePathname();
   const { openCart, totalQuantity } = useCart();
-  const { isRTL } = useLanguage();
+  const { isRTL, t } = useLanguage();
+
+  const NAV = [
+    { href: '/', icon: Home, label: t('nav_home') },
+    { href: '/collections', icon: Grid, label: t('nav_all_products') },
+    { href: '/search', icon: Search, label: t('nav_search') },
+  ];
 
   const cartButton = (
     <button
@@ -32,7 +32,7 @@ export default function MobileNav() {
           </span>
         )}
       </div>
-      <span className="text-[10px] font-medium">Cart</span>
+      <span className="text-[10px] font-medium">{t('nav_cart')}</span>
     </button>
   );
 

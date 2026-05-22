@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/types/shopify';
 import { cn, extractColorName } from '@/lib/utils';
+import T from '@/components/ui/T';
 
 interface Props {
   siblings: Product[];
@@ -21,7 +22,7 @@ export default function ColorSwatches({ siblings, currentHandle, colorName, coll
   return (
     <div className="flex flex-col gap-2.5">
       <p className="text-sm text-chako-dark/60">
-        Color: <span className="font-semibold text-chako-dark">{colorName ?? 'Default'}</span>
+        <T k="product_color" />: <span className="font-semibold text-chako-dark">{colorName ?? 'Default'}</span>
       </p>
       <div className="flex flex-wrap gap-2 items-center pl-0.5 md:pl-0">
         {visible.map((sibling) => {

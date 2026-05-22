@@ -6,6 +6,7 @@ import { Product } from '@/types/shopify';
 import { formatPrice, getDiscountPercent } from '@/lib/utils';
 import { ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Props {
   product: Product;
@@ -13,6 +14,7 @@ interface Props {
 
 export default function ProductCard({ product }: Props) {
   const { addItem, isLoading } = useCart();
+  const { t } = useLanguage();
   const variant = product.variants?.nodes?.[0];
   const inStock = variant?.availableForSale ?? true;
   const price = product.priceRange.minVariantPrice;
@@ -44,7 +46,7 @@ export default function ProductCard({ product }: Props) {
         )}
 
         {discount > 0 && (
-          <span className="absolute top-2.5 left-2.5 bg-chako-dark text-chako-bg text-xs font-bold px-2 py-0.5 rounded-full">
+          <span className="absolute top-2.5 left-2.5 rtl:left-auto rtl:right-2.5 bg-chako-dark text-chako-bg text-xs font-bold px-2 py-0.5 rounded-full">
             -{discount}%
           </span>
         )}
@@ -52,7 +54,7 @@ export default function ProductCard({ product }: Props) {
         {!inStock && (
           <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
             <span className="text-xs font-semibold text-chako-dark/50 bg-white px-3 py-1 rounded-full">
-              Sold Out
+              {t('product_out_of_stock')}
             </span>
           </div>
         )}
@@ -61,7 +63,7 @@ export default function ProductCard({ product }: Props) {
           <button
             onClick={handleAddToCart}
             disabled={isLoading}
-            className="absolute bottom-2.5 right-2.5 bg-chako-dark text-chako-bg p-2.5 rounded-full md:opacity-0 md:translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 hover:bg-chako-dark/90 disabled:opacity-50"
+            className="absolute bottom-2.5 right-2.5 rtl:right-auto rtl:left-2.5 bg-chako-dark text-chako-bg p-2.5 rounded-full md:opacity-0 md:translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 hover:bg-chako-dark/90 disabled:opacity-50"
             aria-label="Add to cart"
           >
             <ShoppingBag size={16} />
