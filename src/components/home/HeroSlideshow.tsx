@@ -96,8 +96,9 @@ export default function HeroSlideshow() {
               alt="Chako Lab"
               fill
               priority={i === 0}
+              quality={100}
               className="block md:hidden object-cover object-top"
-              sizes="100vw"
+              sizes="(max-width: 767px) 100vw, 0vw"
             />
             {/* Desktop — landscape image, centered */}
             <Image
@@ -105,8 +106,9 @@ export default function HeroSlideshow() {
               alt="Chako Lab"
               fill
               priority={i === 0}
+              quality={100}
               className="hidden md:block object-cover object-center"
-              sizes="100vw"
+              sizes="(min-width: 768px) 100vw, 0vw"
             />
           </div>
         );
