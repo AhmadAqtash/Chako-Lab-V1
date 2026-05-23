@@ -14,35 +14,32 @@ interface Slide {
   ctaEn: string;
   ctaAr: string;
   ctaHref: string;
-  ctaSecondaryEn?: string;
-  ctaSecondaryAr?: string;
-  ctaSecondaryHref?: string;
 }
 
 const SLIDES: Slide[] = [
   {
     enDesktop: '/hero/slide-1-en-desktop.png',
-    enMobile: '/hero/slide-1-en-mobile.png',
+    enMobile:  '/hero/slide-1-en-mobile.png',
     arDesktop: '/hero/slide-1-ar-desktop.png',
-    arMobile: '/hero/slide-1-ar-mobile.png',
-    ctaEn: 'Shop Milk Pod Titanium',
-    ctaAr: 'تسوق ميلك بود تيتانيوم',
-    ctaHref: '/collections/milk-pods',
-  },
-  {
-    enDesktop: '/hero/slide-2-en-desktop.png',
-    enMobile: '/hero/slide-2-en-mobile.png',
-    arDesktop: '/hero/slide-2-ar-desktop.png',
-    arMobile: '/hero/slide-2-ar-mobile.png',
+    arMobile:  '/hero/slide-1-ar-mobile.png',
     ctaEn: 'Shop Titanium Collection',
     ctaAr: 'تسوق مجموعة التيتانيوم',
     ctaHref: '/collections/bobo-tumblers',
   },
   {
+    enDesktop: '/hero/slide-2-en-desktop.png',
+    enMobile:  '/hero/slide-2-en-mobile.png',
+    arDesktop: '/hero/slide-2-ar-desktop.png',
+    arMobile:  '/hero/slide-2-ar-mobile.png',
+    ctaEn: 'Shop Milk Pod Titanium',
+    ctaAr: 'تسوق ميلك بود تيتانيوم',
+    ctaHref: '/collections/milk-pods',
+  },
+  {
     enDesktop: '/hero/slide-3-en-desktop.png',
-    enMobile: '/hero/slide-3-en-mobile.png',
+    enMobile:  '/hero/slide-3-en-mobile.png',
     arDesktop: '/hero/slide-3-ar-desktop.png',
-    arMobile: '/hero/slide-3-ar-mobile.png',
+    arMobile:  '/hero/slide-3-ar-mobile.png',
     ctaEn: 'Shop Now — 10% Off',
     ctaAr: 'تسوق الآن — خصم ١٠٪',
     ctaHref: '/collections',
@@ -59,102 +56,90 @@ export default function HeroSlideshow() {
     setCurrent((idx + SLIDES.length) % SLIDES.length);
   }, []);
 
-  const prev = () => { setPaused(true); goTo(current - 1); };
-  const next = useCallback(() => { goTo(current + 1); }, [current, goTo]);
+  // Auto-advance does not set paused
+  const advance = useCallback(() => { goTo(current + 1); }, [current, goTo]);
+
+  // Manual nav pauses the timer
+  const handlePrev = () => { setPaused(true); goTo(current - 1); };
+  const handleNext = () => { setPaused(true); goTo(current + 1); };
 
   useEffect(() => {
     if (paused) return;
-    const id = setInterval(next, 6000);
+    const id = setInterval(advance, 6000);
     return () => clearInterval(id);
-  }, [next, paused]);
+  }, [advance, paused]);
 
   const slide = SLIDES[current];
-  const desktopSrc = isAr ? slide.arDesktop : slide.enDesktop;
-  const mobileSrc = isAr ? slide.arMobile : slide.enMobile;
   const ctaLabel = isAr ? slide.ctaAr : slide.ctaEn;
-  const ctaSecondaryLabel = isAr ? slide.ctaSecondaryAr : slide.ctaSecondaryEn;
 
   return (
     <section
-      className="relative overflow-hidden min-h-[85vh] flex flex-col"
+      className="relative overflow-hidden min-h-[100svh] md:min-h-[85vh] flex flex-col"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Slide images */}
-      <div className="absolute inset-0">
-        <Image
-          key={`desktop-${current}-${language}`}
-          src={desktopSrc}
-          alt="Chako Lab"
-          fill
-          priority={current === 0}
-          className="hidden md:block object-cover object-center"
-          sizes="100vw"
-        />
-        <Image
-          key={`mobile-${current}-${language}`}
-          src={mobileSrc}
-          alt="Chako Lab"
-          fill
-          priority={current === 0}
-          className="block md:hidden object-cover object-center"
-          sizes="100vw"
-        />
-      </div>
-
-      {/* Logo */}
-      <div className="relative z-10 px-6 md:px-8 pt-8">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/chako-lab-logo.png"
-          alt="Chako Lab"
-          style={{ height: '32px', width: 'auto' }}
-          onError={(e) => {
-            e.currentTarget.style.display = 'none';
-            (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
-          }}
-        />
-        <span style={{ display: 'none' }} className="font-bold text-xl tracking-tight text-chako-dark">
-          CHAKO LAB®
-        </span>
-      </div>
-
-      {/* CTA buttons */}
-      <div key={current} className="absolute bottom-16 left-6 md:left-8 z-20 animate-fade-slide-up flex flex-wrap gap-4">
-          <Link
-            href={slide.ctaHref}
-            className="inline-flex items-center gap-2 px-7 py-3.5 bg-chako-dark text-chako-bg font-semibold rounded-2xl hover:bg-chako-dark/90 transition-colors text-sm"
+      {/* All slides stacked — crossfade via opacity transition, no remount */}
+      {SLIDES.map((s, i) => {
+        const desktopSrc = isAr ? s.arDesktop : s.enDesktop;
+        const mobileSrc  = isAr ? s.arMobile  : s.enMobile;
+        return (
+          <div
+            key={i}
+            className={`absolute inset-0 transition-opacity duration-700 ${
+              i === current ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+            aria-hidden={i !== current}
           >
-            {ctaLabel}
-          </Link>
-          {ctaSecondaryLabel && slide.ctaSecondaryHref && (
-            <Link
-              href={slide.ctaSecondaryHref}
-              className="inline-flex items-center gap-2 px-7 py-3.5 border border-chako-dark/20 bg-white/80 backdrop-blur-sm text-chako-dark font-semibold rounded-2xl hover:bg-white transition-colors text-sm"
-            >
-              {ctaSecondaryLabel}
-            </Link>
-          )}
+            {/* Mobile — portrait image, anchor to top */}
+            <Image
+              src={mobileSrc}
+              alt="Chako Lab"
+              fill
+              priority={i === 0}
+              className="block md:hidden object-cover object-top"
+              sizes="100vw"
+            />
+            {/* Desktop — landscape image, centered */}
+            <Image
+              src={desktopSrc}
+              alt="Chako Lab"
+              fill
+              priority={i === 0}
+              className="hidden md:block object-cover object-center"
+              sizes="100vw"
+            />
+          </div>
+        );
+      })}
+
+      {/* CTA button — white pill, absolute bottom-left */}
+      <div className="absolute bottom-20 md:bottom-16 left-6 md:left-8 z-20">
+        <Link
+          href={slide.ctaHref}
+          className="inline-flex items-center gap-2 bg-white text-chako-dark font-bold px-6 py-3 rounded-full shadow-lg hover:bg-white/90 transition-colors text-sm touch-manipulation"
+        >
+          {ctaLabel}
+        </Link>
       </div>
 
-      {/* Previous / Next arrows */}
+      {/* Arrows — desktop only, RTL-aware */}
       <button
-        onClick={prev}
-        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-md touch-manipulation"
+        onClick={isAr ? handleNext : handlePrev}
+        className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/80 backdrop-blur-sm rounded-full items-center justify-center hover:bg-white transition-colors shadow-md"
         aria-label="Previous slide"
       >
         <ChevronLeft size={20} className="text-chako-dark" />
       </button>
       <button
-        onClick={() => { setPaused(true); next(); }}
-        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-md touch-manipulation"
+        onClick={isAr ? handlePrev : handleNext}
+        className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/80 backdrop-blur-sm rounded-full items-center justify-center hover:bg-white transition-colors shadow-md"
         aria-label="Next slide"
       >
         <ChevronRight size={20} className="text-chako-dark" />
       </button>
 
-      {/* Dot indicators — padded for 44px+ touch target */}
-      <div className="absolute bottom-6 left-4 md:left-8 z-20 flex items-center">
+      {/* Dot indicators — centered on mobile, left-anchored on desktop */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-20 flex items-center">
         {SLIDES.map((_, i) => (
           <button
             key={i}
@@ -164,23 +149,23 @@ export default function HeroSlideshow() {
           >
             <span className={`block rounded-full transition-all duration-300 ${
               i === current
-                ? 'w-6 h-2 bg-chako-dark'
-                : 'w-2 h-2 bg-chako-dark/30 hover:bg-chako-dark/60'
+                ? 'w-6 h-2 bg-white shadow-sm'
+                : 'w-2 h-2 bg-white/50 hover:bg-white/75'
             }`} />
           </button>
         ))}
       </div>
 
-      {/* Stats */}
-      <div className="absolute bottom-8 right-6 md:right-8 z-20 hidden md:flex gap-8">
+      {/* Stats — desktop only */}
+      <div className="absolute bottom-8 right-8 z-20 hidden md:flex gap-8">
         {[
           { value: t('hero_stat1_value'), label: t('hero_stat1_label') },
           { value: t('hero_stat2_value'), label: t('hero_stat2_label') },
           { value: t('hero_stat3_value'), label: t('hero_stat3_label') },
         ].map(({ value, label }) => (
           <div key={label} className="text-right">
-            <p className="text-2xl font-bold text-chako-dark">{value}</p>
-            <p className="text-xs text-chako-dark/40 mt-0.5">{label}</p>
+            <p className="text-2xl font-bold text-white drop-shadow">{value}</p>
+            <p className="text-xs text-white/70 mt-0.5 drop-shadow">{label}</p>
           </div>
         ))}
       </div>
