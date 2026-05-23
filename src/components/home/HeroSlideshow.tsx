@@ -140,32 +140,34 @@ export default function HeroSlideshow() {
       {/* Previous / Next arrows */}
       <button
         onClick={prev}
-        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-md"
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-md touch-manipulation"
         aria-label="Previous slide"
       >
         <ChevronLeft size={20} className="text-chako-dark" />
       </button>
       <button
         onClick={() => { setPaused(true); next(); }}
-        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-md"
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-md touch-manipulation"
         aria-label="Next slide"
       >
         <ChevronRight size={20} className="text-chako-dark" />
       </button>
 
-      {/* Dot indicators */}
-      <div className="absolute bottom-8 left-6 md:left-8 z-20 flex gap-2">
+      {/* Dot indicators — padded for 44px+ touch target */}
+      <div className="absolute bottom-6 left-4 md:left-8 z-20 flex items-center">
         {SLIDES.map((_, i) => (
           <button
             key={i}
             onClick={() => { setPaused(true); goTo(i); }}
-            className={`rounded-full transition-all duration-300 ${
+            className="p-2.5 touch-manipulation"
+            aria-label={`Go to slide ${i + 1}`}
+          >
+            <span className={`block rounded-full transition-all duration-300 ${
               i === current
                 ? 'w-6 h-2 bg-chako-dark'
                 : 'w-2 h-2 bg-chako-dark/30 hover:bg-chako-dark/60'
-            }`}
-            aria-label={`Go to slide ${i + 1}`}
-          />
+            }`} />
+          </button>
         ))}
       </div>
 

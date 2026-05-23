@@ -129,7 +129,7 @@ export default function HotCategories() {
       <div className="flex items-center gap-2 mb-6">
         <button
           onClick={() => scrollTabs(-1)}
-          className="flex-shrink-0 w-8 h-8 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 transition-colors"
+          className="flex-shrink-0 w-10 h-10 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 transition-colors touch-manipulation"
           aria-label="Scroll tabs left"
         >
           <ChevronLeft size={16} />
@@ -142,7 +142,7 @@ export default function HotCategories() {
             <button
               key={tab.productType}
               onClick={() => selectTab(i)}
-              className={`flex-shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
+              className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors touch-manipulation ${
                 i === activeTab
                   ? 'bg-chako-dark text-chako-bg'
                   : 'border border-black/15 text-chako-dark/70 hover:border-black/30 hover:text-chako-dark'
@@ -154,7 +154,7 @@ export default function HotCategories() {
         </div>
         <button
           onClick={() => scrollTabs(1)}
-          className="flex-shrink-0 w-8 h-8 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 transition-colors"
+          className="flex-shrink-0 w-10 h-10 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 transition-colors touch-manipulation"
           aria-label="Scroll tabs right"
         >
           <ChevronRight size={16} />

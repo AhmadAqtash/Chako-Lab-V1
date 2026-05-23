@@ -77,7 +77,7 @@ export default function ProductHotspot() {
         }`}
       >
         {/* Left: dark teal panel */}
-        <div className="flex-1 bg-[#1a2f3a] flex items-center px-8 md:px-16 py-16">
+        <div className="flex-1 bg-[#1a2f3a] flex items-center px-6 md:px-16 py-12 md:py-16">
           <div className="max-w-sm">
             <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">
               Premium Quality
@@ -120,15 +120,19 @@ export default function ProductHotspot() {
               <div className="relative flex items-center justify-center">
                 {/* Pulse ring */}
                 <span className="absolute w-5 h-5 rounded-full bg-white/50 animate-ping" />
-                {/* Dot */}
+                {/* Dot — 44px touch target via padding, 20px visual */}
                 <button
-                  className="relative w-5 h-5 rounded-full bg-white shadow-lg hover:scale-125 transition-transform z-10 cursor-pointer"
+                  className="relative p-[14px] -m-[14px] rounded-full z-10 touch-manipulation group"
+                  onClick={() => setActiveHotspot(activeHotspot === spot.id ? null : spot.id)}
                   onMouseEnter={() => setActiveHotspot(spot.id)}
                   onMouseLeave={() => setActiveHotspot(null)}
                   onFocus={() => setActiveHotspot(spot.id)}
                   onBlur={() => setActiveHotspot(null)}
                   aria-label={spot.label}
-                />
+                  aria-expanded={activeHotspot === spot.id}
+                >
+                  <span className="block w-5 h-5 rounded-full bg-white shadow-lg group-hover:scale-125 transition-transform" />
+                </button>
                 {/* Tooltip */}
                 {activeHotspot === spot.id && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-20 pointer-events-none">
