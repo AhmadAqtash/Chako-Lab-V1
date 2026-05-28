@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 
 const SERIES = [
@@ -71,17 +72,42 @@ const SERIES = [
   },
 ];
 
+const EASE = 'cubic-bezier(0.23,1,0.32,1)';
+
 export default function SeriesBanners() {
   const { language } = useLanguage();
   const isAr = language === 'ar';
+  const sectionRef = useRef<HTMLElement>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight) { setRevealed(true); return; }
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); obs.disconnect(); } },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <section
+      ref={sectionRef}
       className="w-full max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-24"
       dir={isAr ? 'rtl' : 'ltr'}
     >
       {/* Section header */}
-      <div className="mb-8 md:mb-12 flex items-end justify-between">
+      <div
+        className="mb-8 md:mb-12 flex items-end justify-between"
+        style={{
+          opacity: revealed ? 1 : 0,
+          transform: revealed ? 'translateY(0)' : 'translateY(20px)',
+          transition: `opacity 600ms ${EASE}, transform 600ms ${EASE}`,
+        }}
+      >
         <div>
           <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">
             {isAr ? 'استكشف' : 'Explore'}
@@ -92,62 +118,71 @@ export default function SeriesBanners() {
         </div>
         <Link
           href="/collections"
-          className="text-sm font-semibold underline underline-offset-4 hover:opacity-60 transition-opacity whitespace-nowrap"
+          className="text-sm font-semibold underline underline-offset-4 hover:opacity-60 transition-opacity whitespace-nowrap cursor-pointer"
         >
           {isAr ? 'عرض الكل' : 'View all'}
         </Link>
       </div>
 
-      {/* Banner grid — 2 col mobile / 3 col desktop */}
+      {/* Banner grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
         {SERIES.map((series, i) => {
           const img = isAr ? series.imageAr : series.imageEn;
           const label = isAr ? series.labelAr : series.labelEn;
 
           return (
-            <Link
+            /* Outer div handles entrance animation; inner Link handles hover */
+            <div
               key={`${series.handle}-${i}`}
-              href={`/collections/${series.handle}`}
-              className="group relative block overflow-hidden rounded-2xl"
+              style={{
+                opacity: revealed ? 1 : 0,
+                transform: revealed ? 'translateY(0)' : 'translateY(28px)',
+                transition: `opacity 600ms ${EASE} ${i * 70}ms, transform 600ms ${EASE} ${i * 70}ms`,
+              }}
             >
-              {/* Background colour while image loads */}
-              <div
-                className="absolute inset-0"
-                style={{ backgroundColor: series.accent }}
-              />
-
-              {/* Banner image */}
-              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
-                <Image
-                  src={img}
-                  alt={label}
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  priority={i < 3}
+              <Link
+                href={`/collections/${series.handle}`}
+                className="group relative block overflow-hidden rounded-2xl cursor-pointer transition-[transform,box-shadow] duration-300 ease-out hover:scale-[1.03] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chako-dark focus-visible:ring-offset-2"
+              >
+                {/* Background colour while image loads */}
+                <div
+                  className="absolute inset-0"
+                  style={{ backgroundColor: series.accent }}
                 />
 
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                {/* Banner image */}
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
+                  <Image
+                    src={img}
+                    alt={label}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                    priority={i < 3}
+                  />
 
-                {/* Label pill */}
-                <div className="absolute bottom-0 inset-x-0 p-4">
-                  <span className="inline-flex items-center gap-1.5 bg-white/90 backdrop-blur-sm text-chako-dark text-sm font-bold px-3 py-2 rounded-full shadow-sm transition-all duration-200 group-hover:bg-white group-hover:shadow-md max-w-full min-w-0">
-                    <span className="truncate">{label}</span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="14" height="14"
-                      viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" strokeWidth="2.5"
-                      strokeLinecap="round" strokeLinejoin="round"
-                      className={`flex-shrink-0 opacity-60 transition-transform duration-200 group-hover:translate-x-1 ${isAr ? 'rotate-180 group-hover:translate-x-0 group-hover:-translate-x-1' : ''}`}
-                    >
-                      <path d="m9 18 6-6-6-6"/>
-                    </svg>
-                  </span>
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent transition-opacity duration-300 group-hover:from-black/40" />
+
+                  {/* Label pill — slides up 4px on hover */}
+                  <div className="absolute bottom-0 inset-x-0 p-4">
+                    <span className="inline-flex items-center gap-1.5 bg-white/90 backdrop-blur-sm text-chako-dark text-sm font-bold px-3 py-2 rounded-full shadow-sm transition-[transform,background-color,box-shadow] duration-200 ease-out group-hover:-translate-y-1 group-hover:bg-white group-hover:shadow-md max-w-full min-w-0">
+                      <span className="truncate">{label}</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14" height="14"
+                        viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" strokeWidth="2.5"
+                        strokeLinecap="round" strokeLinejoin="round"
+                        className={`flex-shrink-0 opacity-60 transition-transform duration-200 group-hover:translate-x-1 ${isAr ? 'rotate-180 group-hover:translate-x-0 group-hover:-translate-x-1' : ''}`}
+                      >
+                        <path d="m9 18 6-6-6-6"/>
+                      </svg>
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
           );
         })}
       </div>

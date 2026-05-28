@@ -129,7 +129,7 @@ export default function HotCategories() {
       <div className="flex items-center gap-2 mb-6">
         <button
           onClick={() => scrollTabs(-1)}
-          className="flex-shrink-0 w-10 h-10 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 transition-colors touch-manipulation"
+          className="flex-shrink-0 w-10 h-10 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 hover:scale-110 active:scale-95 transition-[transform,background-color] duration-150 touch-manipulation cursor-pointer"
           aria-label="Scroll tabs left"
         >
           <ChevronLeft size={16} />
@@ -154,7 +154,7 @@ export default function HotCategories() {
         </div>
         <button
           onClick={() => scrollTabs(1)}
-          className="flex-shrink-0 w-10 h-10 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 transition-colors touch-manipulation"
+          className="flex-shrink-0 w-10 h-10 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 hover:scale-110 active:scale-95 transition-[transform,background-color] duration-150 touch-manipulation cursor-pointer"
           aria-label="Scroll tabs right"
         >
           <ChevronRight size={16} />
@@ -165,14 +165,14 @@ export default function HotCategories() {
       <div className="relative">
         <button
           onClick={() => scrollGrid(-1)}
-          className="hidden md:flex absolute -left-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center hover:shadow-lg transition-shadow"
+          className="hidden md:flex absolute -left-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center hover:shadow-lg hover:scale-110 active:scale-95 transition-[transform,box-shadow] duration-150 cursor-pointer"
           aria-label="Previous products"
         >
           <ChevronLeft size={18} />
         </button>
         <button
           onClick={() => scrollGrid(1)}
-          className="hidden md:flex absolute -right-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center hover:shadow-lg transition-shadow"
+          className="hidden md:flex absolute -right-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center hover:shadow-lg hover:scale-110 active:scale-95 transition-[transform,box-shadow] duration-150 cursor-pointer"
           aria-label="Next products"
         >
           <ChevronRight size={18} />
@@ -180,8 +180,8 @@ export default function HotCategories() {
 
         <div
           ref={gridRef}
-          className={`flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2 transition-all duration-300 ${
-            gridVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+          className={`flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2 transition-[opacity,transform] duration-200 ease-out ${
+            gridVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           }`}
         >
           {loading
@@ -269,10 +269,10 @@ export default function HotCategories() {
                             title={sibling.title}
                           >
                             <div
-                              className={`w-5 h-5 rounded-full border-2 transition-transform hover:scale-110 shadow-sm ${
+                              className={`w-5 h-5 rounded-full border-2 transition-[transform,box-shadow] duration-150 hover:scale-125 hover:shadow-md shadow-sm cursor-pointer ${
                                 sibling.id === product.id
-                                  ? 'border-chako-dark'
-                                  : 'border-white'
+                                  ? 'border-chako-dark ring-1 ring-chako-dark/20 ring-offset-1'
+                                  : 'border-white hover:border-chako-dark/30'
                               }`}
                               style={{
                                 backgroundImage: sibling.featuredImage

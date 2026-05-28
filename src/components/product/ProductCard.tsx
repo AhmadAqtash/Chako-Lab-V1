@@ -7,6 +7,7 @@ import { formatPrice, getDiscountPercent } from '@/lib/utils';
 import { ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useState } from 'react';
 
 interface Props {
   product: Product;
@@ -15,6 +16,7 @@ interface Props {
 export default function ProductCard({ product }: Props) {
   const { addItem, isLoading } = useCart();
   const { t } = useLanguage();
+  const [pressing, setPressing] = useState(false);
   const variant = product.variants?.nodes?.[0];
   const inStock = variant?.availableForSale ?? true;
   const price = product.priceRange.minVariantPrice;
@@ -24,13 +26,15 @@ export default function ProductCard({ product }: Props) {
   async function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
     if (!variant || !inStock) return;
+    setPressing(true);
     await addItem(variant.id);
+    setTimeout(() => setPressing(false), 300);
   }
 
   return (
     <Link
       href={`/products/${product.handle}`}
-      className="group relative flex flex-col bg-chako-bg rounded-2xl overflow-hidden border border-black/5 hover:border-black/10 transition-all hover:shadow-md"
+      className="group relative flex flex-col bg-chako-bg rounded-2xl overflow-hidden border border-black/5 hover:border-black/10 transition-[border-color,box-shadow,transform] duration-300 ease-out hover:shadow-lg hover:-translate-y-0.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chako-dark focus-visible:ring-offset-2"
     >
       <div className="relative aspect-square bg-chako-accent overflow-hidden">
         {product.featuredImage ? (
@@ -39,7 +43,7 @@ export default function ProductCard({ product }: Props) {
             alt={product.featuredImage.altText || product.title}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
           />
         ) : (
           <div className="w-full h-full bg-chako-accent" />
@@ -53,7 +57,7 @@ export default function ProductCard({ product }: Props) {
 
         {!inStock && (
           <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-            <span className="text-xs font-semibold text-chako-dark/50 bg-white px-3 py-1 rounded-full">
+            <span className="text-xs font-semibold text-chako-dark/50 bg-white px-3 py-1 rounded-full animate-pulse">
               {t('product_out_of_stock')}
             </span>
           </div>
@@ -63,7 +67,11 @@ export default function ProductCard({ product }: Props) {
           <button
             onClick={handleAddToCart}
             disabled={isLoading}
-            className="absolute bottom-2.5 right-2.5 rtl:right-auto rtl:left-2.5 bg-chako-dark text-chako-bg p-2.5 rounded-full md:opacity-0 md:translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 hover:bg-chako-dark/90 disabled:opacity-50"
+            style={{
+              transform: pressing ? 'scale(0.88) translateY(0)' : undefined,
+              transition: 'opacity 200ms ease, transform 150ms ease-out, background-color 150ms ease',
+            }}
+            className="absolute bottom-2.5 right-2.5 rtl:right-auto rtl:left-2.5 bg-chako-dark text-chako-bg p-2.5 rounded-full md:opacity-0 md:translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 hover:bg-chako-dark/90 active:scale-90 disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             aria-label="Add to cart"
           >
             <ShoppingBag size={16} />

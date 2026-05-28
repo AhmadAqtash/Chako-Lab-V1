@@ -58,7 +58,7 @@ export default async function CategoryBar() {
           <Link
             key={handle}
             href={`/collections/${handle}`}
-            className="flex flex-col items-center gap-3 p-4 bg-chako-accent rounded-2xl hover:bg-chako-highlight/40 transition-colors group text-center"
+            className="flex flex-col items-center gap-3 p-4 bg-chako-accent rounded-2xl hover:bg-chako-highlight/40 hover:shadow-sm transition-[background-color,box-shadow,transform] duration-200 ease-out group text-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chako-dark focus-visible:ring-offset-2"
           >
             <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white/60 flex items-center justify-center flex-shrink-0">
               {images[handle] ? (
@@ -67,13 +67,13 @@ export default async function CategoryBar() {
                   alt={COLLECTION_DISPLAY_NAMES[handle]}
                   width={80}
                   height={80}
-                  className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                  className="object-cover w-full h-full transition-transform duration-300 ease-out group-hover:scale-110"
                 />
               ) : (
                 <div className="w-full h-full bg-chako-highlight/30 rounded-2xl" />
               )}
             </div>
-            <span className="text-xs font-semibold text-chako-dark/70 group-hover:text-chako-dark transition-colors leading-tight">
+            <span className="text-xs font-semibold text-chako-dark/70 group-hover:text-chako-dark transition-[color,transform] duration-200 leading-tight group-hover:-translate-y-0.5">
               <T k={HANDLE_TO_CAT_KEY[handle] ?? 'cat_all'} />
             </span>
           </Link>

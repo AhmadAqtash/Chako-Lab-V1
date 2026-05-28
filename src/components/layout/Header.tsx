@@ -25,7 +25,7 @@ export default function Header() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -35,8 +35,10 @@ export default function Header() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-30 bg-chako-bg transition-shadow duration-200',
-        scrolled && 'shadow-sm'
+        'sticky top-0 z-30 transition-[background-color,backdrop-filter,box-shadow] duration-300',
+        scrolled
+          ? 'bg-white/85 backdrop-blur-md shadow-sm'
+          : 'bg-chako-bg'
       )}
     >
       <div className="max-w-screen-xl mx-auto px-4 md:px-8 h-14 flex items-center gap-4">

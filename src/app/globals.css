@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -69,4 +74,56 @@
 
 .animate-fade-slide-up {
   animation: fadeSlideUp 500ms ease forwards;
+}
+
+/* Scroll-triggered reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 600ms var(--ease-out-strong), transform 600ms var(--ease-out-strong);
+}
+
+.reveal.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Marquee pause on hover */
+.marquee-pause:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* FAQ accordion height */
+.faq-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 280ms var(--ease-out-strong), opacity 250ms ease;
+  opacity: 0;
+}
+
+.faq-panel.faq-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.faq-panel > div {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .faq-panel,
+  .faq-panel.faq-open {
+    transition: none !important;
+  }
+
+  @keyframes marquee {
+    from { transform: none; }
+    to   { transform: none; }
+  }
 }
