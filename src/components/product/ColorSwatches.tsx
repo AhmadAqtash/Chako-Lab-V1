@@ -36,7 +36,7 @@ export default function ColorSwatches({ siblings, currentHandle, colorName, coll
               href={`/products/${sibling.handle}`}
               title={siblingColor ?? sibling.title}
               className={cn(
-                'relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 transition-shadow',
+                'relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 transition-[box-shadow,transform] active:scale-95 touch-manipulation',
                 isActive
                   ? 'ring-2 ring-chako-dark ring-offset-2'
                   : 'ring-1 ring-black/10 hover:ring-2 hover:ring-chako-dark/40 hover:ring-offset-1'

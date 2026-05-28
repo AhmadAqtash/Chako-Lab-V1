@@ -43,9 +43,10 @@ export default function StickyATC({ title, price, variantId, available, triggerR
 
   return (
     <div
-      className={`md:hidden fixed bottom-[60px] left-0 right-0 z-20 bg-chako-bg/95 backdrop-blur-md border-t border-black/8 px-4 py-3 flex items-center gap-3 transition-transform duration-300 ${
+      className={`md:hidden fixed left-0 right-0 z-20 bg-chako-bg/95 backdrop-blur-md border-t border-black/8 px-4 py-3 flex items-center gap-3 transition-transform duration-300 ${
         visible ? 'translate-y-0' : 'translate-y-full'
       }`}
+      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 58px)' }}
     >
       {featuredImage && (
         <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-chako-accent">
@@ -60,7 +61,7 @@ export default function StickyATC({ title, price, variantId, available, triggerR
       <button
         onClick={handleAdd}
         disabled={isLoading || !available}
-        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm flex-shrink-0 transition-all ${
+        className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm flex-shrink-0 transition-all touch-manipulation ${
           !available
             ? 'bg-black/10 text-chako-dark/40 cursor-not-allowed'
             : added

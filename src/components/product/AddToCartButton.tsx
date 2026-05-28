@@ -48,7 +48,7 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
         onClick={handleAdd}
         disabled={isLoading}
         className={cn(
-          'w-full py-4 font-semibold rounded-2xl text-sm flex items-center justify-center gap-2 transition-all',
+          'w-full py-4 font-semibold rounded-2xl text-sm flex items-center justify-center gap-2 transition-all touch-manipulation',
           added
             ? 'bg-green-600 text-white'
             : 'bg-chako-dark text-chako-bg hover:bg-chako-dark/90 active:scale-[0.98]',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { ShopifyImage } from '@/types/shopify';
 import { cn } from '@/lib/utils';
@@ -15,17 +15,10 @@ export default function ProductGallery({ images, title }: Props) {
   const [active, setActive] = useState(0);
   const [zoomed, setZoomed] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
-  const [paused, setPaused] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
 
-  const prev = useCallback(() => setActive((i) => (i - 1 + images.length) % images.length), [images.length]);
-  const next = useCallback(() => setActive((i) => (i + 1) % images.length), [images.length]);
-
-  useEffect(() => {
-    if (images.length <= 1 || paused) return;
-    const id = setInterval(() => setActive((i) => (i + 1) % images.length), 2000);
-    return () => clearInterval(id);
-  }, [images.length, paused]);
+  const prev = useCallback(() => { setActive((i) => (i - 1 + images.length) % images.length); setZoomed(false); }, [images.length]);
+  const next = useCallback(() => { setActive((i) => (i + 1) % images.length); setZoomed(false); }, [images.length]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!imgRef.current || !zoomed) return;
@@ -56,13 +49,13 @@ export default function ProductGallery({ images, title }: Props) {
       <div className="-mx-4 md:mx-0 flex flex-col-reverse md:flex-row gap-3">
         {/* Thumbnails */}
         {images.length > 1 && (
-          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[560px] scrollbar-hide md:w-[72px] flex-shrink-0 px-4 md:px-0">
+          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[560px] scrollbar-hide scroll-momentum md:w-[72px] flex-shrink-0 px-4 md:px-0">
             {images.map((img, i) => (
               <button
                 key={i}
                 onClick={() => setActive(i)}
                 className={cn(
-                  'flex-shrink-0 relative w-14 h-14 md:w-full md:h-[72px] rounded-xl overflow-hidden border-2 transition-all',
+                  'flex-shrink-0 relative w-16 h-16 md:w-full md:h-[72px] rounded-xl overflow-hidden border-2 transition-all touch-manipulation active:scale-95',
                   i === active
                     ? 'border-chako-dark shadow-sm'
                     : 'border-transparent opacity-60 hover:opacity-100 hover:border-black/15'
@@ -90,8 +83,7 @@ export default function ProductGallery({ images, title }: Props) {
             )}
             onClick={() => setZoomed(!zoomed)}
             onMouseMove={handleMouseMove}
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => { setZoomed(false); setPaused(false); }}
+            onMouseLeave={() => setZoomed(false)}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
@@ -120,17 +112,17 @@ export default function ProductGallery({ images, title }: Props) {
               <>
                 <button
                   onClick={(e) => { e.stopPropagation(); prev(); }}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm hover:bg-white transition-colors"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/85 backdrop-blur-sm w-11 h-11 rounded-full shadow-sm hover:bg-white active:scale-95 transition-[transform,background-color] duration-150 flex items-center justify-center touch-manipulation"
                   aria-label="Previous image"
                 >
-                  <ChevronLeft size={16} />
+                  <ChevronLeft size={18} />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); next(); }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm hover:bg-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/85 backdrop-blur-sm w-11 h-11 rounded-full shadow-sm hover:bg-white active:scale-95 transition-[transform,background-color] duration-150 flex items-center justify-center touch-manipulation"
                   aria-label="Next image"
                 >
-                  <ChevronRight size={16} />
+                  <ChevronRight size={18} />
                 </button>
               </>
             )}
@@ -138,17 +130,19 @@ export default function ProductGallery({ images, title }: Props) {
 
           {/* Dot indicators */}
           {images.length > 1 && (
-            <div className="flex justify-center gap-1.5 mt-3">
+            <div className="flex justify-center gap-0 mt-2">
               {images.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setActive(i)}
-                  className={cn(
-                    'w-1.5 h-1.5 rounded-full transition-all',
-                    i === active ? 'bg-chako-dark w-4' : 'bg-black/20'
-                  )}
+                  className="p-2.5 touch-manipulation"
                   aria-label={`Image ${i + 1}`}
-                />
+                >
+                  <span className={cn(
+                    'block rounded-full transition-all duration-300',
+                    i === active ? 'bg-chako-dark w-5 h-2' : 'bg-black/20 w-2 h-2'
+                  )} />
+                </button>
               ))}
             </div>
           )}

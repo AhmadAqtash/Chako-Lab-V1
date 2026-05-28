@@ -13,11 +13,16 @@ export default async function RelatedProducts({ productType, excludeHandles }: P
 
   return (
     <section className="border-t border-black/8 pt-14 mt-14">
-      <h2 className="text-xl font-bold mb-6"><T k="product_you_may_like" /></h2>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+      <h2 className="text-fluid-heading font-bold mb-6 px-4 md:px-0"><T k="product_you_may_like" /></h2>
+      <div className="relative">
+        <div className="flex md:grid md:grid-cols-4 gap-3 md:gap-4 overflow-x-auto md:overflow-visible scrollbar-hide snap-x snap-mandatory md:snap-none scroll-momentum -mx-4 md:mx-0 px-4 md:px-0 pb-2 md:pb-0">
+          {products.map((product) => (
+            <div key={product.id} className="flex-none w-[60vw] sm:w-[45vw] md:w-auto snap-start">
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </div>
+        <div className="absolute top-0 right-0 bottom-2 w-10 bg-gradient-to-l from-chako-bg to-transparent pointer-events-none md:hidden" />
       </div>
     </section>
   );

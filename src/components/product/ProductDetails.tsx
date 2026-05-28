@@ -84,10 +84,10 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
             {product.productType}
           </p>
           <div className="flex items-start justify-between gap-4">
-            <h1 className="text-2xl md:text-3xl font-bold leading-tight">{product.title}</h1>
+            <h1 className="text-fluid-heading font-bold leading-tight">{product.title}</h1>
             <button
               onClick={handleShare}
-              className="flex-shrink-0 mt-1 p-2 rounded-full hover:bg-black/5 transition-colors text-chako-dark/40 hover:text-chako-dark"
+              className="flex-shrink-0 mt-1 p-2.5 rounded-full hover:bg-black/5 active:scale-95 transition-[transform,background-color] duration-150 text-chako-dark/40 hover:text-chako-dark touch-manipulation"
               aria-label="Share"
             >
               {copied ? <Check size={18} className="text-green-600" /> : <Share2 size={18} />}
@@ -130,23 +130,23 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
 
         {/* Quantity + ATC */}
         <div ref={atcRef} className="flex gap-3">
-          <div className="flex items-center gap-2 bg-black/5 rounded-xl px-3 py-2">
+          <div className="flex items-center gap-1 bg-black/5 rounded-xl px-2 py-1.5">
             <button
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              className="p-1 rounded-lg hover:bg-black/10 transition-colors disabled:opacity-30"
+              className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-black/10 active:scale-90 transition-[transform,background-color] duration-150 disabled:opacity-30 touch-manipulation"
               disabled={quantity <= 1}
               aria-label="Decrease quantity"
             >
-              <Minus size={14} />
+              <Minus size={16} />
             </button>
-            <span className="w-7 text-center font-semibold text-sm">{quantity}</span>
+            <span className="w-8 text-center font-semibold text-sm">{quantity}</span>
             <button
               onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
-              className="p-1 rounded-lg hover:bg-black/10 transition-colors disabled:opacity-30"
+              className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-black/10 active:scale-90 transition-[transform,background-color] duration-150 disabled:opacity-30 touch-manipulation"
               disabled={quantity >= maxQty}
               aria-label="Increase quantity"
             >
-              <Plus size={14} />
+              <Plus size={16} />
             </button>
           </div>
           <div className="flex-1">
@@ -176,7 +176,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                 key={key}
                 onClick={() => setActiveTab(key)}
                 className={cn(
-                  'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
+                  'flex-1 md:flex-none px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors touch-manipulation min-h-[48px]',
                   activeTab === key
                     ? 'border-chako-dark text-chako-dark'
                     : 'border-transparent text-chako-dark/45 hover:text-chako-dark'

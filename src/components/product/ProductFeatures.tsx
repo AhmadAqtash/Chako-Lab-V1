@@ -22,13 +22,14 @@ export default function ProductFeatures({ metafields }: Props) {
 
   return (
     <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-12 md:py-16">
-      <h2 className="text-xl md:text-2xl font-bold mb-6">
+      <h2 className="text-fluid-heading font-bold mb-6">
         <T k="product_features" />
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {features.map((feature, i) => (
-          <div key={i} className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4' }}>
+      <div className="relative">
+        <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto md:overflow-visible scrollbar-hide snap-x snap-mandatory md:snap-none scroll-momentum -mx-4 md:mx-0 px-4 md:px-0 pb-2 md:pb-0">
+          {features.map((feature, i) => (
+            <div key={i} className="flex-none w-[75vw] md:w-auto snap-start relative rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4' }}>
             {feature.image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -51,7 +52,9 @@ export default function ProductFeatures({ metafields }: Props) {
               )}
             </div>
           </div>
-        ))}
+          ))}
+        </div>
+        <div className="absolute top-0 right-0 bottom-2 w-10 bg-gradient-to-l from-chako-bg to-transparent pointer-events-none md:hidden" />
       </div>
     </section>
   );

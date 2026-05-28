@@ -78,8 +78,8 @@ export default function VariantSelector({ options, variants, selected, onChange 
                       disabled={!available}
                       title={value}
                       className={cn(
-                        'w-8 h-8 rounded-full border-2 transition-all relative',
-                        active ? 'border-chako-dark scale-110' : 'border-transparent hover:border-black/20',
+                        'w-11 h-11 rounded-full border-2 transition-all relative touch-manipulation active:scale-95',
+                        active ? 'border-chako-dark scale-105' : 'border-transparent hover:border-black/20',
                         !available && 'opacity-30 cursor-not-allowed'
                       )}
                       style={{ backgroundColor: colorHex }}
@@ -101,7 +101,7 @@ export default function VariantSelector({ options, variants, selected, onChange 
                     onClick={() => onChange(option.name, value)}
                     disabled={!available}
                     className={cn(
-                      'px-3.5 py-1.5 rounded-xl text-sm font-medium border transition-all',
+                      'px-4 py-2.5 rounded-xl text-sm font-medium border transition-all min-h-[44px] touch-manipulation active:scale-95',
                       active
                         ? 'bg-chako-dark text-chako-bg border-chako-dark'
                         : 'border-black/10 hover:border-black/25 text-chako-dark',
