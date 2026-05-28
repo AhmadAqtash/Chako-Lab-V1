@@ -17,7 +17,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-10">
-      <h1 className="text-2xl font-bold mb-6">Search</h1>
+      <h1 className="text-fluid-heading font-bold mb-6">Search</h1>
       <SearchInput initialQuery={query} />
 
       {query && (

@@ -34,7 +34,7 @@ export default function SearchInput({ initialQuery }: Props) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={t('search_placeholder')}
-        className="w-full pl-11 pr-4 rtl:pl-4 rtl:pr-11 py-3.5 bg-chako-accent rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-chako-dark/20 placeholder:text-chako-dark/35"
+        className="w-full pl-11 pr-4 rtl:pl-4 rtl:pr-11 py-4 bg-chako-accent rounded-2xl text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-chako-dark/20 placeholder:text-chako-dark/35"
         autoFocus
       />
       {isPending && (
