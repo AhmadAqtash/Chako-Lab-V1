@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
 import { Noto_Sans_Arabic } from 'next/font/google';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
@@ -13,20 +12,13 @@ import CartDrawer from '@/components/cart/CartDrawer';
 import DemoBanner from '@/components/layout/DemoBanner';
 import { Toaster } from 'react-hot-toast';
 
-const inter = localFont({
-  src: './fonts/InterVariable.woff2',
-  variable: '--font-inter',
-  display: 'swap',
-  weight: '100 900',
-});
-
+// Arabic body text — kept for RTL layout
 const notoSansArabic = Noto_Sans_Arabic({
   subsets: ['arabic'],
   variable: '--font-arabic',
   display: 'swap',
   weight: ['400', '500', '600', '700'],
 });
-
 
 export const metadata: Metadata = {
   title: {
@@ -44,7 +36,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${notoSansArabic.variable}`} suppressHydrationWarning>
+    <html lang="en" className={notoSansArabic.variable} suppressHydrationWarning>
+      <head>
+        {/* Clash Display + General Sans via Fontshare (free, commercial-use) */}
+        <link rel="preconnect" href="https://api.fontshare.com" />
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=general-sans@400,500,600,700&display=swap"
+          rel="stylesheet"
+        />
+        {/* IBM Plex Sans Arabic — RTL headings */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="flex flex-col min-h-screen font-sans bg-chako-bg text-chako-dark" suppressHydrationWarning>
         <LanguageProvider>
         <CartProvider>
@@ -62,11 +69,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             position="bottom-center"
             toastOptions={{
               style: {
-                background: '#171717',
-                color: '#FAFAF8',
+                background: '#1a1a1a',
+                color: '#F5F0E8',
                 borderRadius: '12px',
                 fontSize: '13px',
                 fontWeight: '500',
+                fontFamily: '"General Sans", system-ui, sans-serif',
               },
               duration: 2500,
             }}
