@@ -14,14 +14,14 @@ export default async function FeaturedProducts() {
       <ScrollReveal>
         <div className="flex items-end justify-between mb-8">
           <div>
-            <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">
+            <p className="text-label font-sans font-semibold text-chako-ink/40 uppercase tracking-widest mb-2">
               <T k="featured_label" />
             </p>
-            <h2 className="text-fluid-heading font-bold"><T k="featured_heading" /></h2>
+            <h2 className="text-heading font-display font-bold"><T k="featured_heading" /></h2>
           </div>
           <Link
             href="/collections"
-            className="text-sm font-medium text-chako-dark/60 hover:text-chako-dark transition-colors hidden md:block cursor-pointer"
+            className="text-sm font-semibold text-chako-ink/50 hover:text-chako-ink transition-colors hidden md:block cursor-pointer underline underline-offset-4"
           >
             <T k="featured_view_all" /> →
           </Link>
@@ -39,7 +39,7 @@ export default async function FeaturedProducts() {
       <ScrollReveal className="text-center mt-8 md:hidden">
         <Link
           href="/collections"
-          className="inline-flex items-center gap-2 px-6 py-2.5 border border-black/10 text-sm font-medium rounded-full hover:bg-black/5 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 px-6 py-3 border-2 border-chako-ink text-sm font-semibold rounded-full hover:bg-chako-ink hover:text-chako-cream active:scale-[0.97] transition-[background-color,color,transform] duration-150 cursor-pointer touch-manipulation"
         >
           <T k="featured_view_all" /> →
         </Link>

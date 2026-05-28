@@ -2,22 +2,40 @@
 
 import { useLanguage } from '@/context/LanguageContext';
 
+const BRAND_CLAIMS = [
+  'RED DOT WINNER 2024',
+  'iF DESIGN AWARD 2023',
+  'BPA FREE',
+  'SUS 316 STEEL',
+  'FREE SHIPPING OVER AED 250',
+  'OFFICIAL UAE DISTRIBUTOR',
+  'AUTHENTIC CHAKO LAB',
+];
+
 export default function Marquee() {
-  const { t } = useLanguage();
-  const text = t('marquee_text');
-  const items = text.split('•').map((s) => s.trim()).filter(Boolean);
-  // Double the items for seamless loop: animation moves -50% = exactly one copy width
+  const { t, language } = useLanguage();
+  const isAr = language === 'ar';
+
+  const translatedText = t('marquee_text');
+  const translatedItems = translatedText.split('•').map((s) => s.trim()).filter(Boolean);
+  const items = isAr
+    ? [...translatedItems, ...BRAND_CLAIMS]
+    : [...BRAND_CLAIMS, ...translatedItems];
+
   const doubled = [...items, ...items];
 
   return (
-    <div className="bg-chako-highlight py-3.5 overflow-hidden border-y border-[#F0C89E] marquee-pause select-none">
-      <div className="marquee-track flex animate-marquee gap-8 whitespace-nowrap">
+    <div className="bg-chako-ink overflow-hidden select-none marquee-pause" aria-hidden="true">
+      <div className="marquee-track flex animate-marquee whitespace-nowrap">
         {doubled.map((item, i) => (
           <span
             key={i}
-            className="text-chako-dark font-semibold text-sm tracking-wide flex-shrink-0"
+            className="inline-flex items-center gap-3 px-6 py-3.5 flex-shrink-0 border-r border-white/[0.08]"
           >
-            ✦ {item}
+            <span className="text-chako-linlin text-sm leading-none">✦</span>
+            <span className="font-display font-bold text-white text-[11px] md:text-xs uppercase tracking-[0.12em]">
+              {item}
+            </span>
           </span>
         ))}
       </div>

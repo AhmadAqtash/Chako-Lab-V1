@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatPrice, extractBaseName } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
+import { Tag } from '@/components/ui/Tag';
 import type { MoneyV2 } from '@/types/shopify';
 
 const STORE = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN!;
@@ -23,12 +23,21 @@ interface CardProduct {
 }
 
 const TABS = [
-  { labelEn: 'LinLin',       labelAr: 'لين لين',      productType: 'LinLin Kettle' },
-  { labelEn: 'Milk Pod',     labelAr: 'ميلك بود',      productType: 'Milk Pod'      },
-  { labelEn: 'Bawang',       labelAr: 'باوانج',        productType: 'Bawang Cup'    },
-  { labelEn: 'BoBo Tumbler', labelAr: 'تمبلر بوبو',    productType: 'Thermos Cup'   },
-  { labelEn: 'Kada',         labelAr: 'كادا',          productType: 'Kada Bottle'   },
+  { labelEn: 'LinLin',       labelAr: 'لين لين',    productType: 'LinLin Kettle', color: 'linlin'   as const },
+  { labelEn: 'Milk Pod',     labelAr: 'ميلك بود',   productType: 'Milk Pod',      color: 'milkpod'  as const },
+  { labelEn: 'Bawang',       labelAr: 'باوانج',     productType: 'Bawang Cup',    color: 'bawang'   as const },
+  { labelEn: 'BoBo Tumbler', labelAr: 'تمبلر بوبو', productType: 'Thermos Cup',   color: 'bobo'     as const },
+  { labelEn: 'Kada',         labelAr: 'كادا',       productType: 'Kada Bottle',   color: 'kada'     as const },
 ];
+
+// Series tint backgrounds for product image areas
+const TYPE_IMG_BG: Record<string, string> = {
+  'LinLin Kettle': 'bg-chako-linlin-soft',
+  'Milk Pod':      'bg-chako-milkpod-soft',
+  'Bawang Cup':    'bg-chako-bawang-soft',
+  'Thermos Cup':   'bg-chako-bobo-soft',
+  'Kada Bottle':   'bg-chako-kada-soft',
+};
 
 const PRODUCTS_GQL = `
   query GetAllChakoProducts($first: Int!, $query: String) {
@@ -43,6 +52,8 @@ const PRODUCTS_GQL = `
   }
 `;
 
+const EASE = 'cubic-bezier(0.23,1,0.32,1)';
+
 export default function HotCategories() {
   const { language } = useLanguage();
   const isAr = language === 'ar';
@@ -50,8 +61,22 @@ export default function HotCategories() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [gridVisible, setGridVisible] = useState(true);
-  const tabsRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight) { setRevealed(true); return; }
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); obs.disconnect(); } },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -92,91 +117,68 @@ export default function HotCategories() {
     }, 200);
   };
 
-  const scrollTabs = (dir: number) => {
-    tabsRef.current?.scrollBy({ left: dir * 160, behavior: 'smooth' });
-  };
-
   const scrollGrid = (dir: number) => {
     const el = gridRef.current;
     if (!el) return;
-    el.scrollBy({ left: (isAr ? -dir : dir) * el.offsetWidth, behavior: 'smooth' });
+    el.scrollBy({ left: (isAr ? -dir : dir) * el.offsetWidth * 0.8, behavior: 'smooth' });
   };
 
   if (!loading && allProducts.length === 0) return (
-    <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20" dir={isAr ? 'rtl' : 'ltr'}>
-      <div className="mb-8">
-        <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">
-          {isAr ? 'الأكثر رواجاً' : 'Trending Now'}
-        </p>
-        <h2 className="text-fluid-heading font-bold">{isAr ? 'الفئات الرائجة' : 'Hot Categories'}</h2>
-      </div>
-      <p className="text-chako-dark/40 text-sm py-8">
-        {isAr ? 'فشل تحميل المنتجات — تحقق من اتصال Shopify API.' : 'Products loading failed — check Shopify API connection.'}
+    <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-14 md:py-20" dir={isAr ? 'rtl' : 'ltr'}>
+      <h2 className="text-heading font-display font-bold mb-8">
+        {isAr ? 'الفئات الرائجة' : 'Shop the Drop'}
+      </h2>
+      <p className="text-chako-ink/40 text-sm py-8">
+        {isAr ? 'فشل تحميل المنتجات' : 'Products loading failed - check Shopify connection.'}
       </p>
     </section>
   );
 
+  const activeBg = TYPE_IMG_BG[TABS[activeTab].productType] ?? 'bg-chako-accent';
+
   return (
-    <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20" dir={isAr ? 'rtl' : 'ltr'}>
-      <div className="mb-8">
-        <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">
-          {isAr ? 'الأكثر رواجاً' : 'Trending Now'}
-        </p>
-        <h2 className="text-fluid-heading font-bold">{isAr ? 'الفئات الرائجة' : 'Hot Categories'}</h2>
+    <section
+      ref={sectionRef}
+      className="max-w-screen-xl mx-auto px-4 md:px-8 py-14 md:py-20"
+      dir={isAr ? 'rtl' : 'ltr'}
+    >
+      {/* Section heading */}
+      <div
+        style={{
+          opacity: revealed ? 1 : 0,
+          transform: revealed ? 'translateY(0)' : 'translateY(20px)',
+          transition: `opacity 600ms ${EASE}, transform 600ms ${EASE}`,
+        }}
+      >
+        <h2 className="text-heading font-display font-bold mb-6">
+          {isAr ? 'الفئات الرائجة' : 'Shop the Drop'}
+        </h2>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex items-center gap-2 mb-6">
-        <button
-          onClick={() => scrollTabs(-1)}
-          className="flex-shrink-0 w-11 h-11 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 hover:scale-110 active:scale-95 transition-[transform,background-color] duration-150 touch-manipulation cursor-pointer"
-          aria-label="Scroll tabs left"
-        >
-          <ChevronLeft size={16} />
-        </button>
-        <div
-          ref={tabsRef}
-          className="flex gap-2 overflow-x-auto scrollbar-hide scroll-momentum flex-1"
-        >
-          {TABS.map((tab, i) => (
-            <button
-              key={tab.productType}
-              onClick={() => selectTab(i)}
-              className={`flex-shrink-0 px-5 py-3 rounded-full text-sm font-semibold transition-colors touch-manipulation min-h-[44px] ${
-                i === activeTab
-                  ? 'bg-chako-dark text-chako-bg'
-                  : 'border border-black/15 text-chako-dark/70 hover:border-black/30 hover:text-chako-dark'
-              }`}
-            >
-              {isAr ? tab.labelAr : tab.labelEn}
-            </button>
-          ))}
-        </div>
-        <button
-          onClick={() => scrollTabs(1)}
-          className="flex-shrink-0 w-10 h-10 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 hover:scale-110 active:scale-95 transition-[transform,background-color] duration-150 touch-manipulation cursor-pointer"
-          aria-label="Scroll tabs right"
-        >
-          <ChevronRight size={16} />
-        </button>
+      {/* Tab bar: Tag primitives, horizontal scroll on mobile, no arrows */}
+      <div
+        className="flex gap-2 overflow-x-auto scrollbar-hide scroll-momentum pb-1 -mx-4 px-4 mb-7"
+        style={{
+          opacity: revealed ? 1 : 0,
+          transition: `opacity 600ms ${EASE} 80ms`,
+        }}
+      >
+        {TABS.map((tab, i) => (
+          <Tag
+            key={tab.productType}
+            label={isAr ? tab.labelAr : tab.labelEn}
+            active={i === activeTab}
+            color={tab.color}
+            size="md"
+            onClick={() => selectTab(i)}
+          />
+        ))}
       </div>
 
-      {/* Product grid */}
+      {/* Product grid: horizontal snap scroll */}
       <div className="relative">
-        <button
-          onClick={() => scrollGrid(-1)}
-          className="hidden md:flex absolute -left-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center hover:shadow-lg hover:scale-110 active:scale-95 transition-[transform,box-shadow] duration-150 cursor-pointer"
-          aria-label="Previous products"
-        >
-          <ChevronLeft size={18} />
-        </button>
-        <button
-          onClick={() => scrollGrid(1)}
-          className="hidden md:flex absolute -right-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center hover:shadow-lg hover:scale-110 active:scale-95 transition-[transform,box-shadow] duration-150 cursor-pointer"
-          aria-label="Next products"
-        >
-          <ChevronRight size={18} />
-        </button>
+        {/* Right-edge fade — mobile only */}
+        <div className="absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-chako-bg to-transparent pointer-events-none z-10 md:hidden" />
 
         <div
           ref={gridRef}
@@ -190,18 +192,18 @@ export default function HotCategories() {
                   key={i}
                   className="flex-none w-[calc(50%-6px)] md:w-[calc(25%-9px)] snap-start"
                 >
-                  <div className="aspect-square rounded-2xl bg-black/5 animate-pulse" />
+                  <div className="aspect-[4/5] rounded-2xl bg-black/5 animate-pulse" />
                   <div className="mt-2 h-3 bg-black/5 animate-pulse rounded-md" />
                   <div className="mt-1.5 h-3 w-2/3 bg-black/5 animate-pulse rounded-md" />
                 </div>
               ))
             : tabProducts.length === 0
             ? (
-                <p className="text-chako-dark/40 text-sm py-8">
-                  {isAr ? 'لا توجد منتجات في هذه الفئة بعد.' : 'No products available in this category yet.'}
+                <p className="text-chako-ink/40 text-sm py-8">
+                  {isAr ? 'لا توجد منتجات في هذه الفئة بعد.' : 'No products in this category yet.'}
                 </p>
               )
-            : tabProducts.map((product) => {
+            : tabProducts.map((product, idx) => {
                 const siblings = allProducts.filter(
                   (p) =>
                     p.productType === product.productType &&
@@ -209,29 +211,35 @@ export default function HotCategories() {
                 );
                 const soldOut = !product.variants.nodes[0]?.availableForSale;
                 const displayTitle = product.title.replace(/^Chako Lab\s+/i, '');
+                const imgBg = TYPE_IMG_BG[product.productType] ?? 'bg-chako-accent';
 
                 return (
                   <div
                     key={product.id}
                     className="flex-none w-[calc(50%-6px)] md:w-[calc(25%-9px)] snap-start"
+                    style={{
+                      opacity: gridVisible ? 1 : 0,
+                      transform: gridVisible ? 'translateY(0)' : 'translateY(8px)',
+                      transition: `opacity 200ms ease-out ${idx * 30}ms, transform 200ms ease-out ${idx * 30}ms`,
+                    }}
                   >
                     <Link href={`/products/${product.handle}`} className="group block">
-                      <div className="relative aspect-square rounded-2xl overflow-hidden bg-chako-accent">
+                      <div className={`relative aspect-[4/5] rounded-2xl overflow-hidden ${imgBg}`}>
                         {product.featuredImage ? (
                           <Image
                             src={product.featuredImage.url}
                             alt={product.featuredImage.altText || product.title}
                             fill
                             sizes="(max-width: 640px) 50vw, 25vw"
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="object-cover group-hover:scale-[1.05] transition-transform duration-500"
                           />
                         ) : (
-                          <div className="w-full h-full bg-chako-accent" />
+                          <div className={`w-full h-full ${imgBg}`} />
                         )}
 
                         {soldOut && (
-                          <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
-                            <span className="-rotate-[10deg] bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-lg">
+                          <div className="absolute inset-0 bg-black/15 flex items-center justify-center">
+                            <span className="-rotate-[8deg] bg-chako-ink text-chako-cream text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
                               {isAr ? 'غير متوفر' : 'Sold Out'}
                             </span>
                           </div>
@@ -239,7 +247,7 @@ export default function HotCategories() {
 
                         {!soldOut && (
                           <div className="absolute inset-x-0 bottom-0 p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
-                            <span className="block w-full text-center py-2 bg-chako-dark text-chako-bg text-xs font-semibold rounded-xl">
+                            <span className="block w-full text-center py-2.5 bg-chako-ink text-chako-cream text-xs font-semibold rounded-xl">
                               {isAr ? 'اختر الخيارات' : 'Choose Options'}
                             </span>
                           </div>
@@ -247,19 +255,15 @@ export default function HotCategories() {
                       </div>
 
                       <div className="mt-2.5 px-0.5">
-                        <p className="text-xs font-medium text-chako-dark/40 uppercase tracking-wider mb-0.5">
-                          CHAKO LAB
-                        </p>
-                        <h3 className="text-sm font-semibold leading-snug line-clamp-2">
+                        <h3 className="text-sm font-semibold leading-snug line-clamp-2 mb-1">
                           {displayTitle}
                         </h3>
-                        <p className="text-sm font-bold mt-1">
+                        <p className="font-display font-bold text-sm text-chako-ink">
                           {formatPrice(product.priceRange.minVariantPrice)}
                         </p>
                       </div>
                     </Link>
 
-                    {/* Color swatches */}
                     {siblings.length > 1 && (
                       <div className="flex gap-1.5 mt-1.5 px-0.5 flex-wrap">
                         {siblings.slice(0, 5).map((sibling) => (
@@ -269,10 +273,10 @@ export default function HotCategories() {
                             title={sibling.title}
                           >
                             <div
-                              className={`w-5 h-5 rounded-full border-2 transition-[transform,box-shadow] duration-150 hover:scale-125 hover:shadow-md shadow-sm cursor-pointer ${
+                              className={`w-5 h-5 rounded-full border-2 transition-[transform,box-shadow] duration-150 hover:scale-125 shadow-sm cursor-pointer ${
                                 sibling.id === product.id
-                                  ? 'border-chako-dark ring-1 ring-chako-dark/20 ring-offset-1'
-                                  : 'border-white hover:border-chako-dark/30'
+                                  ? 'border-chako-ink ring-1 ring-chako-ink/20 ring-offset-1'
+                                  : 'border-white hover:border-chako-ink/30'
                               }`}
                               style={{
                                 backgroundImage: sibling.featuredImage
@@ -280,9 +284,7 @@ export default function HotCategories() {
                                   : undefined,
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center',
-                                backgroundColor: sibling.featuredImage
-                                  ? undefined
-                                  : '#e5e5e5',
+                                backgroundColor: sibling.featuredImage ? undefined : '#e5e5e5',
                               }}
                             />
                           </Link>

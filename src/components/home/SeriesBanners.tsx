@@ -4,72 +4,110 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { cn } from '@/lib/utils';
 
 const SERIES = [
   {
     handle: 'linlin-kettles',
+    shortEn: 'LinLin',
+    shortAr: 'لين لين',
     labelEn: 'LinLin Series',
     labelAr: 'مجموعة لين لين',
+    descEn: 'Kettles',
+    descAr: 'كيتل',
     imageEn: '/banners/en-linlin.png',
     imageAr: '/banners/ar-linlin.png',
-    accent: '#FFF9D0',
   },
   {
     handle: 'milk-pods',
+    shortEn: 'MilkPod',
+    shortAr: 'ميلك بود',
     labelEn: 'MilkPod Series',
     labelAr: 'مجموعة ميلك بود',
+    descEn: 'Cups',
+    descAr: 'كوب',
     imageEn: '/banners/en-milkpod.png',
     imageAr: '/banners/ar-milkpod.png',
-    accent: '#FFF5DC',
   },
   {
     handle: 'bawang-cups',
+    shortEn: 'BaWang',
+    shortAr: 'باوانج',
     labelEn: 'BaWang Series',
     labelAr: 'مجموعة باوانج',
+    descEn: 'Cups',
+    descAr: 'كوب',
     imageEn: '/banners/en-bawang.png',
     imageAr: '/banners/ar-bawang.png',
-    accent: '#FFE0F0',
   },
   {
     handle: 'bobo-tumblers',
+    shortEn: 'BoBo',
+    shortAr: 'بوبو',
     labelEn: 'BoBo Series',
     labelAr: 'مجموعة بوبو',
+    descEn: 'Tumblers',
+    descAr: 'تمبلر',
     imageEn: '/banners/en-bobo.png',
     imageAr: '/banners/ar-bobo.png',
-    accent: '#F0DCFF',
   },
   {
     handle: 'kada-bottles',
+    shortEn: 'Kada',
+    shortAr: 'كادا',
     labelEn: 'Kada Series',
     labelAr: 'مجموعة كادا',
+    descEn: 'Bottles',
+    descAr: 'زجاجة',
     imageEn: '/banners/en-kada.png',
     imageAr: '/banners/ar-kada.png',
-    accent: '#D7F2E6',
   },
   {
     handle: 'pangpang-cups',
+    shortEn: 'PangPang',
+    shortAr: 'بانغ بانغ',
     labelEn: 'PangPang Series',
     labelAr: 'مجموعة بانغ بانغ',
+    descEn: 'Cups',
+    descAr: 'كوب',
     imageEn: '/banners/en-pangpang.png',
     imageAr: '/banners/ar-pangpang.png',
-    accent: '#DCF0FF',
   },
   {
     handle: 'tumbler',
+    shortEn: 'Hung',
+    shortAr: 'هانج',
     labelEn: 'Hung Kettle',
-    labelAr: 'مجموعة كيتل',
+    labelAr: 'كيتل هانج',
+    descEn: 'Kettles',
+    descAr: 'كيتل',
     imageEn: '/banners/en-hung-kettle.png',
     imageAr: '/banners/ar-hung-kettle.png',
-    accent: '#FFF0E0',
   },
   {
     handle: 'bobo-tumblers',
+    shortEn: 'Titanium',
+    shortAr: 'تيتانيوم',
     labelEn: 'Titanium Series',
-    labelAr: 'مجموعة التيتانيوم الفاخرة',
+    labelAr: 'مجموعة التيتانيوم',
+    descEn: 'Premium',
+    descAr: 'فاخر',
     imageEn: '/banners/en-titanium.png',
     imageAr: '/banners/ar-titanium.png',
-    accent: '#E8E8E8',
   },
+];
+
+// Per-series palette: softBg for card bg, nameColor for series name text,
+// btnBg + btnText for the CTA button
+const PALETTE = [
+  { softBg: 'bg-chako-linlin-soft',   nameColor: 'text-chako-ink',        btnBg: 'bg-chako-linlin',    btnText: 'text-chako-ink'  },
+  { softBg: 'bg-chako-milkpod-soft',  nameColor: 'text-chako-milkpod',    btnBg: 'bg-chako-milkpod',   btnText: 'text-white'      },
+  { softBg: 'bg-chako-bawang-soft',   nameColor: 'text-chako-bawang',     btnBg: 'bg-chako-bawang',    btnText: 'text-white'      },
+  { softBg: 'bg-chako-bobo-soft',     nameColor: 'text-chako-bobo',       btnBg: 'bg-chako-bobo',      btnText: 'text-white'      },
+  { softBg: 'bg-chako-kada-soft',     nameColor: 'text-chako-ink',        btnBg: 'bg-chako-kada',      btnText: 'text-chako-ink'  },
+  { softBg: 'bg-chako-pangpang-soft', nameColor: 'text-chako-pangpang',   btnBg: 'bg-chako-pangpang',  btnText: 'text-white'      },
+  { softBg: 'bg-chako-linlin-soft',   nameColor: 'text-chako-ink',        btnBg: 'bg-chako-linlin',    btnText: 'text-chako-ink'  },
+  { softBg: 'bg-chako-titanium-soft', nameColor: 'text-chako-titanium',   btnBg: 'bg-chako-titanium',  btnText: 'text-white'      },
 ];
 
 const EASE = 'cubic-bezier(0.23,1,0.32,1)';
@@ -87,7 +125,7 @@ export default function SeriesBanners() {
     if (rect.top < window.innerHeight) { setRevealed(true); return; }
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setRevealed(true); obs.disconnect(); } },
-      { threshold: 0.1 }
+      { threshold: 0.05 }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -96,99 +134,99 @@ export default function SeriesBanners() {
   return (
     <section
       ref={sectionRef}
-      className="w-full max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-24"
+      className="py-14 md:py-20"
       dir={isAr ? 'rtl' : 'ltr'}
     >
       {/* Section header */}
       <div
-        className="mb-8 md:mb-12 flex items-end justify-between"
+        className="max-w-screen-xl mx-auto px-4 md:px-8 flex items-end justify-between mb-8 md:mb-12"
         style={{
           opacity: revealed ? 1 : 0,
           transform: revealed ? 'translateY(0)' : 'translateY(20px)',
           transition: `opacity 600ms ${EASE}, transform 600ms ${EASE}`,
         }}
       >
-        <div>
-          <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">
-            {isAr ? 'استكشف' : 'Explore'}
-          </p>
-          <h2 className="text-fluid-heading font-bold">
-            {isAr ? 'تسوق حسب المجموعة' : 'Shop by Series'}
-          </h2>
-        </div>
+        <h2 className="text-heading font-display font-bold">
+          {isAr ? 'تسوق حسب المجموعة' : 'Shop by Series'}
+        </h2>
         <Link
           href="/collections"
-          className="text-sm font-semibold underline underline-offset-4 hover:opacity-60 transition-opacity whitespace-nowrap cursor-pointer"
+          className="text-sm font-semibold text-chako-ink/50 hover:text-chako-ink transition-colors underline underline-offset-4 whitespace-nowrap"
         >
           {isAr ? 'عرض الكل' : 'View all'}
         </Link>
       </div>
 
-      {/* Banner row — horizontal snap scroll on mobile, 3-col grid on desktop */}
-      <div className="relative">
-        {/* Fade hint — right edge, mobile only */}
-        <div className="absolute right-0 top-0 bottom-4 w-14 bg-gradient-to-l from-chako-bg to-transparent pointer-events-none z-10 md:hidden" />
+      {/* Cards: stacked on mobile, 4-col grid on desktop */}
+      <div className="max-w-screen-xl mx-auto px-4 md:px-8">
+        <div className="flex flex-col gap-4 md:grid md:grid-cols-4 md:gap-4">
+          {SERIES.map((series, i) => {
+            const img = isAr ? series.imageAr : series.imageEn;
+            const shortName = isAr ? series.shortAr : series.shortEn;
+            const desc = isAr ? series.descAr : series.descEn;
+            const pal = PALETTE[i] ?? PALETTE[0];
+            const shopLabel = isAr ? `تسوق ${series.shortAr}` : `Shop ${series.shortEn}`;
 
-        <div className="flex md:grid md:grid-cols-3 gap-3 md:gap-4 overflow-x-auto md:overflow-visible scrollbar-hide snap-x snap-mandatory md:snap-none scroll-momentum -mx-4 md:mx-0 px-4 md:px-0 pb-4 md:pb-0">
-        {SERIES.map((series, i) => {
-          const img = isAr ? series.imageAr : series.imageEn;
-          const label = isAr ? series.labelAr : series.labelEn;
-
-          return (
-            <div
-              key={`${series.handle}-${i}`}
-              className="flex-none w-[70vw] md:w-auto snap-start"
-              style={{
-                opacity: revealed ? 1 : 0,
-                transform: revealed ? 'translateY(0)' : 'translateY(28px)',
-                transition: `opacity 600ms ${EASE} ${i * 70}ms, transform 600ms ${EASE} ${i * 70}ms`,
-              }}
-            >
-              <Link
-                href={`/collections/${series.handle}`}
-                className="group relative block overflow-hidden rounded-2xl cursor-pointer transition-[transform,box-shadow] duration-300 ease-out hover:scale-[1.03] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chako-dark focus-visible:ring-offset-2"
+            return (
+              <div
+                key={`${series.handle}-${i}`}
+                style={{
+                  opacity: revealed ? 1 : 0,
+                  transform: revealed ? 'translateY(0)' : 'translateY(32px)',
+                  transition: `opacity 600ms ${EASE} ${i * 50}ms, transform 600ms ${EASE} ${i * 50}ms`,
+                }}
               >
-                {/* Background colour while image loads */}
-                <div
-                  className="absolute inset-0"
-                  style={{ backgroundColor: series.accent }}
-                />
-
-                {/* Banner image */}
-                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
-                  <Image
-                    src={img}
-                    alt={label}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                    priority={i < 3}
-                  />
-
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent transition-opacity duration-300 group-hover:from-black/40" />
-
-                  {/* Label pill — slides up 4px on hover */}
-                  <div className="absolute bottom-0 inset-x-0 p-4">
-                    <span className="inline-flex items-center gap-1.5 bg-white/90 backdrop-blur-sm text-chako-dark text-sm font-bold px-3 py-2 rounded-full shadow-sm transition-[transform,background-color,box-shadow] duration-200 ease-out group-hover:-translate-y-1 group-hover:bg-white group-hover:shadow-md max-w-full min-w-0">
-                      <span className="truncate">{label}</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14" height="14"
-                        viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" strokeWidth="2.5"
-                        strokeLinecap="round" strokeLinejoin="round"
-                        className={`flex-shrink-0 opacity-60 transition-transform duration-200 group-hover:translate-x-1 ${isAr ? 'rotate-180 group-hover:translate-x-0 group-hover:-translate-x-1' : ''}`}
-                      >
-                        <path d="m9 18 6-6-6-6"/>
-                      </svg>
+                <Link
+                  href={`/collections/${series.handle}`}
+                  className={cn(
+                    'group block rounded-2xl overflow-hidden cursor-pointer',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chako-ink focus-visible:ring-offset-2',
+                    pal.softBg
+                  )}
+                >
+                  {/* Card header: series name + CTA */}
+                  <div className="flex items-end justify-between px-5 pt-6 pb-4 md:px-4 md:pt-5 md:pb-3">
+                    <div className="min-w-0">
+                      <p className="font-sans text-[10px] font-semibold uppercase tracking-widest text-chako-ink/40 mb-0.5">
+                        {desc}
+                      </p>
+                      <h3 className={cn(
+                        'font-display font-bold leading-none tracking-tight truncate',
+                        'text-3xl md:text-2xl lg:text-3xl',
+                        pal.nameColor
+                      )}>
+                        {shortName}
+                      </h3>
+                    </div>
+                    <span
+                      className={cn(
+                        'flex-shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-full',
+                        'font-sans font-semibold text-xs uppercase tracking-wider',
+                        'transition-transform duration-150 group-hover:scale-105 group-active:scale-95',
+                        'touch-manipulation ml-3 rtl:ml-0 rtl:mr-3',
+                        pal.btnBg, pal.btnText
+                      )}
+                    >
+                      {isAr ? 'تسوق' : 'Shop'}
+                      <span className="text-xs">→</span>
                     </span>
                   </div>
-                </div>
-              </Link>
-            </div>
-          );
-        })}
+
+                  {/* Banner image */}
+                  <div className="relative w-full aspect-[4/3] md:aspect-[3/4] overflow-hidden">
+                    <Image
+                      src={img}
+                      alt={isAr ? series.labelAr : series.labelEn}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 25vw, 320px"
+                      className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                      priority={i < 4}
+                    />
+                  </div>
+                </Link>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

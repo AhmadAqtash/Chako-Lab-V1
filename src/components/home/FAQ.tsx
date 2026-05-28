@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { SectionLabel } from '@/components/ui/SectionLabel';
 
-const FAQS = [
+const FAQS_EN = [
   {
     q: 'Where does Chako Lab ship to?',
     a: 'We ship across the UAE and GCC region. Standard delivery takes 2-4 business days within the UAE.',
@@ -31,10 +32,38 @@ const FAQS = [
   },
 ];
 
+const FAQS_AR = [
+  {
+    q: 'إلى أين يشحن تشاكو لاب؟',
+    a: 'نشحن عبر الإمارات العربية المتحدة ومنطقة الخليج العربي. يستغرق التوصيل القياسي 2-4 أيام عمل داخل الإمارات.',
+  },
+  {
+    q: 'هل المنتجات آمنة للطعام وخالية من BPA؟',
+    a: 'نعم. جميع منتجات تشاكو لاب مصنوعة من مواد آمنة للطعام وخالية تماماً من BPA. نستخدم الفولاذ المقاوم للصدأ 304 والزجاج البوروسيليكاتي.',
+  },
+  {
+    q: 'كيف أنظف منتج تشاكو لاب وأعتني به؟',
+    a: 'يوصى بالغسيل اليدوي لمعظم المنتجات. تجنب المنظفات الكاشطة. للعناصر المعزولة، لا تغمر الأغطية ذات الأختام السيليكونية في الماء لفترات طويلة.',
+  },
+  {
+    q: 'ما هي سياسة الإرجاع؟',
+    a: 'نقبل الإرجاع خلال 14 يوماً من التسليم للمنتجات غير المستخدمة وغير التالفة في عبواتها الأصلية. تواصل معنا عبر إنستغرام أو البريد الإلكتروني.',
+  },
+  {
+    q: 'هل تحافظ الزجاجات المعزولة على درجة حرارة المشروبات؟',
+    a: 'زجاجاتنا ذات الجدار المزدوج بتقنية الفراغ تحافظ على المشروبات ساخنة لمدة تصل إلى 12 ساعة وباردة لمدة تصل إلى 24 ساعة.',
+  },
+  {
+    q: 'هل يمكنني شراء منتجات تشاكو لاب في المتاجر بالإمارات؟',
+    a: 'حالياً، تشاكو لاب متاح عبر الإنترنت فقط. نشحن مباشرة إلى بابك بتوصيل سريع داخل الإمارات.',
+  },
+];
+
 const EASE = 'cubic-bezier(0.23,1,0.32,1)';
 
 export default function FAQ() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isAr = language === 'ar';
   const [open, setOpen] = useState<number | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const [revealed, setRevealed] = useState(false);
@@ -52,8 +81,14 @@ export default function FAQ() {
     return () => obs.disconnect();
   }, []);
 
+  const FAQS = isAr ? FAQS_AR : FAQS_EN;
+
   return (
-    <section ref={sectionRef} className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20">
+    <section
+      ref={sectionRef}
+      className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-24"
+      dir={isAr ? 'rtl' : 'ltr'}
+    >
       <div className="max-w-2xl mx-auto">
         <div
           className="text-center mb-10"
@@ -63,40 +98,43 @@ export default function FAQ() {
             transition: `opacity 600ms ${EASE}, transform 600ms ${EASE}`,
           }}
         >
-          <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">{t('faq_label')}</p>
-          <h2 className="text-fluid-heading font-bold">{t('faq_heading')}</h2>
+          <SectionLabel className="mb-3">
+            {t('faq_label')}
+          </SectionLabel>
+          <h2 className="text-heading font-display font-bold">{t('faq_heading')}</h2>
         </div>
 
         <div className="space-y-2">
           {FAQS.map(({ q, a }, i) => (
             <div
               key={i}
-              className="border border-black/8 rounded-2xl overflow-hidden"
+              className="border border-black/[0.08] rounded-2xl overflow-hidden"
               style={{
                 opacity: revealed ? 1 : 0,
                 transform: revealed ? 'translateY(0)' : 'translateY(16px)',
-                transition: `opacity 500ms ${EASE} ${i * 60}ms, transform 500ms ${EASE} ${i * 60}ms`,
+                transition: `opacity 500ms ${EASE} ${i * 55}ms, transform 500ms ${EASE} ${i * 55}ms`,
               }}
             >
               <button
-                className="w-full flex items-center justify-between px-5 py-4 min-h-[52px] text-left hover:bg-black/[0.02] active:bg-black/[0.04] transition-colors cursor-pointer touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-chako-dark/20"
+                className="w-full flex items-center justify-between px-5 py-4 min-h-[56px] text-left hover:bg-black/[0.02] active:bg-black/[0.04] transition-colors cursor-pointer touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-chako-ink/20"
                 onClick={() => setOpen(open === i ? null : i)}
                 aria-expanded={open === i}
               >
-                <span className="font-medium text-[0.9375rem] md:text-sm leading-snug pr-4">{q}</span>
+                <span className="font-sans font-semibold text-sm md:text-[0.9375rem] leading-snug pr-4 rtl:pr-0 rtl:pl-4 text-chako-ink">
+                  {q}
+                </span>
                 <ChevronDown
-                  size={16}
-                  className={`flex-shrink-0 text-chako-dark/40 transition-transform duration-300 ease-out ${
+                  size={18}
+                  className={`flex-shrink-0 text-chako-ink/40 transition-transform duration-300 ease-out ${
                     open === i ? 'rotate-180' : ''
                   }`}
                 />
               </button>
 
-              {/* Grid-based height animation — GPU-friendly, no layout thrash */}
               <div className={`faq-panel ${open === i ? 'faq-open' : ''}`}>
                 <div>
-                  <div className="px-5 pb-4">
-                    <p className="text-sm text-chako-dark/60 leading-relaxed">{a}</p>
+                  <div className="px-5 pb-5">
+                    <p className="text-sm text-chako-ink/60 leading-relaxed">{a}</p>
                   </div>
                 </div>
               </div>

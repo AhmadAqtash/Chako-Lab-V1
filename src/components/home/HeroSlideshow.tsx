@@ -138,9 +138,10 @@ export default function HeroSlideshow() {
       <div className="absolute bottom-20 md:bottom-16 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-20">
         <Link
           href={slide.ctaHref}
-          className="inline-flex items-center gap-2 bg-white text-chako-dark font-bold px-7 py-3.5 rounded-full shadow-lg hover:bg-white/90 active:scale-95 transition-[transform,background-color] duration-150 text-sm touch-manipulation whitespace-nowrap"
+          className="inline-flex items-center gap-2 bg-white text-chako-ink font-display font-bold px-7 py-4 rounded-full shadow-xl hover:bg-white/95 hover:shadow-2xl active:scale-[0.96] transition-[transform,background-color,box-shadow] duration-150 text-sm md:text-base touch-manipulation whitespace-nowrap"
         >
           {ctaLabel}
+          <span className="text-chako-orange text-base leading-none">→</span>
         </Link>
       </div>
 
@@ -171,8 +172,8 @@ export default function HeroSlideshow() {
           >
             <span className={`block rounded-full transition-all duration-300 ${
               i === current
-                ? 'w-7 h-2.5 md:w-6 md:h-2 bg-white shadow-sm'
-                : 'w-2.5 h-2.5 md:w-2 md:h-2 bg-white/50 hover:bg-white/75'
+                ? 'w-8 h-3 md:w-6 md:h-2 bg-white shadow-md'
+                : 'w-3 h-3 md:w-2 md:h-2 bg-white/50 hover:bg-white/80'
             }`} />
           </button>
         ))}
