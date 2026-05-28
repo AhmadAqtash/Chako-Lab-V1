@@ -27,7 +27,7 @@ export default async function CollectionsPage() {
         <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1">
           <T k="collection_all_label" />
         </p>
-        <h1 className="text-2xl md:text-3xl font-bold"><T k="collection_all_heading" /></h1>
+        <h1 className="text-fluid-heading font-bold"><T k="collection_all_heading" /></h1>
         <p className="text-sm text-chako-dark/55 mt-2 max-w-xl leading-relaxed">
           <T k="collection_all_sub" />
         </p>

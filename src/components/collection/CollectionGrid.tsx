@@ -78,7 +78,7 @@ export default function CollectionGrid({ products, title, description, showColle
       {showCollectionHeader && (
         <div className="mb-6">
           <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1">Collection</p>
-          <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
+          <h1 className="text-fluid-heading font-bold">{title}</h1>
           {description && (
             <p className="text-sm text-chako-dark/55 mt-2 max-w-xl leading-relaxed">{description}</p>
           )}
@@ -86,13 +86,13 @@ export default function CollectionGrid({ products, title, description, showColle
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3 mb-5 py-3 border-y border-black/8">
+      <div className="flex items-center justify-between gap-2 mb-5 py-2 border-y border-black/8">
         <div className="flex items-center gap-2">
           {/* Filter toggle */}
           <button
             onClick={() => setInStockOnly(!inStockOnly)}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors',
+              'flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-full text-xs font-medium border transition-all active:scale-95 touch-manipulation',
               inStockOnly
                 ? 'bg-chako-dark text-chako-bg border-chako-dark'
                 : 'border-black/10 text-chako-dark/60 hover:border-black/25 hover:text-chako-dark'
@@ -108,7 +108,7 @@ export default function CollectionGrid({ products, title, description, showColle
           {activeFilterCount > 0 && (
             <button
               onClick={() => setInStockOnly(false)}
-              className="text-xs text-chako-dark/40 hover:text-chako-dark transition-colors"
+              className="text-xs text-chako-dark/40 hover:text-chako-dark transition-colors px-1 min-h-[44px] flex items-center touch-manipulation"
             >
               {t('collection_clear')}
             </button>
@@ -121,17 +121,17 @@ export default function CollectionGrid({ products, title, description, showColle
           </span>
 
           {/* Grid density toggle */}
-          <div className="hidden sm:flex items-center gap-0.5 bg-black/5 rounded-lg p-0.5">
+          <div className="flex items-center gap-0.5 bg-black/5 rounded-lg p-0.5">
             <button
               onClick={() => setDense(false)}
-              className={cn('p-1.5 rounded-md transition-colors', !dense ? 'bg-white shadow-sm' : 'hover:bg-black/5')}
+              className={cn('p-2 rounded-md transition-colors touch-manipulation', !dense ? 'bg-white shadow-sm' : 'hover:bg-black/5')}
               aria-label="Comfortable grid"
             >
               <Grid2x2 size={14} />
             </button>
             <button
               onClick={() => setDense(true)}
-              className={cn('p-1.5 rounded-md transition-colors', dense ? 'bg-white shadow-sm' : 'hover:bg-black/5')}
+              className={cn('p-2 rounded-md transition-colors touch-manipulation', dense ? 'bg-white shadow-sm' : 'hover:bg-black/5')}
               aria-label="Dense grid"
             >
               <LayoutGrid size={14} />
@@ -142,7 +142,7 @@ export default function CollectionGrid({ products, title, description, showColle
           <div className="relative">
             <button
               onClick={() => setSortOpen(!sortOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-black/10 hover:border-black/25 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-full text-xs font-medium border border-black/10 hover:border-black/25 transition-colors active:scale-95 touch-manipulation"
             >
               {sortLabel}
               <ChevronDown size={12} className={cn('transition-transform', sortOpen && 'rotate-180')} />
@@ -157,7 +157,7 @@ export default function CollectionGrid({ products, title, description, showColle
                       key={opt.value}
                       onClick={() => { setSort(opt.value); setSortOpen(false); }}
                       className={cn(
-                        'w-full text-left px-4 py-2 text-xs font-medium transition-colors',
+                        'w-full text-left px-4 py-3 min-h-[44px] text-xs font-medium transition-colors touch-manipulation',
                         sort === opt.value
                           ? 'text-chako-dark bg-chako-accent'
                           : 'text-chako-dark/60 hover:text-chako-dark hover:bg-black/5'
@@ -179,7 +179,7 @@ export default function CollectionGrid({ products, title, description, showColle
           className={cn(
             'grid gap-3 md:gap-4',
             dense
-              ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
+              ? 'grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
               : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
           )}
         >
