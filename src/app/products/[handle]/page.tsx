@@ -59,15 +59,17 @@ export default async function ProductPage({ params }: Props) {
       <Breadcrumb crumbs={crumbs} />
 
       <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
-        <div className="md:sticky md:top-24">
+        <div className="md:sticky md:top-24 min-w-0">
           <ProductGallery images={product.images.nodes} title={product.title} />
         </div>
-        <ProductDetails
-          product={product}
-          colorSiblings={colorSiblings}
-          colorName={colorName}
-          collectionHandle={collectionHandle}
-        />
+        <div className="min-w-0">
+          <ProductDetails
+            product={product}
+            colorSiblings={colorSiblings}
+            colorName={colorName}
+            collectionHandle={collectionHandle}
+          />
+        </div>
       </div>
 
       <ProductFeatures metafields={product.metafields} />

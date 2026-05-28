@@ -14,7 +14,7 @@ export default async function RelatedProducts({ productType, excludeHandles }: P
   return (
     <section className="border-t border-black/8 pt-14 mt-14">
       <h2 className="text-fluid-heading font-bold mb-6 px-4 md:px-0"><T k="product_you_may_like" /></h2>
-      <div className="relative">
+      <div className="relative overflow-x-hidden">
         <div className="flex md:grid md:grid-cols-4 gap-3 md:gap-4 overflow-x-auto md:overflow-visible scrollbar-hide snap-x snap-mandatory md:snap-none scroll-momentum -mx-4 md:mx-0 px-4 md:px-0 pb-2 md:pb-0">
           {products.map((product) => (
             <div key={product.id} className="flex-none w-[60vw] sm:w-[45vw] md:w-auto snap-start">

@@ -120,14 +120,14 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
 
   return (
     <>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 min-w-0">
         {/* Header */}
         <div>
           <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1.5">
             {product.productType}
           </p>
-          <div className="flex items-start justify-between gap-4">
-            <h1 className="text-fluid-heading font-bold leading-tight">{displayTitle}</h1>
+          <div className="flex items-start justify-between gap-4 min-w-0">
+            <h1 className="text-fluid-heading font-bold leading-tight min-w-0">{displayTitle}</h1>
             <button
               onClick={handleShare}
               className="flex-shrink-0 mt-1 p-2.5 rounded-full hover:bg-black/5 active:scale-95 transition-[transform,background-color] duration-150 text-chako-dark/40 hover:text-chako-dark touch-manipulation"
@@ -192,7 +192,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
               <Plus size={16} />
             </button>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             {selectedVariant ? (
               <AddToCartButton
                 variantId={selectedVariant.id}
@@ -212,7 +212,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
         <TrustBadges />
 
         {/* Tabs */}
-        <div className="border-t border-black/8 pt-4">
+        <div className="border-t border-black/8 pt-4 min-w-0">
           <div className="flex gap-0 border-b border-black/8 mb-4">
             {TABS.map(({ key, label }) => (
               <button
