@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -51,15 +51,14 @@ export default function HeroSlideshow() {
   const isAr = language === 'ar';
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
+  const touchStartX = useRef<number>(0);
+  const touchStartY = useRef<number>(0);
 
   const goTo = useCallback((idx: number) => {
     setCurrent((idx + SLIDES.length) % SLIDES.length);
   }, []);
 
-  // Auto-advance does not set paused
   const advance = useCallback(() => { goTo(current + 1); }, [current, goTo]);
-
-  // Manual nav pauses the timer
   const handlePrev = () => { setPaused(true); goTo(current - 1); };
   const handleNext = () => { setPaused(true); goTo(current + 1); };
 
@@ -69,6 +68,22 @@ export default function HeroSlideshow() {
     return () => clearInterval(id);
   }, [advance, paused]);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    setPaused(true);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const deltaX = touchStartX.current - e.changedTouches[0].clientX;
+    const deltaY = Math.abs(touchStartY.current - e.changedTouches[0].clientY);
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > deltaY) {
+      deltaX > 0
+        ? (isAr ? handlePrev() : handleNext())
+        : (isAr ? handleNext() : handlePrev());
+    }
+  };
+
   const slide = SLIDES[current];
   const ctaLabel = isAr ? slide.ctaAr : slide.ctaEn;
 
@@ -77,6 +92,8 @@ export default function HeroSlideshow() {
       className="relative overflow-hidden min-h-[100svh] md:min-h-[85vh] flex flex-col"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* All slides stacked — crossfade via opacity transition, no remount */}
       {SLIDES.map((s, i) => {
@@ -114,11 +131,14 @@ export default function HeroSlideshow() {
         );
       })}
 
-      {/* CTA button — white pill, absolute bottom-left */}
-      <div className="absolute bottom-20 md:bottom-16 left-6 md:left-8 z-20">
+      {/* Bottom gradient — ensures CTA readable over any slide on mobile */}
+      <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-black/55 to-transparent z-10 md:hidden pointer-events-none" />
+
+      {/* CTA button — centered on mobile, left-anchored on desktop */}
+      <div className="absolute bottom-20 md:bottom-16 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-20">
         <Link
           href={slide.ctaHref}
-          className="inline-flex items-center gap-2 bg-white text-chako-dark font-bold px-6 py-3 rounded-full shadow-lg hover:bg-white/90 transition-colors text-sm touch-manipulation"
+          className="inline-flex items-center gap-2 bg-white text-chako-dark font-bold px-7 py-3.5 rounded-full shadow-lg hover:bg-white/90 active:scale-95 transition-[transform,background-color] duration-150 text-sm touch-manipulation whitespace-nowrap"
         >
           {ctaLabel}
         </Link>
@@ -140,19 +160,19 @@ export default function HeroSlideshow() {
         <ChevronRight size={20} className="text-chako-dark" />
       </button>
 
-      {/* Dot indicators — centered on mobile, left-anchored on desktop */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-20 flex items-center">
+      {/* Dot indicators — centered, larger dots on mobile */}
+      <div className="absolute bottom-7 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-20 flex items-center">
         {SLIDES.map((_, i) => (
           <button
             key={i}
             onClick={() => { setPaused(true); goTo(i); }}
-            className="p-2.5 touch-manipulation"
+            className="p-3 md:p-2.5 touch-manipulation"
             aria-label={`Go to slide ${i + 1}`}
           >
             <span className={`block rounded-full transition-all duration-300 ${
               i === current
-                ? 'w-6 h-2 bg-white shadow-sm'
-                : 'w-2 h-2 bg-white/50 hover:bg-white/75'
+                ? 'w-7 h-2.5 md:w-6 md:h-2 bg-white shadow-sm'
+                : 'w-2.5 h-2.5 md:w-2 md:h-2 bg-white/50 hover:bg-white/75'
             }`} />
           </button>
         ))}

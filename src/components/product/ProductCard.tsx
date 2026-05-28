@@ -36,7 +36,7 @@ export default function ProductCard({ product }: Props) {
       href={`/products/${product.handle}`}
       className="group relative flex flex-col bg-chako-bg rounded-2xl overflow-hidden border border-black/5 hover:border-black/10 transition-[border-color,box-shadow,transform] duration-300 ease-out hover:shadow-lg hover:-translate-y-0.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chako-dark focus-visible:ring-offset-2"
     >
-      <div className="relative aspect-square bg-chako-accent overflow-hidden">
+      <div className="relative aspect-[4/5] md:aspect-square bg-chako-accent overflow-hidden">
         {product.featuredImage ? (
           <Image
             src={product.featuredImage.url}
@@ -56,8 +56,8 @@ export default function ProductCard({ product }: Props) {
         )}
 
         {!inStock && (
-          <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-            <span className="text-xs font-semibold text-chako-dark/50 bg-white px-3 py-1 rounded-full animate-pulse">
+          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+            <span className="text-xs font-bold text-white bg-black/55 backdrop-blur-sm px-4 py-1.5 rounded-full uppercase tracking-wide">
               {t('product_out_of_stock')}
             </span>
           </div>
@@ -71,7 +71,7 @@ export default function ProductCard({ product }: Props) {
               transform: pressing ? 'scale(0.88) translateY(0)' : undefined,
               transition: 'opacity 200ms ease, transform 150ms ease-out, background-color 150ms ease',
             }}
-            className="absolute bottom-2.5 right-2.5 rtl:right-auto rtl:left-2.5 bg-chako-dark text-chako-bg p-2.5 rounded-full md:opacity-0 md:translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 hover:bg-chako-dark/90 active:scale-90 disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="absolute bottom-2.5 right-2.5 rtl:right-auto rtl:left-2.5 bg-chako-dark text-chako-bg p-2.5 rounded-full opacity-100 md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0 hover:bg-chako-dark/90 active:scale-90 disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white shadow-md"
             aria-label="Add to cart"
           >
             <ShoppingBag size={16} />
@@ -83,7 +83,7 @@ export default function ProductCard({ product }: Props) {
         <p className="text-xs text-chako-dark/40 font-medium mb-0.5">{product.productType}</p>
         <h3 className="text-sm font-semibold leading-snug line-clamp-2 flex-1">{product.title}</h3>
         <div className="flex items-baseline gap-2 mt-2">
-          <span className="font-semibold text-sm">{formatPrice(price)}</span>
+          <span className="font-bold text-sm">{formatPrice(price)}</span>
           {compareAt && parseFloat(compareAt.amount) > parseFloat(price.amount) && (
             <span className="text-xs text-chako-dark/40 line-through">{formatPrice(compareAt)}</span>
           )}

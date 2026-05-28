@@ -49,18 +49,22 @@ export default async function CategoryBar() {
           <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1">
             <T k="browse_label" />
           </p>
-          <h2 className="text-2xl font-bold"><T k="browse_heading" /></h2>
+          <h2 className="text-fluid-heading font-bold"><T k="browse_heading" /></h2>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+      <div className="relative">
+        {/* Fade hint right edge — mobile only */}
+        <div className="absolute right-0 top-0 bottom-2 w-10 bg-gradient-to-l from-chako-bg to-transparent pointer-events-none z-10 md:hidden" />
+
+        <div className="flex md:grid md:grid-cols-5 gap-3 overflow-x-auto md:overflow-visible scrollbar-hide snap-x snap-mandatory md:snap-none scroll-momentum -mx-4 md:mx-0 px-4 md:px-0 pb-2 md:pb-0">
         {ALL_COLLECTION_HANDLES.map((handle) => (
           <Link
             key={handle}
             href={`/collections/${handle}`}
-            className="flex flex-col items-center gap-3 p-4 bg-chako-accent rounded-2xl hover:bg-chako-highlight/40 hover:shadow-sm transition-[background-color,box-shadow,transform] duration-200 ease-out group text-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chako-dark focus-visible:ring-offset-2"
+            className="flex-none w-20 md:w-auto snap-start flex flex-col items-center gap-2 md:gap-3 p-3 md:p-4 bg-chako-accent rounded-2xl hover:bg-chako-highlight/40 hover:shadow-sm active:scale-95 transition-[background-color,box-shadow,transform] duration-200 ease-out group text-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chako-dark focus-visible:ring-offset-2 touch-manipulation"
           >
-            <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white/60 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 md:w-20 md:h-20 rounded-xl md:rounded-2xl overflow-hidden bg-white/60 flex items-center justify-center flex-shrink-0">
               {images[handle] ? (
                 <Image
                   src={images[handle]!}
@@ -73,11 +77,12 @@ export default async function CategoryBar() {
                 <div className="w-full h-full bg-chako-highlight/30 rounded-2xl" />
               )}
             </div>
-            <span className="text-xs font-semibold text-chako-dark/70 group-hover:text-chako-dark transition-[color,transform] duration-200 leading-tight group-hover:-translate-y-0.5">
+            <span className="text-[10px] md:text-xs font-semibold text-chako-dark/70 group-hover:text-chako-dark transition-[color,transform] duration-200 leading-tight group-hover:-translate-y-0.5">
               <T k={HANDLE_TO_CAT_KEY[handle] ?? 'cat_all'} />
             </span>
           </Link>
         ))}
+        </div>
       </div>
     </section>
   );

@@ -1,16 +1,38 @@
 'use client';
 
 import Link from 'next/link';
+import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function Footer() {
   const { t } = useLanguage();
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const toggle = (section: string) => setExpanded(expanded === section ? null : section);
+
+  const shopLinks = [
+    { href: '/collections/linlin-kettles', key: 'cat_linlin' as const },
+    { href: '/collections/kada-bottles',   key: 'cat_kada'   as const },
+    { href: '/collections/bobo-tumblers',  key: 'cat_bobo'   as const },
+    { href: '/collections/mugs',           key: 'cat_mugs'   as const },
+    { href: '/collections',                key: 'nav_all_products' as const },
+  ];
+
+  const helpLinks = [
+    { href: '/pages/faq',      key: 'footer_faq'      as const },
+    { href: '/pages/shipping', key: 'footer_shipping'  as const },
+    { href: '/pages/contact',  key: 'footer_contact'   as const },
+    { href: '/pages/about',    key: 'footer_about'     as const },
+  ];
 
   return (
     <footer className="bg-chako-dark text-chako-bg mt-auto">
-      <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          <div className="md:col-span-2">
+      <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-0 md:gap-10">
+
+          {/* Brand + social — always visible */}
+          <div className="md:col-span-2 pb-8 md:pb-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/chako-lab-logo.png"
@@ -30,7 +52,7 @@ export default function Footer() {
                 href="https://instagram.com/chakolab.ae"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 active:scale-95 transition-[transform,background-color] duration-150 touch-manipulation"
                 aria-label="Instagram"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -41,7 +63,7 @@ export default function Footer() {
                 href="https://tiktok.com/@chakolab.ae"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 active:scale-95 transition-[transform,background-color] duration-150 touch-manipulation"
                 aria-label="TikTok"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -51,16 +73,22 @@ export default function Footer() {
             </div>
           </div>
 
-          <div>
-            <p className="font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">{t('footer_shop')}</p>
-            <ul className="space-y-2">
-              {[
-                { href: '/collections/linlin-kettles', key: 'cat_linlin' as const },
-                { href: '/collections/kada-bottles',   key: 'cat_kada'   as const },
-                { href: '/collections/bobo-tumblers',  key: 'cat_bobo'   as const },
-                { href: '/collections/mugs',           key: 'cat_mugs'   as const },
-                { href: '/collections',                key: 'nav_all_products' as const },
-              ].map(({ href, key }) => (
+          {/* Shop — collapsible on mobile */}
+          <div className="border-t border-white/10 md:border-0">
+            <button
+              className="md:hidden w-full flex items-center justify-between py-4 touch-manipulation"
+              onClick={() => toggle('shop')}
+              aria-expanded={expanded === 'shop'}
+            >
+              <p className="font-semibold text-sm text-chako-bg/80 uppercase tracking-wider">{t('footer_shop')}</p>
+              <ChevronDown
+                size={16}
+                className={`text-white/40 transition-transform duration-250 ${expanded === 'shop' ? 'rotate-180' : ''}`}
+              />
+            </button>
+            <p className="hidden md:block font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">{t('footer_shop')}</p>
+            <ul className={`space-y-3 pb-4 md:pb-0 md:space-y-2 md:block ${expanded === 'shop' ? 'block' : 'hidden'}`}>
+              {shopLinks.map(({ href, key }) => (
                 <li key={href}>
                   <Link href={href} className="text-sm text-chako-bg/55 hover:text-chako-bg transition-colors">
                     {t(key)}
@@ -70,15 +98,22 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div>
-            <p className="font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">{t('footer_help')}</p>
-            <ul className="space-y-2">
-              {[
-                { href: '/pages/faq', key: 'footer_faq' as const },
-                { href: '/pages/shipping', key: 'footer_shipping' as const },
-                { href: '/pages/contact', key: 'footer_contact' as const },
-                { href: '/pages/about', key: 'footer_about' as const },
-              ].map(({ href, key }) => (
+          {/* Help — collapsible on mobile */}
+          <div className="border-t border-white/10 md:border-0">
+            <button
+              className="md:hidden w-full flex items-center justify-between py-4 touch-manipulation"
+              onClick={() => toggle('help')}
+              aria-expanded={expanded === 'help'}
+            >
+              <p className="font-semibold text-sm text-chako-bg/80 uppercase tracking-wider">{t('footer_help')}</p>
+              <ChevronDown
+                size={16}
+                className={`text-white/40 transition-transform duration-250 ${expanded === 'help' ? 'rotate-180' : ''}`}
+              />
+            </button>
+            <p className="hidden md:block font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">{t('footer_help')}</p>
+            <ul className={`space-y-3 pb-4 md:pb-0 md:space-y-2 md:block ${expanded === 'help' ? 'block' : 'hidden'}`}>
+              {helpLinks.map(({ href, key }) => (
                 <li key={href}>
                   <Link href={href} className="text-sm text-chako-bg/55 hover:text-chako-bg transition-colors">
                     {t(key)}
@@ -89,7 +124,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
+        <div className="border-t border-white/10 mt-8 md:mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
           <p className="text-xs text-chako-bg/40">
             {t('footer_copyright')}{' '}
             <a

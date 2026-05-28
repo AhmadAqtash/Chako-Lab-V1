@@ -112,7 +112,7 @@ export default function SeriesBanners() {
           <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">
             {isAr ? 'استكشف' : 'Explore'}
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold">
+          <h2 className="text-fluid-heading font-bold">
             {isAr ? 'تسوق حسب المجموعة' : 'Shop by Series'}
           </h2>
         </div>
@@ -124,16 +124,20 @@ export default function SeriesBanners() {
         </Link>
       </div>
 
-      {/* Banner grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+      {/* Banner row — horizontal snap scroll on mobile, 3-col grid on desktop */}
+      <div className="relative">
+        {/* Fade hint — right edge, mobile only */}
+        <div className="absolute right-0 top-0 bottom-4 w-14 bg-gradient-to-l from-chako-bg to-transparent pointer-events-none z-10 md:hidden" />
+
+        <div className="flex md:grid md:grid-cols-3 gap-3 md:gap-4 overflow-x-auto md:overflow-visible scrollbar-hide snap-x snap-mandatory md:snap-none scroll-momentum -mx-4 md:mx-0 px-4 md:px-0 pb-4 md:pb-0">
         {SERIES.map((series, i) => {
           const img = isAr ? series.imageAr : series.imageEn;
           const label = isAr ? series.labelAr : series.labelEn;
 
           return (
-            /* Outer div handles entrance animation; inner Link handles hover */
             <div
               key={`${series.handle}-${i}`}
+              className="flex-none w-[70vw] md:w-auto snap-start"
               style={{
                 opacity: revealed ? 1 : 0,
                 transform: revealed ? 'translateY(0)' : 'translateY(28px)',
@@ -185,6 +189,7 @@ export default function SeriesBanners() {
             </div>
           );
         })}
+        </div>
       </div>
     </section>
   );

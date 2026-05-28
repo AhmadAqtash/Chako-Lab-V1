@@ -48,7 +48,7 @@ export default function BrandValues() {
           }}
         >
           <p className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-2">{t('promise_label')}</p>
-          <h2 className="text-2xl md:text-3xl font-bold text-white">{t('promise_heading')}</h2>
+          <h2 className="text-fluid-heading font-bold text-white">{t('promise_heading')}</h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

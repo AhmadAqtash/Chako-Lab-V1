@@ -18,6 +18,12 @@ module.exports = {
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
+      fontSize: {
+        'fluid-heading':    ['clamp(1.5rem, 5vw, 2.5rem)',   { lineHeight: '1.15', fontWeight: '700' }],
+        'fluid-subheading': ['clamp(1.25rem, 4vw, 2rem)',    { lineHeight: '1.2' }],
+        'fluid-label':      ['clamp(0.625rem, 2vw, 0.75rem)',{ lineHeight: '1',   letterSpacing: '0.1em' }],
+        'fluid-body':       ['clamp(0.875rem, 2.5vw, 1rem)', { lineHeight: '1.6' }],
+      },
       animation: {
         marquee: 'marquee 30s linear infinite',
         'marquee-reverse': 'marquee-reverse 30s linear infinite',

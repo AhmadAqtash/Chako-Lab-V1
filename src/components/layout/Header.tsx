@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { Search, ShoppingBag, Menu, X } from 'lucide-react';
+import { Search, ShoppingBag } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -21,7 +21,6 @@ export default function Header() {
   const { openCart, totalQuantity } = useCart();
   const { t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -30,18 +29,62 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => setMobileOpen(false), [pathname]);
+  const cartBadge = totalQuantity > 0 && (
+    <span className="absolute -top-0.5 -right-0.5 bg-[#F5A623] text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-0.5 shadow-sm">
+      {totalQuantity > 99 ? '99+' : totalQuantity}
+    </span>
+  );
 
   return (
     <header
       className={cn(
         'sticky top-0 z-30 transition-[background-color,backdrop-filter,box-shadow] duration-300',
-        scrolled
-          ? 'bg-white/85 backdrop-blur-md shadow-sm'
-          : 'bg-chako-bg'
+        scrolled ? 'bg-white/85 backdrop-blur-md shadow-sm' : 'bg-chako-bg'
       )}
     >
-      <div className="max-w-screen-xl mx-auto px-4 md:px-8 h-14 flex items-center gap-4">
+      {/* ── Mobile header (< md): 3-column grid — lang | logo | actions ── */}
+      <div className="md:hidden px-4 h-12 grid grid-cols-3 items-center">
+        <div className="flex items-center">
+          <LanguageSwitcher />
+        </div>
+
+        <div className="flex items-center justify-center">
+          <Link href="/" aria-label="Chako Lab">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/chako-lab-logo.png"
+              alt="Chako Lab"
+              style={{ height: '24px', width: 'auto', display: 'block' }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
+              }}
+            />
+            <span style={{ display: 'none' }} className="font-bold text-base tracking-tight">CHAKO LAB®</span>
+          </Link>
+        </div>
+
+        <div className="flex items-center justify-end gap-0.5">
+          <Link
+            href="/search"
+            className="p-2.5 rounded-full hover:bg-black/5 active:scale-95 transition-[transform,background-color] duration-150 touch-manipulation"
+            aria-label={t('nav_search')}
+          >
+            <Search size={20} />
+          </Link>
+          <button
+            onClick={openCart}
+            className="p-2.5 rounded-full hover:bg-black/5 active:scale-95 transition-[transform,background-color] duration-150 relative touch-manipulation"
+            aria-label={t('nav_cart')}
+          >
+            <ShoppingBag size={20} />
+            {cartBadge}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Desktop header (≥ md): logo | nav | actions ── */}
+      <div className="hidden md:flex max-w-screen-xl mx-auto px-8 h-14 items-center gap-4">
         <Link href="/" className="flex-shrink-0 mr-2" aria-label="Chako Lab">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -56,7 +99,7 @@ export default function Header() {
           <span style={{ display: 'none' }} className="font-bold text-lg tracking-tight">CHAKO LAB®</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1 flex-1">
+        <nav className="flex items-center gap-1 flex-1">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -73,7 +116,7 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1 ml-auto">
+        <div className="flex items-center gap-1">
           <LanguageSwitcher />
           <Link
             href="/search"
@@ -89,42 +132,13 @@ export default function Header() {
           >
             <ShoppingBag size={20} />
             {totalQuantity > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-chako-dark text-chako-bg text-[10px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1">
+              <span className="absolute -top-0.5 -right-0.5 bg-[#F5A623] text-white text-[10px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1 shadow-sm">
                 {totalQuantity > 99 ? '99+' : totalQuantity}
               </span>
             )}
           </button>
-          <button
-            className="md:hidden p-2 hover:bg-black/5 rounded-full transition-colors"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Menu"
-          >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
         </div>
       </div>
-
-      {mobileOpen && (
-        <div className="md:hidden border-t border-black/8 bg-chako-bg px-4 py-3 space-y-1">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                'block px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
-                pathname === link.href
-                  ? 'bg-black/5 text-chako-dark'
-                  : 'text-chako-dark/60 hover:text-chako-dark hover:bg-black/5'
-              )}
-            >
-              {t(link.key)}
-            </Link>
-          ))}
-          <div className="pt-2 pb-1 px-3">
-            <LanguageSwitcher />
-          </div>
-        </div>
-      )}
     </header>
   );
 }

@@ -17,7 +17,7 @@ export default async function FeaturedProducts() {
             <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">
               <T k="featured_label" />
             </p>
-            <h2 className="text-2xl md:text-3xl font-bold"><T k="featured_heading" /></h2>
+            <h2 className="text-fluid-heading font-bold"><T k="featured_heading" /></h2>
           </div>
           <Link
             href="/collections"

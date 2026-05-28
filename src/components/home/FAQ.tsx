@@ -64,7 +64,7 @@ export default function FAQ() {
           }}
         >
           <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">{t('faq_label')}</p>
-          <h2 className="text-2xl md:text-3xl font-bold">{t('faq_heading')}</h2>
+          <h2 className="text-fluid-heading font-bold">{t('faq_heading')}</h2>
         </div>
 
         <div className="space-y-2">
@@ -79,11 +79,11 @@ export default function FAQ() {
               }}
             >
               <button
-                className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-black/[0.02] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-chako-dark/20"
+                className="w-full flex items-center justify-between px-5 py-4 min-h-[52px] text-left hover:bg-black/[0.02] active:bg-black/[0.04] transition-colors cursor-pointer touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-chako-dark/20"
                 onClick={() => setOpen(open === i ? null : i)}
                 aria-expanded={open === i}
               >
-                <span className="font-medium text-sm pr-4">{q}</span>
+                <span className="font-medium text-[0.9375rem] md:text-sm leading-snug pr-4">{q}</span>
                 <ChevronDown
                   size={16}
                   className={`flex-shrink-0 text-chako-dark/40 transition-transform duration-300 ease-out ${

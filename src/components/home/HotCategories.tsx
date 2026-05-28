@@ -108,7 +108,7 @@ export default function HotCategories() {
         <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">
           {isAr ? 'الأكثر رواجاً' : 'Trending Now'}
         </p>
-        <h2 className="text-3xl md:text-4xl font-bold">{isAr ? 'الفئات الرائجة' : 'Hot Categories'}</h2>
+        <h2 className="text-fluid-heading font-bold">{isAr ? 'الفئات الرائجة' : 'Hot Categories'}</h2>
       </div>
       <p className="text-chako-dark/40 text-sm py-8">
         {isAr ? 'فشل تحميل المنتجات — تحقق من اتصال Shopify API.' : 'Products loading failed — check Shopify API connection.'}
@@ -122,27 +122,27 @@ export default function HotCategories() {
         <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-2">
           {isAr ? 'الأكثر رواجاً' : 'Trending Now'}
         </p>
-        <h2 className="text-3xl md:text-4xl font-bold">{isAr ? 'الفئات الرائجة' : 'Hot Categories'}</h2>
+        <h2 className="text-fluid-heading font-bold">{isAr ? 'الفئات الرائجة' : 'Hot Categories'}</h2>
       </div>
 
       {/* Tab bar */}
       <div className="flex items-center gap-2 mb-6">
         <button
           onClick={() => scrollTabs(-1)}
-          className="flex-shrink-0 w-10 h-10 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 hover:scale-110 active:scale-95 transition-[transform,background-color] duration-150 touch-manipulation cursor-pointer"
+          className="flex-shrink-0 w-11 h-11 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 hover:scale-110 active:scale-95 transition-[transform,background-color] duration-150 touch-manipulation cursor-pointer"
           aria-label="Scroll tabs left"
         >
           <ChevronLeft size={16} />
         </button>
         <div
           ref={tabsRef}
-          className="flex gap-2 overflow-x-auto scrollbar-hide flex-1"
+          className="flex gap-2 overflow-x-auto scrollbar-hide scroll-momentum flex-1"
         >
           {TABS.map((tab, i) => (
             <button
               key={tab.productType}
               onClick={() => selectTab(i)}
-              className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors touch-manipulation ${
+              className={`flex-shrink-0 px-5 py-3 rounded-full text-sm font-semibold transition-colors touch-manipulation min-h-[44px] ${
                 i === activeTab
                   ? 'bg-chako-dark text-chako-bg'
                   : 'border border-black/15 text-chako-dark/70 hover:border-black/30 hover:text-chako-dark'
@@ -238,7 +238,7 @@ export default function HotCategories() {
                         )}
 
                         {!soldOut && (
-                          <div className="absolute inset-x-0 bottom-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <div className="absolute inset-x-0 bottom-0 p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
                             <span className="block w-full text-center py-2 bg-chako-dark text-chako-bg text-xs font-semibold rounded-xl">
                               {isAr ? 'اختر الخيارات' : 'Choose Options'}
                             </span>

@@ -1,6 +1,5 @@
 'use client';
 
-import { Globe } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function LanguageSwitcher() {
@@ -10,14 +9,12 @@ export default function LanguageSwitcher() {
   return (
     <button
       onClick={() => setLanguage(isAr ? 'en' : 'ar')}
-      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-black/15 text-sm font-medium hover:bg-black/5 transition-colors text-chako-dark flex-shrink-0"
+      className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-black/15 text-xs font-semibold hover:bg-black/5 active:scale-95 transition-[transform,background-color] duration-150 text-chako-dark flex-shrink-0 touch-manipulation"
       aria-label="Switch language"
     >
-      <Globe size={14} className="hidden sm:block" />
-      {/* Mobile: compact target-language label */}
-      <span className="sm:hidden">{isAr ? 'EN' : 'ع'}</span>
-      {/* Desktop: full target-language name */}
-      <span className="hidden sm:inline">{isAr ? 'English' : 'عربي'}</span>
+      <span className={isAr ? 'text-chako-dark/40' : 'text-chako-dark font-bold'}>EN</span>
+      <span className="text-chako-dark/20 font-normal">|</span>
+      <span className={isAr ? 'text-chako-dark font-bold' : 'text-chako-dark/40'}>عر</span>
     </button>
   );
 }
