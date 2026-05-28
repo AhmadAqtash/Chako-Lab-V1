@@ -44,6 +44,9 @@ export default function ProductGallery({ images, title }: Props) {
     return <div className="aspect-square bg-chako-accent rounded-3xl" />;
   }
 
+  const activeImage = images[active];
+  const isWide = activeImage.width > 0 && activeImage.height > 0 && activeImage.width / activeImage.height > 1.1;
+
   return (
     <>
       <div className="flex flex-col-reverse md:flex-row gap-3">
@@ -88,12 +91,14 @@ export default function ProductGallery({ images, title }: Props) {
             onTouchEnd={handleTouchEnd}
           >
             <Image
-              src={images[active].url}
-              alt={images[active].altText || title}
+              src={activeImage.url}
+              alt={activeImage.altText || title}
               fill
               priority
+              quality={90}
               className={cn(
-                'object-cover transition-transform duration-200',
+                isWide ? 'object-contain' : 'object-cover',
+                'transition-transform duration-200',
                 zoomed ? 'scale-[2]' : 'scale-100'
               )}
               style={zoomed ? { transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` } : undefined}

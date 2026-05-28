@@ -187,9 +187,6 @@ export default function SeriesBanners() {
                   {/* Card header: series name + CTA */}
                   <div className="flex items-end justify-between px-3 pt-4 pb-3 md:px-4 md:pt-5 md:pb-3">
                     <div className="min-w-0">
-                      <p className="font-sans text-[9px] md:text-[10px] font-semibold uppercase tracking-widest text-chako-ink/40 mb-0.5">
-                        {desc}
-                      </p>
                       <h3 className={cn(
                         'font-display font-bold leading-none tracking-tight truncate',
                         'text-xl md:text-2xl lg:text-3xl',
@@ -218,8 +215,9 @@ export default function SeriesBanners() {
                       src={img}
                       alt={isAr ? series.labelAr : series.labelEn}
                       fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 25vw, 320px"
-                      className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                      quality={100}
+                      sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 320px"
+                      className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                       priority={i < 4}
                     />
                   </div>
