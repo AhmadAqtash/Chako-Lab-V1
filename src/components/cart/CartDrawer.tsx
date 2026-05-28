@@ -5,11 +5,23 @@ import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
 import Image from 'next/image';
 import { X, ShoppingBag, Minus, Plus, Trash2, Clock } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function CartDrawer() {
   const { cart, isOpen, closeCart, updateItem, removeItem, isLoading } = useCart();
   const { t, isRTL } = useLanguage();
+  const touchStartX = useRef<number | null>(null);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartX.current;
+    if (!isRTL && diff > 80) closeCart();
+    if (isRTL && diff < -80) closeCart();
+    touchStartX.current = null;
+  }
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden';
@@ -32,6 +44,8 @@ export default function CartDrawer() {
         } ${
           isOpen ? 'translate-x-0' : isRTL ? '-translate-x-full' : 'translate-x-full'
         }`}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-black/8">
           <div className="flex items-center gap-2">
@@ -43,7 +57,7 @@ export default function CartDrawer() {
               </span>
             )}
           </div>
-          <button onClick={closeCart} className="p-2 hover:bg-black/5 rounded-full transition-colors">
+          <button onClick={closeCart} className="w-11 h-11 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors active:scale-95 touch-manipulation">
             <X size={20} />
           </button>
         </div>
@@ -55,7 +69,7 @@ export default function CartDrawer() {
               <p className="text-chako-dark/60 font-medium">{t('cart_empty')}</p>
               <button
                 onClick={closeCart}
-                className="px-6 py-2 bg-chako-dark text-chako-bg rounded-full text-sm font-medium hover:bg-chako-dark/90 transition-colors"
+                className="px-6 py-3 min-h-[44px] bg-chako-dark text-chako-bg rounded-full text-sm font-medium hover:bg-chako-dark/90 transition-colors active:scale-95 touch-manipulation"
               >
                 {t('cart_continue')}
               </button>
@@ -86,27 +100,27 @@ export default function CartDrawer() {
                       {formatPrice(line.cost.totalAmount)}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
-                      <div className="flex items-center gap-1 bg-black/5 rounded-full px-2 py-1">
+                      <div className="flex items-center gap-1 bg-black/5 rounded-xl px-1.5 py-1">
                         <button
                           onClick={() => updateItem(line.id, line.quantity - 1)}
                           disabled={isLoading || line.quantity <= 1}
-                          className="p-0.5 hover:bg-black/10 rounded-full transition-colors disabled:opacity-40"
+                          className="w-8 h-8 flex items-center justify-center hover:bg-black/10 rounded-lg transition-colors disabled:opacity-40 active:scale-90 touch-manipulation"
                         >
-                          <Minus size={12} />
+                          <Minus size={13} />
                         </button>
                         <span className="text-sm font-medium w-5 text-center">{line.quantity}</span>
                         <button
                           onClick={() => updateItem(line.id, line.quantity + 1)}
                           disabled={isLoading}
-                          className="p-0.5 hover:bg-black/10 rounded-full transition-colors disabled:opacity-40"
+                          className="w-8 h-8 flex items-center justify-center hover:bg-black/10 rounded-lg transition-colors disabled:opacity-40 active:scale-90 touch-manipulation"
                         >
-                          <Plus size={12} />
+                          <Plus size={13} />
                         </button>
                       </div>
                       <button
                         onClick={() => removeItem(line.id)}
                         disabled={isLoading}
-                        className="p-1.5 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors disabled:opacity-40"
+                        className="w-9 h-9 flex items-center justify-center hover:bg-red-50 hover:text-red-500 rounded-full transition-colors disabled:opacity-40 active:scale-95 touch-manipulation"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -119,7 +133,7 @@ export default function CartDrawer() {
         </div>
 
         {cart && cart.lines.nodes.length > 0 && (
-          <div className="px-6 py-4 border-t border-black/8 space-y-4">
+          <div className="px-6 pt-4 border-t border-black/8 space-y-4" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
             <div className="flex justify-between text-sm">
               <span className="text-chako-dark/60">{t('cart_subtotal')}</span>
               <span className="font-semibold">{formatPrice(cart.cost.subtotalAmount)}</span>
@@ -135,7 +149,7 @@ export default function CartDrawer() {
             </p>
             <a
               href={cart.checkoutUrl}
-              className="block w-full text-center py-3.5 bg-chako-dark text-chako-bg font-semibold rounded-2xl hover:bg-chako-dark/90 transition-colors"
+              className="block w-full text-center py-4 bg-chako-dark text-chako-bg font-semibold rounded-2xl hover:bg-chako-dark/90 transition-colors active:scale-[0.98] touch-manipulation"
             >
               {t('cart_checkout')} — {formatPrice(cart.cost.subtotalAmount)}
             </a>
