@@ -159,7 +159,7 @@ export default function SeriesBanners() {
 
       {/* Cards: stacked on mobile, 4-col grid on desktop */}
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
-        <div className="flex flex-col gap-4 md:grid md:grid-cols-4 md:gap-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           {SERIES.map((series, i) => {
             const img = isAr ? series.imageAr : series.imageEn;
             const shortName = isAr ? series.shortAr : series.shortEn;
@@ -185,14 +185,14 @@ export default function SeriesBanners() {
                   )}
                 >
                   {/* Card header: series name + CTA */}
-                  <div className="flex items-end justify-between px-5 pt-6 pb-4 md:px-4 md:pt-5 md:pb-3">
+                  <div className="flex items-end justify-between px-3 pt-4 pb-3 md:px-4 md:pt-5 md:pb-3">
                     <div className="min-w-0">
-                      <p className="font-sans text-[10px] font-semibold uppercase tracking-widest text-chako-ink/40 mb-0.5">
+                      <p className="font-sans text-[9px] md:text-[10px] font-semibold uppercase tracking-widest text-chako-ink/40 mb-0.5">
                         {desc}
                       </p>
                       <h3 className={cn(
                         'font-display font-bold leading-none tracking-tight truncate',
-                        'text-3xl md:text-2xl lg:text-3xl',
+                        'text-xl md:text-2xl lg:text-3xl',
                         pal.nameColor
                       )}>
                         {shortName}
@@ -200,10 +200,10 @@ export default function SeriesBanners() {
                     </div>
                     <span
                       className={cn(
-                        'flex-shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-full',
-                        'font-sans font-semibold text-xs uppercase tracking-wider',
+                        'flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 md:px-3 md:py-2 rounded-full',
+                        'font-sans font-semibold text-[10px] md:text-xs uppercase tracking-wider',
                         'transition-transform duration-150 group-hover:scale-105 group-active:scale-95',
-                        'touch-manipulation ml-3 rtl:ml-0 rtl:mr-3',
+                        'touch-manipulation ml-2 rtl:ml-0 rtl:mr-2',
                         pal.btnBg, pal.btnText
                       )}
                     >

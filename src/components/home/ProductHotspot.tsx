@@ -3,21 +3,23 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 const STORE = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN!;
 const TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
 
 interface HotspotDot {
   id: number;
-  label: string;
+  labelEn: string;
+  labelAr: string;
   top: string;
   left: string;
 }
 
 const HOTSPOTS: HotspotDot[] = [
-  { id: 1, label: 'Double Wall Insulation', top: '22%', left: '58%' },
-  { id: 2, label: 'SUS 316 Steel Body',     top: '48%', left: '72%' },
-  { id: 3, label: 'Leak-Proof Seal',         top: '74%', left: '55%' },
+  { id: 1, labelEn: 'Double Wall Insulation', labelAr: 'عزل بجدارين',        top: '22%', left: '58%' },
+  { id: 2, labelEn: 'SUS 316 Steel Body',     labelAr: 'هيكل فولاذ SUS 316', top: '48%', left: '72%' },
+  { id: 3, labelEn: 'Leak-Proof Seal',         labelAr: 'ختم مانع للتسرب',   top: '74%', left: '55%' },
 ];
 
 const FETCH_GQL = `{
@@ -26,12 +28,16 @@ const FETCH_GQL = `{
   }
 }`;
 
+const EASE = 'cubic-bezier(0.23,1,0.32,1)';
+
 export default function ProductHotspot() {
+  const { language } = useLanguage();
+  const isAr = language === 'ar';
   const [imageUrl, setImageUrl] = useState('/brand-banner.webp');
   const [imageAlt, setImageAlt] = useState('Kada Bottle product details');
   const [activeHotspot, setActiveHotspot] = useState<number | null>(null);
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -51,57 +57,70 @@ export default function ProductHotspot() {
           if (node.featuredImage.altText) setImageAlt(node.featuredImage.altText);
         }
       } catch {
-        // fallback already set
+        // fallback image already set
       }
     };
     fetchImage();
   }, []);
 
   useEffect(() => {
-    const el = ref.current;
+    const el = sectionRef.current;
     if (!el) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight) { setRevealed(true); return; }
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.2 }
+      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); obs.disconnect(); } },
+      { threshold: 0.1 }
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
   return (
-    <section className="overflow-hidden">
-      <div
-        ref={ref}
-        className={`flex flex-col md:flex-row min-h-[500px] transition-all duration-700 ease-out ${
-          visible ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        {/* Left: dark teal panel */}
-        <div className="flex-1 bg-[#1a2f3a] flex items-center px-6 md:px-16 py-12 md:py-16">
-          <div className="max-w-sm">
-            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">
-              Premium Quality
-            </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white uppercase leading-tight mb-5">
-              HIGH-QUALITY<br />SUS 316 STEEL
+    <section
+      ref={sectionRef}
+      className="overflow-hidden"
+      dir={isAr ? 'rtl' : 'ltr'}
+      style={{
+        opacity: revealed ? 1 : 0,
+        transition: `opacity 700ms ${EASE}`,
+      }}
+    >
+      <div className="flex flex-col md:flex-row min-h-[480px]">
+        {/* Left/right text panel: kada series soft tint */}
+        <div className="flex-1 bg-chako-kada-soft flex items-center px-6 md:px-16 py-12 md:py-20 order-2 md:order-1">
+          <div
+            className="max-w-sm"
+            style={{
+              opacity: revealed ? 1 : 0,
+              transform: revealed ? 'translateY(0)' : 'translateY(24px)',
+              transition: `opacity 700ms ${EASE} 150ms, transform 700ms ${EASE} 150ms`,
+            }}
+          >
+            <h2 className="font-display font-bold leading-none text-chako-ink mb-4" style={{ fontSize: 'clamp(2rem, 7vw, 4rem)' }}>
+              {isAr ? (
+                'فولاذ SUS 316'
+              ) : (
+                <>SUS 316<br />Steel</>
+              )}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed mb-8">
-              Food-grade stainless steel. Built to last a lifetime.
+            <p className="text-chako-ink/60 leading-relaxed mb-8 max-w-[40ch]" style={{ fontSize: 'clamp(0.9375rem, 2.5vw, 1.0625rem)' }}>
+              {isAr
+                ? 'فولاذ مقاوم للصدأ صالح للاستخدام الغذائي، مصنوع ليدوم مدى الحياة مع الحفاظ الكامل على نقاء الطعم.'
+                : 'Food-grade stainless steel built to last a lifetime, with zero compromise on taste or safety.'}
             </p>
             <Link
               href="/collections/kada-bottles"
-              className="inline-flex items-center gap-2 text-white font-semibold text-sm group"
+              className="inline-flex items-center gap-2 bg-chako-kada text-chako-ink font-display font-bold px-6 py-3.5 rounded-full text-sm hover:opacity-90 active:scale-[0.97] transition-[transform,opacity] duration-150 touch-manipulation"
             >
-              <span className="border-b border-white/40 group-hover:border-white transition-colors pb-0.5">
-                Shop Now
-              </span>
-              <span className="group-hover:translate-x-1 transition-transform">→</span>
+              {isAr ? 'تسوق كادا' : 'Shop Kada'}
+              <span className="text-base leading-none">→</span>
             </Link>
           </div>
         </div>
 
-        {/* Right: product image with hotspot dots */}
-        <div className="flex-1 relative min-h-[400px] md:min-h-0">
+        {/* Image panel with hotspot dots */}
+        <div className="flex-1 relative min-h-[340px] md:min-h-0 bg-chako-kada-soft order-1 md:order-2">
           <Image
             src={imageUrl}
             alt={imageAlt}
@@ -109,7 +128,6 @@ export default function ProductHotspot() {
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 50vw"
           />
-          <div className="absolute inset-0 bg-black/10" />
 
           {HOTSPOTS.map((spot) => (
             <div
@@ -118,9 +136,7 @@ export default function ProductHotspot() {
               style={{ top: spot.top, left: spot.left }}
             >
               <div className="relative flex items-center justify-center">
-                {/* Pulse ring */}
-                <span className="absolute w-5 h-5 rounded-full bg-white/50 animate-ping" />
-                {/* Dot — 44px touch target via padding, 20px visual */}
+                <span className="absolute w-5 h-5 rounded-full bg-white/60 animate-ping" />
                 <button
                   className="relative p-[14px] -m-[14px] rounded-full z-10 touch-manipulation group"
                   onClick={() => setActiveHotspot(activeHotspot === spot.id ? null : spot.id)}
@@ -128,18 +144,17 @@ export default function ProductHotspot() {
                   onMouseLeave={() => setActiveHotspot(null)}
                   onFocus={() => setActiveHotspot(spot.id)}
                   onBlur={() => setActiveHotspot(null)}
-                  aria-label={spot.label}
+                  aria-label={isAr ? spot.labelAr : spot.labelEn}
                   aria-expanded={activeHotspot === spot.id}
                 >
-                  <span className="block w-5 h-5 rounded-full bg-white shadow-lg group-hover:scale-125 transition-transform" />
+                  <span className="block w-5 h-5 rounded-full bg-white shadow-lg group-hover:scale-125 group-active:scale-95 transition-transform duration-150" />
                 </button>
-                {/* Tooltip */}
                 {activeHotspot === spot.id && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-20 pointer-events-none">
-                    <div className="bg-white text-chako-dark text-xs font-semibold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
-                      {spot.label}
+                    <div className="bg-chako-ink text-chako-cream text-xs font-semibold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
+                      {isAr ? spot.labelAr : spot.labelEn}
                     </div>
-                    <div className="w-2 h-2 bg-white rotate-45 mx-auto -mt-1 shadow-sm" />
+                    <div className="w-2 h-2 bg-chako-ink rotate-45 mx-auto -mt-1" />
                   </div>
                 )}
               </div>

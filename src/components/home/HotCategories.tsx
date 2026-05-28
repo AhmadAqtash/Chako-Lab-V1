@@ -117,12 +117,6 @@ export default function HotCategories() {
     }, 200);
   };
 
-  const scrollGrid = (dir: number) => {
-    const el = gridRef.current;
-    if (!el) return;
-    el.scrollBy({ left: (isAr ? -dir : dir) * el.offsetWidth * 0.8, behavior: 'smooth' });
-  };
-
   if (!loading && allProducts.length === 0) return (
     <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-14 md:py-20" dir={isAr ? 'rtl' : 'ltr'}>
       <h2 className="text-heading font-display font-bold mb-8">

@@ -40,8 +40,8 @@ const SLIDES: Slide[] = [
     enMobile:  '/hero/slide-3-en-mobile.png',
     arDesktop: '/hero/slide-3-ar-desktop.png',
     arMobile:  '/hero/slide-3-ar-mobile.png',
-    ctaEn: 'Shop Now — 10% Off',
-    ctaAr: 'تسوق الآن — خصم ١٠٪',
+    ctaEn: 'Shop Now - 10% Off',
+    ctaAr: 'تسوق الآن - خصم ١٠٪',
     ctaHref: '/collections',
   },
 ];
