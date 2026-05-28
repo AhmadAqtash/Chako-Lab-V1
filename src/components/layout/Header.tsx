@@ -49,12 +49,12 @@ export default function Header() {
         </div>
 
         <div className="flex items-center justify-center">
-          <Link href="/" aria-label="Chako Lab">
+          <Link href="/" aria-label="Chako Lab" className="inline-flex items-center leading-[0]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/chako-lab-logo.png"
               alt="Chako Lab"
-              style={{ height: '24px', width: 'auto', display: 'block' }}
+              style={{ height: '24px', width: 'auto', maxWidth: '160px', flexShrink: 0, display: 'block', objectFit: 'contain' }}
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
@@ -85,12 +85,12 @@ export default function Header() {
 
       {/* ── Desktop header (≥ md): logo | nav | actions ── */}
       <div className="hidden md:flex max-w-screen-xl mx-auto px-8 h-14 items-center gap-4">
-        <Link href="/" className="flex-shrink-0 mr-2" aria-label="Chako Lab">
+        <Link href="/" className="flex-shrink-0 mr-2 inline-flex items-center leading-[0]" aria-label="Chako Lab">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/chako-lab-logo.png"
             alt="Chako Lab"
-            style={{ height: '28px', width: 'auto', display: 'block' }}
+            style={{ height: '28px', width: 'auto', maxWidth: '160px', flexShrink: 0, display: 'block', objectFit: 'contain' }}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
               (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Product, ProductVariant } from '@/types/shopify';
 import { formatPrice, getDiscountPercent } from '@/lib/utils';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,19 @@ import TrustBadges from './TrustBadges';
 import ColorSwatches from './ColorSwatches';
 import { Minus, Plus, Share2, Check } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+
+const PUB_STORE = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+const PUB_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+
+const AR_PRODUCT_QUERY = `
+  query GetProductAR($handle: String!) @inContext(language: AR) {
+    product(handle: $handle) {
+      title
+      description
+      descriptionHtml
+    }
+  }
+`;
 
 interface Props {
   product: Product;
@@ -28,7 +41,37 @@ const SHIPPING_INFO = [
 ];
 
 export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle }: Props) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isAr = language === 'ar';
+
+  // Client-side Arabic content: re-fetches translated title + description when
+  // language is switched to Arabic without a full page reload, or when the
+  // server didn't have the cookie yet on the first visit.
+  const [arContent, setArContent] = useState<{ title: string; descriptionHtml: string } | null>(null);
+  useEffect(() => {
+    if (!isAr || !PUB_STORE || !PUB_TOKEN) { setArContent(null); return; }
+    let cancelled = false;
+    fetch(`https://${PUB_STORE}/api/2024-01/graphql.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': PUB_TOKEN,
+      },
+      body: JSON.stringify({ query: AR_PRODUCT_QUERY, variables: { handle: product.handle } }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        const p = data.data?.product;
+        if (p?.title) setArContent({ title: p.title, descriptionHtml: p.descriptionHtml ?? '' });
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [isAr, product.handle]);
+
+  const displayTitle = (isAr && arContent?.title) ? arContent.title : product.title;
+  const displayDescHtml = (isAr && arContent?.descriptionHtml) ? arContent.descriptionHtml : product.descriptionHtml;
+  const displayDesc = (isAr && arContent?.descriptionHtml) ? '' : product.description;
 
   const TABS: { key: Tab; label: string }[] = [
     { key: 'Description', label: t('product_description') },
@@ -84,7 +127,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
             {product.productType}
           </p>
           <div className="flex items-start justify-between gap-4">
-            <h1 className="text-fluid-heading font-bold leading-tight">{product.title}</h1>
+            <h1 className="text-fluid-heading font-bold leading-tight">{displayTitle}</h1>
             <button
               onClick={handleShare}
               className="flex-shrink-0 mt-1 p-2.5 rounded-full hover:bg-black/5 active:scale-95 transition-[transform,background-color] duration-150 text-chako-dark/40 hover:text-chako-dark touch-manipulation"
@@ -189,14 +232,14 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
 
           {activeTab === 'Description' && (
             <div className="text-sm text-chako-dark/65 leading-relaxed px-4 md:px-0">
-              {product.descriptionHtml ? (
+              {displayDescHtml ? (
                 <div
                   className="chako-description prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:pl-4 prose-ol:pl-4 prose-li:marker:text-chako-dark/40"
-                  dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+                  dangerouslySetInnerHTML={{ __html: displayDescHtml }}
                 />
-              ) : product.description ? (
+              ) : displayDesc ? (
                 <ul className="space-y-2">
-                  {product.description
+                  {displayDesc
                     .split(/\.\s+|\n/)
                     .map((s) => s.trim())
                     .filter(Boolean)

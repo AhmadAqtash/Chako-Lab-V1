@@ -36,6 +36,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.dir = rtl ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
     localStorage.setItem('chako_lang', language);
+    // Cookie allows server components to read the active language on next request
+    document.cookie = `chako_lang=${language}; path=/; max-age=31536000; SameSite=Lax`;
   }, [language]);
 
   function setLanguage(lang: Language) {

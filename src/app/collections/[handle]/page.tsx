@@ -1,10 +1,12 @@
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import {
   getProducts,
   COLLECTION_HANDLE_TO_TYPE,
   COLLECTION_DISPLAY_NAMES,
   ALL_COLLECTION_HANDLES,
 } from '@/lib/shopify';
+import type { ShopifyLanguage } from '@/lib/shopify';
 import CollectionGrid from '@/components/collection/CollectionGrid';
 import Breadcrumb from '@/components/ui/Breadcrumb';
 import type { Metadata } from 'next';
@@ -34,7 +36,8 @@ export default async function CollectionPage({ params }: Props) {
   if (!productType) notFound();
 
   const displayName = COLLECTION_DISPLAY_NAMES[params.handle];
-  const products = await getProducts({ first: 250, productType });
+  const lang: ShopifyLanguage = cookies().get('chako_lang')?.value === 'ar' ? 'AR' : 'EN';
+  const products = await getProducts({ first: 250, productType, language: lang });
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8">

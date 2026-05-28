@@ -1,4 +1,6 @@
+import { cookies } from 'next/headers';
 import { searchProducts } from '@/lib/shopify';
+import type { ShopifyLanguage } from '@/lib/shopify';
 import ProductCard from '@/components/product/ProductCard';
 import SearchInput from './SearchInput';
 import type { Metadata } from 'next';
@@ -13,7 +15,8 @@ interface Props {
 
 export default async function SearchPage({ searchParams }: Props) {
   const query = searchParams.q?.trim() || '';
-  const products = query ? await searchProducts(query) : [];
+  const lang: ShopifyLanguage = cookies().get('chako_lang')?.value === 'ar' ? 'AR' : 'EN';
+  const products = query ? await searchProducts(query, lang) : [];
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-10">

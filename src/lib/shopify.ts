@@ -131,9 +131,11 @@ const PRODUCT_CARD_FRAGMENT = `
   }
 `;
 
+export type ShopifyLanguage = 'EN' | 'AR';
+
 const PRODUCTS_QUERY = `
   ${PRODUCT_CARD_FRAGMENT}
-  query GetProducts($first: Int!, $query: String) {
+  query GetProducts($first: Int!, $query: String, $language: LanguageCode!) @inContext(language: $language) {
     products(first: $first, sortKey: BEST_SELLING, query: $query) {
       nodes { ...ProductCard }
     }
@@ -142,7 +144,7 @@ const PRODUCTS_QUERY = `
 
 const PRODUCT_DETAIL_QUERY = `
   ${IMAGE_FIELDS}
-  query GetProduct($handle: String!) {
+  query GetProduct($handle: String!, $language: LanguageCode!) @inContext(language: $language) {
     product(handle: $handle) {
       id
       handle
@@ -195,21 +197,18 @@ const PRODUCT_DETAIL_QUERY = `
     }
   }
 `;
-// Note: for Arabic product content, the Shopify Storefront API supports passing
-// a `language` header (Accept-Language) or @inContext directive. Since language
-// selection is client-side and product queries run server-side, this requires
-// either edge middleware or client-side fetching. Deferred to Phase 2.
-
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 export async function getProducts({
   first = 48,
   productType,
   query: extraQuery,
+  language = 'EN',
 }: {
   first?: number;
   productType?: string;
   query?: string;
+  language?: ShopifyLanguage;
 } = {}): Promise<Product[]> {
   if (IS_DEMO) {
     return getMockProducts({ first, productType, query: extraQuery });
@@ -222,7 +221,7 @@ export async function getProducts({
   try {
     const data = await storefrontFetch<{ products: { nodes: Product[] } }>(
       PRODUCTS_QUERY,
-      { first, query: parts.join(' AND ') }
+      { first, query: parts.join(' AND '), language }
     );
     return data.products.nodes.filter((p) => p.vendor === VENDOR);
   } catch (err) {
@@ -231,7 +230,7 @@ export async function getProducts({
   }
 }
 
-export async function getProduct(handle: string): Promise<Product | null> {
+export async function getProduct(handle: string, language: ShopifyLanguage = 'EN'): Promise<Product | null> {
   if (IS_DEMO) {
     return getMockProduct(handle);
   }
@@ -239,7 +238,7 @@ export async function getProduct(handle: string): Promise<Product | null> {
   try {
     const data = await storefrontFetch<{ product: Product | null }>(
       PRODUCT_DETAIL_QUERY,
-      { handle }
+      { handle, language }
     );
     const p = data.product;
     if (!p || p.vendor !== VENDOR) return null;
@@ -266,7 +265,7 @@ export async function getRelatedProducts(
   return all.filter((p) => !excludeHandles.includes(p.handle)).slice(0, 4);
 }
 
-export async function searchProducts(query: string): Promise<Product[]> {
+export async function searchProducts(query: string, language: ShopifyLanguage = 'EN'): Promise<Product[]> {
   if (!query.trim()) return [];
 
   if (IS_DEMO) {
@@ -277,7 +276,7 @@ export async function searchProducts(query: string): Promise<Product[]> {
   try {
     const data = await storefrontFetch<{ products: { nodes: Product[] } }>(
       PRODUCTS_QUERY,
-      { first: 48, query: parts.join(' AND ') }
+      { first: 48, query: parts.join(' AND '), language }
     );
     const results = data.products.nodes.filter((p) => p.vendor === VENDOR);
     if (results.length) return results;
@@ -289,7 +288,7 @@ export async function searchProducts(query: string): Promise<Product[]> {
     ];
     const broad = await storefrontFetch<{ products: { nodes: Product[] } }>(
       PRODUCTS_QUERY,
-      { first: 48, query: broadParts.join(' AND ') }
+      { first: 48, query: broadParts.join(' AND '), language }
     );
     return broad.products.nodes.filter((p) => p.vendor === VENDOR);
   } catch (err) {
