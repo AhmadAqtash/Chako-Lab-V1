@@ -52,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="flex flex-col min-h-screen font-sans bg-chako-bg text-chako-dark" suppressHydrationWarning>
+      <body className="flex flex-col min-h-screen font-sans bg-chako-bg text-chako-ink" suppressHydrationWarning>
         <LanguageProvider>
         <CartProvider>
           <DemoBanner />

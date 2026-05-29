@@ -49,14 +49,14 @@ export default function MobileNav() {
       aria-label={t('nav_cart')}
     >
       <div className="relative">
-        <ShoppingBag size={22} strokeWidth={1.75} className="text-chako-dark/40 transition-colors duration-200" />
+        <ShoppingBag size={22} strokeWidth={1.75} className="text-chako-ink/40 transition-colors duration-200" />
         {totalQuantity > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 bg-[#F5A623] text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-0.5 shadow-sm">
+          <span className="absolute -top-1.5 -right-1.5 bg-chako-orange text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-0.5 shadow-sm">
             {totalQuantity > 9 ? '9+' : totalQuantity}
           </span>
         )}
       </div>
-      <span className="text-[10px] font-medium text-chako-dark/40">{t('nav_cart')}</span>
+      <span className="text-[10px] font-medium text-chako-ink/40">{t('nav_cart')}</span>
     </button>
   );
 
@@ -69,9 +69,9 @@ export default function MobileNav() {
       <Icon
         size={22}
         strokeWidth={active ? 2.25 : 1.75}
-        className={cn('transition-colors duration-200', active ? 'text-chako-dark' : 'text-chako-dark/40')}
+        className={cn('transition-colors duration-200', active ? 'text-chako-ink' : 'text-chako-ink/40')}
       />
-      <span className={cn('text-[10px] font-medium transition-colors duration-200', active ? 'text-chako-dark' : 'text-chako-dark/40')}>
+      <span className={cn('text-[10px] transition-colors duration-200', active ? 'font-semibold text-chako-ink' : 'font-medium text-chako-ink/40')}>
         {label}
       </span>
     </Link>
@@ -85,12 +85,14 @@ export default function MobileNav() {
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-chako-bg/95 backdrop-blur-md border-t border-black/8 safe-area-pb">
       <div className="relative grid py-1" style={{ gridTemplateColumns: `repeat(${ITEM_COUNT}, 1fr)` }}>
-        {/* Sliding background pill */}
+        {/* Sliding background pill — branded ink tint + orange accent */}
         <span
-          className="absolute top-1.5 h-[46px] bg-black/[0.06] rounded-xl pointer-events-none"
+          className="absolute top-1.5 h-[46px] bg-chako-ink/[0.07] rounded-xl pointer-events-none"
           style={indicatorStyle}
           aria-hidden
-        />
+        >
+          <span className="absolute top-1 left-1/2 -translate-x-1/2 w-6 h-1 bg-chako-orange rounded-full" />
+        </span>
         {orderedEls}
       </div>
     </nav>

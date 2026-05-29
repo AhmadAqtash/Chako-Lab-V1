@@ -123,14 +123,14 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
       <div className="flex flex-col gap-5 min-w-0">
         {/* Header */}
         <div>
-          <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1.5">
+          <p className="text-label font-semibold text-chako-ink/40 uppercase tracking-widest mb-1.5">
             {product.productType}
           </p>
           <div className="flex items-start justify-between gap-4 min-w-0">
-            <h1 className="text-fluid-heading font-bold leading-tight min-w-0">{displayTitle}</h1>
+            <h1 className="text-heading font-display font-bold leading-tight min-w-0">{displayTitle}</h1>
             <button
               onClick={handleShare}
-              className="flex-shrink-0 mt-1 p-2.5 rounded-full hover:bg-black/5 active:scale-95 transition-[transform,background-color] duration-150 text-chako-dark/40 hover:text-chako-dark touch-manipulation"
+              className="flex-shrink-0 mt-1 p-2.5 rounded-full hover:bg-black/5 active:scale-95 transition-[transform,background-color] duration-150 text-chako-ink/40 hover:text-chako-ink touch-manipulation"
               aria-label="Share"
             >
               {copied ? <Check size={18} className="text-green-600" /> : <Share2 size={18} />}
@@ -153,8 +153,8 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
           <span className="text-3xl font-extrabold">{formatPrice(price)}</span>
           {discount > 0 && compareAt && parseFloat(compareAt.amount) > parseFloat(price.amount) && (
             <>
-              <span className="text-base text-chako-dark/40 line-through">{formatPrice(compareAt)}</span>
-              <span className="text-xs font-bold bg-chako-highlight text-chako-dark px-2.5 py-0.5 rounded-full">
+              <span className="text-base text-chako-ink/40 line-through">{formatPrice(compareAt)}</span>
+              <span className="text-xs font-bold bg-chako-highlight text-chako-ink px-2.5 py-0.5 rounded-full">
                 Save {discount}%
               </span>
             </>
@@ -201,7 +201,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                 quantity={quantity}
               />
             ) : (
-              <button disabled className="w-full py-4 bg-black/5 text-chako-dark/40 font-semibold rounded-2xl text-sm cursor-not-allowed">
+              <button disabled className="w-full py-4 bg-black/5 text-chako-ink/40 font-semibold rounded-2xl text-sm cursor-not-allowed">
                 Select options
               </button>
             )}
@@ -221,8 +221,8 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                 className={cn(
                   'flex-1 md:flex-none px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors touch-manipulation min-h-[48px]',
                   activeTab === key
-                    ? 'border-chako-dark text-chako-dark'
-                    : 'border-transparent text-chako-dark/45 hover:text-chako-dark'
+                    ? 'border-chako-ink text-chako-ink'
+                    : 'border-transparent text-chako-ink/45 hover:text-chako-ink'
                 )}
               >
                 {label}
@@ -231,10 +231,10 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
           </div>
 
           {activeTab === 'Description' && (
-            <div className="text-sm text-chako-dark/65 leading-relaxed px-4 md:px-0">
+            <div className="text-sm text-chako-ink/65 leading-relaxed px-4 md:px-0">
               {displayDescHtml ? (
                 <div
-                  className="chako-description prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:pl-4 prose-ol:pl-4 prose-li:marker:text-chako-dark/40"
+                  className="chako-description prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:pl-4 prose-ol:pl-4 prose-li:marker:text-chako-ink/40"
                   dangerouslySetInnerHTML={{ __html: displayDescHtml }}
                 />
               ) : displayDesc ? (
@@ -245,13 +245,13 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                     .filter(Boolean)
                     .map((sentence, i) => (
                       <li key={i} className="flex gap-2.5 items-start">
-                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-chako-dark/40 flex-shrink-0" />
+                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-chako-ink/40 flex-shrink-0" />
                         <span>{sentence.endsWith('.') ? sentence : `${sentence}.`}</span>
                       </li>
                     ))}
                 </ul>
               ) : (
-                <p className="text-chako-dark/35 italic">No description available.</p>
+                <p className="text-chako-ink/35 italic">No description available.</p>
               )}
             </div>
           )}
@@ -264,7 +264,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                     key={key}
                     className="flex justify-between py-2.5 border-b border-black/5 last:border-0"
                   >
-                    <span className="text-sm text-chako-dark/50 capitalize">{key}</span>
+                    <span className="text-sm text-chako-ink/50 capitalize">{key}</span>
                     <span className="text-sm font-medium text-right max-w-[55%]">{val}</span>
                   </div>
                 ))
@@ -282,7 +282,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                       key={label}
                       className="flex justify-between py-2.5 border-b border-black/5 last:border-0"
                     >
-                      <span className="text-sm text-chako-dark/50">{label}</span>
+                      <span className="text-sm text-chako-ink/50">{label}</span>
                       <span className="text-sm font-medium text-right max-w-[55%]">{value}</span>
                     </div>
                   ))}
@@ -300,12 +300,12 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                 >
                   <div>
                     <p className="text-sm font-medium">{label}</p>
-                    <p className="text-xs text-chako-dark/45 mt-0.5">{sub}</p>
+                    <p className="text-xs text-chako-ink/45 mt-0.5">{sub}</p>
                   </div>
-                  <span className="text-sm text-chako-dark/70 flex-shrink-0">{value}</span>
+                  <span className="text-sm text-chako-ink/70 flex-shrink-0">{value}</span>
                 </div>
               ))}
-              <p className="text-xs text-chako-dark/35 pt-1">
+              <p className="text-xs text-chako-ink/35 pt-1">
                 Orders placed before 3pm GST typically ship same day.
               </p>
             </div>

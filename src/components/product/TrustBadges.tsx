@@ -22,10 +22,10 @@ export default function TrustBadges() {
           key={labelKey}
           className={`flex items-start gap-2.5 rounded-xl px-3 py-2.5 ${wide ? 'col-span-2' : ''} ${highlight ? 'bg-chako-highlight/30' : 'bg-chako-accent'}`}
         >
-          <Icon size={16} className="flex-shrink-0 mt-0.5 text-chako-dark/50" />
+          <Icon size={16} className="flex-shrink-0 mt-0.5 text-chako-ink/50" />
           <div>
             <p className="text-xs font-semibold">{t(labelKey)}</p>
-            <p className="text-[11px] text-chako-dark/45 leading-tight">{t(subKey)}</p>
+            <p className="text-[11px] text-chako-ink/45 leading-tight">{t(subKey)}</p>
           </div>
         </div>
       ))}

@@ -24,18 +24,18 @@ export default async function CollectionsPage() {
       />
 
       <div className="mb-6">
-        <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1">
+        <p className="text-label font-sans font-semibold text-chako-ink/40 uppercase tracking-widest mb-2">
           <T k="collection_all_label" />
         </p>
-        <h1 className="text-fluid-heading font-bold"><T k="collection_all_heading" /></h1>
-        <p className="text-sm text-chako-dark/55 mt-2 max-w-xl leading-relaxed">
+        <h1 className="text-heading font-display font-bold"><T k="collection_all_heading" /></h1>
+        <p className="text-sm text-chako-ink/55 mt-2 max-w-xl leading-relaxed">
           <T k="collection_all_sub" />
         </p>
       </div>
 
       {products.length === 0 ? (
         <div className="text-center py-24 bg-chako-accent rounded-3xl">
-          <p className="text-chako-dark/40 text-sm font-medium"><T k="collection_no_products" /></p>
+          <p className="text-chako-ink/40 text-sm font-medium"><T k="collection_no_products" /></p>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">

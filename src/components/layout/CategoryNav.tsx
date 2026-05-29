@@ -35,8 +35,8 @@ export default function CategoryNav() {
           className={cn(
             'flex-shrink-0 px-4 min-h-[36px] inline-flex items-center rounded-full text-sm font-medium transition-colors whitespace-nowrap',
             pathname === '/collections'
-              ? 'bg-chako-dark text-chako-bg'
-              : 'text-chako-dark/60 hover:text-chako-dark hover:bg-black/5'
+              ? 'bg-chako-ink text-chako-cream'
+              : 'text-chako-ink/60 hover:text-chako-ink hover:bg-black/5'
           )}
         >
           {t('cat_all')}
@@ -48,8 +48,8 @@ export default function CategoryNav() {
             className={cn(
               'flex-shrink-0 px-4 min-h-[36px] inline-flex items-center rounded-full text-sm font-medium transition-colors whitespace-nowrap',
               pathname === `/collections/${handle}`
-                ? 'bg-chako-dark text-chako-bg'
-                : 'text-chako-dark/60 hover:text-chako-dark hover:bg-black/5'
+                ? 'bg-chako-ink text-chako-cream'
+                : 'text-chako-ink/60 hover:text-chako-ink hover:bg-black/5'
             )}
           >
             {t(HANDLE_TO_CAT_KEY[handle] ?? 'cat_all')}

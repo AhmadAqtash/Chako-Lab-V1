@@ -55,7 +55,7 @@ export default function StickyATC({ title, price, variantId, available, triggerR
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium truncate text-chako-dark/60">{title}</p>
+        <p className="text-xs font-medium truncate text-chako-ink/60">{title}</p>
         <p className="text-sm font-bold">{formatPrice(price)}</p>
       </div>
       <button
@@ -63,10 +63,10 @@ export default function StickyATC({ title, price, variantId, available, triggerR
         disabled={isLoading || !available}
         className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm flex-shrink-0 transition-all touch-manipulation ${
           !available
-            ? 'bg-black/10 text-chako-dark/40 cursor-not-allowed'
+            ? 'bg-black/10 text-chako-ink/40 cursor-not-allowed'
             : added
             ? 'bg-green-600 text-white'
-            : 'bg-chako-dark text-chako-bg active:scale-95'
+            : 'bg-chako-ink text-chako-cream active:scale-95'
         }`}
       >
         <ShoppingBag size={16} />

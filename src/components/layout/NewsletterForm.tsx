@@ -16,7 +16,7 @@ export default function NewsletterForm() {
 
   if (submitted) {
     return (
-      <p className="text-sm text-chako-bg/60">{t('footer_thanks')}</p>
+      <p className="text-sm text-chako-cream/60">{t('footer_thanks')}</p>
     );
   }
 
@@ -27,11 +27,11 @@ export default function NewsletterForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder={t('footer_email_placeholder')}
-        className="flex-1 bg-white/10 text-chako-bg placeholder:text-chako-bg/40 text-sm px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 min-w-0"
+        className="flex-1 bg-white/10 text-chako-cream placeholder:text-chako-cream/40 text-sm px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 min-w-0"
       />
       <button
         type="submit"
-        className="px-3 py-2 bg-chako-bg text-chako-dark text-sm font-semibold rounded-xl hover:bg-chako-bg/90 transition-colors flex-shrink-0"
+        className="px-3 py-2 bg-chako-cream text-chako-ink text-sm font-semibold rounded-xl hover:bg-chako-cream/90 transition-colors flex-shrink-0"
       >
         {t('footer_join')}
       </button>

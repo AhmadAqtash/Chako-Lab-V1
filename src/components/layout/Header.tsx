@@ -30,7 +30,7 @@ export default function Header() {
   }, []);
 
   const cartBadge = totalQuantity > 0 && (
-    <span className="absolute -top-0.5 -right-0.5 bg-[#F5A623] text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-0.5 shadow-sm">
+    <span className="absolute -top-0.5 -right-0.5 bg-chako-orange text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-0.5 shadow-sm">
       {totalQuantity > 99 ? '99+' : totalQuantity}
     </span>
   );
@@ -60,7 +60,7 @@ export default function Header() {
                 (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
               }}
             />
-            <span style={{ display: 'none' }} className="font-bold text-base tracking-tight">CHAKO LAB®</span>
+            <span style={{ display: 'none' }} className="font-display font-bold text-base tracking-tight">CHAKO LAB®</span>
           </Link>
         </div>
 
@@ -96,7 +96,7 @@ export default function Header() {
               (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
             }}
           />
-          <span style={{ display: 'none' }} className="font-bold text-lg tracking-tight">CHAKO LAB®</span>
+          <span style={{ display: 'none' }} className="font-display font-bold text-lg tracking-tight">CHAKO LAB®</span>
         </Link>
 
         <nav className="flex items-center gap-1 flex-1">
@@ -107,8 +107,8 @@ export default function Header() {
               className={cn(
                 'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
                 pathname === link.href
-                  ? 'text-chako-dark'
-                  : 'text-chako-dark/55 hover:text-chako-dark hover:bg-black/5'
+                  ? 'text-chako-ink'
+                  : 'text-chako-ink/55 hover:text-chako-ink hover:bg-black/5'
               )}
             >
               {t(link.key)}
@@ -132,7 +132,7 @@ export default function Header() {
           >
             <ShoppingBag size={20} />
             {totalQuantity > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-[#F5A623] text-white text-[10px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1 shadow-sm">
+              <span className="absolute -top-0.5 -right-0.5 bg-chako-orange text-white text-[10px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1 shadow-sm">
                 {totalQuantity > 99 ? '99+' : totalQuantity}
               </span>
             )}

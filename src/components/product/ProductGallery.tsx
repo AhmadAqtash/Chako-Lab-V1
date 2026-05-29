@@ -60,7 +60,7 @@ export default function ProductGallery({ images, title }: Props) {
                 className={cn(
                   'flex-shrink-0 relative w-16 h-16 md:w-full md:h-[72px] rounded-xl overflow-hidden border-2 transition-all touch-manipulation active:scale-95',
                   i === active
-                    ? 'border-chako-dark shadow-sm'
+                    ? 'border-chako-ink shadow-sm'
                     : 'border-transparent opacity-60 hover:opacity-100 hover:border-black/15'
                 )}
               >
@@ -107,7 +107,7 @@ export default function ProductGallery({ images, title }: Props) {
             />
 
             {!zoomed && (
-              <button className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm p-2 rounded-full text-chako-dark/50 hover:text-chako-dark transition-colors pointer-events-none">
+              <button className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm p-2 rounded-full text-chako-ink/50 hover:text-chako-ink transition-colors pointer-events-none">
                 <ZoomIn size={14} />
               </button>
             )}
@@ -145,7 +145,7 @@ export default function ProductGallery({ images, title }: Props) {
                 >
                   <span className={cn(
                     'block rounded-full transition-all duration-300',
-                    i === active ? 'bg-chako-dark w-5 h-2' : 'bg-black/20 w-2 h-2'
+                    i === active ? 'bg-chako-ink w-5 h-2' : 'bg-black/20 w-2 h-2'
                   )} />
                 </button>
               ))}

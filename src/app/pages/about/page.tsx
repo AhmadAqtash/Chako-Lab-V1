@@ -6,10 +6,10 @@ export const metadata: Metadata = { title: 'About Chako Lab' };
 export default function AboutPage() {
   return (
     <div className="max-w-screen-md mx-auto px-6 md:px-8 py-16 md:py-24">
-      <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-3">Our Story</p>
-      <h1 className="text-3xl md:text-4xl font-bold mb-8">About Chako Lab</h1>
+      <p className="text-label font-semibold text-chako-ink/40 uppercase tracking-widest mb-3">Our Story</p>
+      <h1 className="text-heading font-display font-bold mb-8">About Chako Lab</h1>
 
-      <div className="space-y-5 text-sm text-chako-dark/70 leading-relaxed">
+      <div className="space-y-5 text-sm text-chako-ink/70 leading-relaxed">
         <p>
           Chako Lab was born out of a simple belief: the vessels we use every day should be as
           thoughtfully designed as the rituals they support. Whether it&apos;s the first kettle pour of
@@ -31,7 +31,7 @@ export default function AboutPage() {
       <div className="mt-10 flex flex-wrap gap-3">
         <Link
           href="/collections"
-          className="inline-flex items-center px-6 py-3 bg-chako-dark text-chako-bg font-semibold rounded-2xl text-sm hover:bg-chako-dark/90 transition-colors"
+          className="inline-flex items-center px-6 py-3 bg-chako-ink text-chako-cream font-semibold rounded-2xl text-sm hover:bg-chako-ink/90 transition-colors"
         >
           Shop All Products
         </Link>

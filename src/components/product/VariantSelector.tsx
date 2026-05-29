@@ -61,7 +61,7 @@ export default function VariantSelector({ options, variants, selected, onChange 
             <p className="text-sm font-semibold mb-2.5">
               {option.name}
               {selected[option.name] && (
-                <span className="font-normal text-chako-dark/50 ml-2">{selected[option.name]}</span>
+                <span className="font-normal text-chako-ink/50 ml-2">{selected[option.name]}</span>
               )}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -79,7 +79,7 @@ export default function VariantSelector({ options, variants, selected, onChange 
                       title={value}
                       className={cn(
                         'w-11 h-11 rounded-full border-2 transition-all relative touch-manipulation active:scale-95',
-                        active ? 'border-chako-dark scale-105' : 'border-transparent hover:border-black/20',
+                        active ? 'border-chako-ink scale-105' : 'border-transparent hover:border-black/20',
                         !available && 'opacity-30 cursor-not-allowed'
                       )}
                       style={{ backgroundColor: colorHex }}
@@ -103,8 +103,8 @@ export default function VariantSelector({ options, variants, selected, onChange 
                     className={cn(
                       'px-4 py-2.5 rounded-xl text-sm font-medium border transition-all min-h-[44px] touch-manipulation active:scale-95',
                       active
-                        ? 'bg-chako-dark text-chako-bg border-chako-dark'
-                        : 'border-black/10 hover:border-black/25 text-chako-dark',
+                        ? 'bg-chako-ink text-chako-cream border-chako-ink'
+                        : 'border-black/10 hover:border-black/25 text-chako-ink',
                       !available && 'opacity-30 cursor-not-allowed line-through'
                     )}
                   >

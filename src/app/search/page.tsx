@@ -3,6 +3,7 @@ import { searchProducts } from '@/lib/shopify';
 import type { ShopifyLanguage } from '@/lib/shopify';
 import ProductCard from '@/components/product/ProductCard';
 import SearchInput from './SearchInput';
+import T from '@/components/ui/T';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -20,12 +21,12 @@ export default async function SearchPage({ searchParams }: Props) {
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-10">
-      <h1 className="text-fluid-heading font-bold mb-6">Search</h1>
+      <h1 className="text-heading font-display font-bold mb-6"><T k="nav_search" /></h1>
       <SearchInput initialQuery={query} />
 
       {query && (
         <div className="mt-8">
-          <p className="text-sm text-chako-dark/50 mb-6">
+          <p className="text-sm text-chako-ink/50 mb-6">
             {products.length > 0
               ? `${products.length} result${products.length === 1 ? '' : 's'} for "${query}"`
               : `No results for "${query}"`}
@@ -39,8 +40,8 @@ export default async function SearchPage({ searchParams }: Props) {
             </div>
           ) : (
             <div className="text-center py-20 bg-chako-accent rounded-3xl">
-              <p className="text-chako-dark/40 text-sm font-medium">No products found.</p>
-              <p className="text-chako-dark/30 text-xs mt-1">Try a different search term.</p>
+              <p className="text-chako-ink/40 text-sm font-medium">No products found.</p>
+              <p className="text-chako-ink/30 text-xs mt-1">Try a different search term.</p>
             </div>
           )}
         </div>
@@ -48,7 +49,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
       {!query && (
         <div className="text-center py-20">
-          <p className="text-chako-dark/30 text-sm">Type something to search for products</p>
+          <p className="text-chako-ink/30 text-sm">Type something to search for products</p>
         </div>
       )}
     </div>

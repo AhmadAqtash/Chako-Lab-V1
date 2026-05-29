@@ -21,8 +21,8 @@ export default function ColorSwatches({ siblings, currentHandle, colorName, coll
 
   return (
     <div className="flex flex-col gap-2.5">
-      <p className="text-sm text-chako-dark/60">
-        <T k="product_color" />: <span className="font-semibold text-chako-dark">{colorName ?? 'Default'}</span>
+      <p className="text-sm text-chako-ink/60">
+        <T k="product_color" />: <span className="font-semibold text-chako-ink">{colorName ?? 'Default'}</span>
       </p>
       <div className="flex flex-wrap gap-2 items-center pl-0.5 md:pl-0">
         {visible.map((sibling) => {
@@ -38,8 +38,8 @@ export default function ColorSwatches({ siblings, currentHandle, colorName, coll
               className={cn(
                 'relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 transition-[box-shadow,transform] active:scale-95 touch-manipulation',
                 isActive
-                  ? 'ring-2 ring-chako-dark ring-offset-2'
-                  : 'ring-1 ring-black/10 hover:ring-2 hover:ring-chako-dark/40 hover:ring-offset-1'
+                  ? 'ring-2 ring-chako-ink ring-offset-2'
+                  : 'ring-1 ring-black/10 hover:ring-2 hover:ring-chako-ink/40 hover:ring-offset-1'
               )}
             >
               {sibling.featuredImage ? (
@@ -70,7 +70,7 @@ export default function ColorSwatches({ siblings, currentHandle, colorName, coll
         {overflow > 0 && collectionHandle && (
           <Link
             href={`/collections/${collectionHandle}`}
-            className="text-xs font-semibold text-chako-dark/50 hover:text-chako-dark transition-colors px-1"
+            className="text-xs font-semibold text-chako-ink/50 hover:text-chako-ink transition-colors px-1"
           >
             +{overflow} more
           </Link>

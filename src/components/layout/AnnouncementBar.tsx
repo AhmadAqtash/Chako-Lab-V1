@@ -23,7 +23,7 @@ export default function AnnouncementBar() {
   }, [messages.length]);
 
   return (
-    <div className={cn('bg-chako-dark text-chako-bg text-xs py-2 px-4 font-medium tracking-wide', isRTL ? 'text-right' : 'text-center')}>
+    <div className={cn('bg-chako-ink text-chako-cream text-xs py-2 px-4 font-medium tracking-wide', isRTL ? 'text-right' : 'text-center')}>
       <span
         className="inline-block transition-opacity duration-300"
         style={{ opacity: visible ? 1 : 0 }}

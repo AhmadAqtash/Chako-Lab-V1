@@ -40,17 +40,17 @@ const FAQS = [
 export default function FAQPage() {
   return (
     <div className="max-w-screen-md mx-auto px-6 md:px-8 py-16 md:py-24">
-      <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-3">Help Centre</p>
-      <h1 className="text-3xl md:text-4xl font-bold mb-10">Frequently Asked Questions</h1>
+      <p className="text-label font-semibold text-chako-ink/40 uppercase tracking-widest mb-3">Help Centre</p>
+      <h1 className="text-heading font-display font-bold mb-10">Frequently Asked Questions</h1>
 
       <div className="space-y-0 divide-y divide-black/8">
         {FAQS.map(({ q, a }) => (
           <details key={q} className="group py-5">
             <summary className="flex items-center justify-between cursor-pointer list-none font-semibold text-sm">
               {q}
-              <span className="ml-4 flex-shrink-0 text-chako-dark/40 group-open:rotate-45 transition-transform duration-200 text-lg leading-none">+</span>
+              <span className="ml-4 flex-shrink-0 text-chako-ink/40 group-open:rotate-45 transition-transform duration-200 text-lg leading-none">+</span>
             </summary>
-            <p className="mt-3 text-sm text-chako-dark/60 leading-relaxed">{a}</p>
+            <p className="mt-3 text-sm text-chako-ink/60 leading-relaxed">{a}</p>
           </details>
         ))}
       </div>

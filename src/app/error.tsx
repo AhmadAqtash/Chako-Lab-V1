@@ -16,15 +16,15 @@ export default function Error({
 
   return (
     <div className="max-w-screen-md mx-auto px-6 py-24 text-center">
-      <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-3">Something went wrong</p>
-      <h1 className="text-2xl font-bold mb-4">Oops — we hit a snag</h1>
-      <p className="text-sm text-chako-dark/60 mb-8 max-w-sm mx-auto leading-relaxed">
+      <p className="text-label font-semibold text-chako-ink/40 uppercase tracking-widest mb-3">Something went wrong</p>
+      <h1 className="text-heading font-display font-bold mb-4">Oops — we hit a snag</h1>
+      <p className="text-sm text-chako-ink/60 mb-8 max-w-sm mx-auto leading-relaxed">
         A temporary error occurred. Try refreshing the page or come back shortly.
       </p>
       <div className="flex flex-wrap gap-3 justify-center">
         <button
           onClick={reset}
-          className="inline-flex items-center px-6 py-3 bg-chako-dark text-chako-bg font-semibold rounded-2xl text-sm hover:bg-chako-dark/90 transition-colors"
+          className="inline-flex items-center px-6 py-3 bg-chako-ink text-chako-cream font-semibold rounded-2xl text-sm hover:bg-chako-ink/90 transition-colors"
         >
           Try again
         </button>

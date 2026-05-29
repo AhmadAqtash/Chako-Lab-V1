@@ -6,6 +6,7 @@ import ProductCard from '@/components/product/ProductCard';
 import { SlidersHorizontal, X, ChevronDown, LayoutGrid, Grid2x2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
+import SectionLabel from '@/components/ui/SectionLabel';
 
 type SortKey = 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'az';
 
@@ -77,10 +78,10 @@ export default function CollectionGrid({ products, title, description, showColle
       {/* Collection header */}
       {showCollectionHeader && (
         <div className="mb-6">
-          <p className="text-xs font-semibold text-chako-dark/40 uppercase tracking-widest mb-1">Collection</p>
-          <h1 className="text-fluid-heading font-bold">{title}</h1>
+          <SectionLabel className="mb-2">{t('collection_all_label')}</SectionLabel>
+          <h1 className="text-heading font-display font-bold">{title}</h1>
           {description && (
-            <p className="text-sm text-chako-dark/55 mt-2 max-w-xl leading-relaxed">{description}</p>
+            <p className="text-sm text-chako-ink/55 mt-2 max-w-xl leading-relaxed">{description}</p>
           )}
         </div>
       )}
@@ -92,10 +93,10 @@ export default function CollectionGrid({ products, title, description, showColle
           <button
             onClick={() => setInStockOnly(!inStockOnly)}
             className={cn(
-              'flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-full text-xs font-medium border transition-all active:scale-95 touch-manipulation',
+              'flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-full text-xs font-semibold transition-all duration-150 active:scale-95 touch-manipulation',
               inStockOnly
-                ? 'bg-chako-dark text-chako-bg border-chako-dark'
-                : 'border-black/10 text-chako-dark/60 hover:border-black/25 hover:text-chako-dark'
+                ? 'bg-chako-ink text-chako-cream'
+                : 'bg-black/5 text-chako-ink/60 hover:bg-black/10 hover:text-chako-ink'
             )}
           >
             <SlidersHorizontal size={12} />
@@ -108,7 +109,7 @@ export default function CollectionGrid({ products, title, description, showColle
           {activeFilterCount > 0 && (
             <button
               onClick={() => setInStockOnly(false)}
-              className="text-xs text-chako-dark/40 hover:text-chako-dark transition-colors px-1 min-h-[44px] flex items-center touch-manipulation"
+              className="text-xs text-chako-ink/40 hover:text-chako-ink transition-colors px-1 min-h-[44px] flex items-center touch-manipulation"
             >
               {t('collection_clear')}
             </button>
@@ -116,22 +117,22 @@ export default function CollectionGrid({ products, title, description, showColle
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-chako-dark/40 hidden sm:block">
+          <span className="text-xs text-chako-ink/40 hidden sm:block">
             {sorted.length} product{sorted.length !== 1 ? 's' : ''}
           </span>
 
           {/* Grid density toggle */}
-          <div className="flex items-center gap-0.5 bg-black/5 rounded-lg p-0.5">
+          <div className="flex items-center gap-0.5 bg-black/5 rounded-full p-1">
             <button
               onClick={() => setDense(false)}
-              className={cn('p-2 rounded-md transition-colors touch-manipulation', !dense ? 'bg-white shadow-sm' : 'hover:bg-black/5')}
+              className={cn('p-2 rounded-full transition-colors touch-manipulation', !dense ? 'bg-chako-ink text-chako-cream' : 'text-chako-ink/50 hover:text-chako-ink')}
               aria-label="Comfortable grid"
             >
               <Grid2x2 size={14} />
             </button>
             <button
               onClick={() => setDense(true)}
-              className={cn('p-2 rounded-md transition-colors touch-manipulation', dense ? 'bg-white shadow-sm' : 'hover:bg-black/5')}
+              className={cn('p-2 rounded-full transition-colors touch-manipulation', dense ? 'bg-chako-ink text-chako-cream' : 'text-chako-ink/50 hover:text-chako-ink')}
               aria-label="Dense grid"
             >
               <LayoutGrid size={14} />
@@ -142,7 +143,7 @@ export default function CollectionGrid({ products, title, description, showColle
           <div className="relative">
             <button
               onClick={() => setSortOpen(!sortOpen)}
-              className="flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-full text-xs font-medium border border-black/10 hover:border-black/25 transition-colors active:scale-95 touch-manipulation"
+              className="flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-full text-xs font-semibold bg-black/5 text-chako-ink/70 hover:bg-black/10 hover:text-chako-ink transition-all duration-150 active:scale-95 touch-manipulation"
             >
               {sortLabel}
               <ChevronDown size={12} className={cn('transition-transform', sortOpen && 'rotate-180')} />
@@ -157,10 +158,10 @@ export default function CollectionGrid({ products, title, description, showColle
                       key={opt.value}
                       onClick={() => { setSort(opt.value); setSortOpen(false); }}
                       className={cn(
-                        'w-full text-left px-4 py-3 min-h-[44px] text-xs font-medium transition-colors touch-manipulation',
+                        'w-full text-left px-4 py-3 min-h-[44px] text-xs font-semibold transition-colors touch-manipulation',
                         sort === opt.value
-                          ? 'text-chako-dark bg-chako-accent'
-                          : 'text-chako-dark/60 hover:text-chako-dark hover:bg-black/5'
+                          ? 'text-chako-ink bg-chako-ink/10'
+                          : 'text-chako-ink/60 hover:text-chako-ink hover:bg-black/5'
                       )}
                     >
                       {opt.label}
@@ -191,17 +192,17 @@ export default function CollectionGrid({ products, title, description, showColle
         <div className="text-center py-24 bg-chako-accent rounded-3xl">
           {inStockOnly ? (
             <>
-              <p className="text-chako-dark/40 text-sm font-medium">{t('collection_no_instock')}</p>
+              <p className="text-chako-ink/40 text-sm font-medium">{t('collection_no_instock')}</p>
               <button
                 onClick={() => setInStockOnly(false)}
-                className="mt-3 text-xs font-semibold text-chako-dark hover:underline"
+                className="mt-3 text-xs font-semibold text-chako-ink hover:underline"
               >
                 {t('collection_show_all')}
               </button>
             </>
           ) : (
             <>
-              <p className="text-chako-dark/40 text-sm font-medium">{t('collection_no_products')}</p>
+              <p className="text-chako-ink/40 text-sm font-medium">{t('collection_no_products')}</p>
             </>
           )}
         </div>

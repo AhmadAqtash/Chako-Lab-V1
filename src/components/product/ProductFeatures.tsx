@@ -22,7 +22,7 @@ export default function ProductFeatures({ metafields }: Props) {
 
   return (
     <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-12 md:py-16">
-      <h2 className="text-fluid-heading font-bold mb-6">
+      <h2 className="text-heading font-display font-bold mb-6">
         <T k="product_features" />
       </h2>
 
@@ -44,7 +44,7 @@ export default function ProductFeatures({ metafields }: Props) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
 
             <div className="absolute bottom-0 left-0 right-0 p-5">
-              <span className="inline-block bg-chako-highlight text-chako-dark text-xs font-bold px-3 py-1 rounded-full mb-2.5">
+              <span className="inline-block bg-chako-highlight text-chako-ink text-xs font-bold px-3 py-1 rounded-full mb-2.5">
                 {feature.title}
               </span>
               {feature.desc && (

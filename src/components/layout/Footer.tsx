@@ -27,7 +27,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-chako-dark text-chako-bg mt-auto">
+    <footer className="bg-chako-ink text-chako-cream mt-auto">
       <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-0 md:gap-10">
 
@@ -43,8 +43,8 @@ export default function Footer() {
                 (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
               }}
             />
-            <span style={{ display: 'none' }} className="font-bold text-lg tracking-tight text-chako-bg">CHAKO LAB®</span>
-            <p className="text-chako-bg/60 text-sm leading-relaxed max-w-xs mt-4">
+            <span style={{ display: 'none' }} className="font-display font-bold text-xl tracking-tight text-chako-cream">CHAKO LAB®</span>
+            <p className="text-chako-cream/60 text-sm leading-relaxed max-w-xs mt-4">
               {t('footer_tagline')}
             </p>
             <div className="flex gap-3 mt-6">
@@ -80,17 +80,17 @@ export default function Footer() {
               onClick={() => toggle('shop')}
               aria-expanded={expanded === 'shop'}
             >
-              <p className="font-semibold text-sm text-chako-bg/80 uppercase tracking-wider">{t('footer_shop')}</p>
+              <p className="font-sans font-semibold text-label uppercase tracking-widest leading-none text-chako-cream/70">{t('footer_shop')}</p>
               <ChevronDown
                 size={16}
-                className={`text-white/40 transition-transform duration-250 ${expanded === 'shop' ? 'rotate-180' : ''}`}
+                className={`text-chako-cream/40 transition-transform duration-250 ${expanded === 'shop' ? 'rotate-180' : ''}`}
               />
             </button>
-            <p className="hidden md:block font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">{t('footer_shop')}</p>
+            <p className="hidden md:block font-sans font-semibold text-label mb-4 uppercase tracking-widest leading-none text-chako-cream/70">{t('footer_shop')}</p>
             <ul className={`space-y-3 pb-4 md:pb-0 md:space-y-2 md:block ${expanded === 'shop' ? 'block' : 'hidden'}`}>
               {shopLinks.map(({ href, key }) => (
                 <li key={href}>
-                  <Link href={href} className="text-sm text-chako-bg/55 hover:text-chako-bg transition-colors">
+                  <Link href={href} className="text-sm text-chako-cream/55 hover:text-chako-cream transition-colors">
                     {t(key)}
                   </Link>
                 </li>
@@ -105,17 +105,17 @@ export default function Footer() {
               onClick={() => toggle('help')}
               aria-expanded={expanded === 'help'}
             >
-              <p className="font-semibold text-sm text-chako-bg/80 uppercase tracking-wider">{t('footer_help')}</p>
+              <p className="font-sans font-semibold text-label uppercase tracking-widest leading-none text-chako-cream/70">{t('footer_help')}</p>
               <ChevronDown
                 size={16}
-                className={`text-white/40 transition-transform duration-250 ${expanded === 'help' ? 'rotate-180' : ''}`}
+                className={`text-chako-cream/40 transition-transform duration-250 ${expanded === 'help' ? 'rotate-180' : ''}`}
               />
             </button>
-            <p className="hidden md:block font-semibold text-sm mb-4 text-chako-bg/80 uppercase tracking-wider">{t('footer_help')}</p>
+            <p className="hidden md:block font-sans font-semibold text-label mb-4 uppercase tracking-widest leading-none text-chako-cream/70">{t('footer_help')}</p>
             <ul className={`space-y-3 pb-4 md:pb-0 md:space-y-2 md:block ${expanded === 'help' ? 'block' : 'hidden'}`}>
               {helpLinks.map(({ href, key }) => (
                 <li key={href}>
-                  <Link href={href} className="text-sm text-chako-bg/55 hover:text-chako-bg transition-colors">
+                  <Link href={href} className="text-sm text-chako-cream/55 hover:text-chako-cream transition-colors">
                     {t(key)}
                   </Link>
                 </li>
@@ -125,22 +125,22 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-8 md:mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
-          <p className="text-xs text-chako-bg/40">
+          <p className="text-xs text-chako-cream/40">
             {t('footer_copyright')}{' '}
             <a
               href="https://wegallop.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-chako-bg/70 transition-colors underline underline-offset-2"
+              className="hover:text-chako-cream/70 transition-colors underline underline-offset-2"
             >
               {t('footer_company')}
             </a>
           </p>
           <div className="flex gap-4">
-            <Link href="/pages/privacy" className="text-xs text-chako-bg/40 hover:text-chako-bg/70 transition-colors">
+            <Link href="/pages/privacy" className="text-xs text-chako-cream/40 hover:text-chako-cream/70 transition-colors">
               {t('footer_privacy')}
             </Link>
-            <Link href="/pages/terms" className="text-xs text-chako-bg/40 hover:text-chako-bg/70 transition-colors">
+            <Link href="/pages/terms" className="text-xs text-chako-cream/40 hover:text-chako-cream/70 transition-colors">
               {t('footer_terms')}
             </Link>
           </div>

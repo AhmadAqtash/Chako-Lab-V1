@@ -29,7 +29,7 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
     return (
       <button
         disabled
-        className="w-full py-4 bg-black/5 text-chako-dark/40 font-semibold rounded-2xl text-sm cursor-not-allowed"
+        className="w-full py-4 bg-black/5 text-chako-ink/40 font-semibold rounded-2xl text-sm cursor-not-allowed"
       >
         {t('product_out_of_stock')}
       </button>
@@ -51,7 +51,7 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
           'w-full py-4 font-semibold rounded-2xl text-sm flex items-center justify-center gap-2 transition-all touch-manipulation',
           added
             ? 'bg-green-600 text-white'
-            : 'bg-chako-dark text-chako-bg hover:bg-chako-dark/90 active:scale-[0.98]',
+            : 'bg-chako-ink text-chako-cream hover:bg-chako-ink/90 active:scale-[0.98]',
           isLoading && 'opacity-70 cursor-wait'
         )}
       >
