@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# brand assets (local-only — large raw files, not committed)
+/brand-assets/
