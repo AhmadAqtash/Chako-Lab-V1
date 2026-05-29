@@ -89,7 +89,7 @@ export default function HeroSlideshow() {
 
   return (
     <section
-      className="relative overflow-hidden min-h-[100svh] md:min-h-[85vh] flex flex-col"
+      className="relative overflow-hidden aspect-[1122/1402] md:aspect-auto md:min-h-[85vh] flex flex-col"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={handleTouchStart}
