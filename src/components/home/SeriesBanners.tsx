@@ -85,7 +85,7 @@ const SERIES = [
     imageAr: '/banners/ar-hung-kettle.png',
   },
   {
-    handle: 'bobo-tumblers',
+    handle: 'titanium',
     shortEn: 'Titanium',
     shortAr: 'تيتانيوم',
     labelEn: 'Titanium Series',

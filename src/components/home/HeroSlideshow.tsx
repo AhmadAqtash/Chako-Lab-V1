@@ -24,7 +24,7 @@ const SLIDES: Slide[] = [
     arMobile:  '/hero/slide-1-ar-mobile.png',
     ctaEn: 'Shop Titanium Collection',
     ctaAr: 'تسوق مجموعة التيتانيوم',
-    ctaHref: '/collections/bobo-tumblers',
+    ctaHref: '/collections/titanium',
   },
   {
     enDesktop: '/hero/slide-2-en-desktop.png',
@@ -33,7 +33,7 @@ const SLIDES: Slide[] = [
     arMobile:  '/hero/slide-2-ar-mobile.png',
     ctaEn: 'Shop Milk Pod Titanium',
     ctaAr: 'تسوق ميلك بود تيتانيوم',
-    ctaHref: '/collections/milk-pods',
+    ctaHref: '/collections/titanium',
   },
   {
     enDesktop: '/hero/slide-3-en-desktop.png',
