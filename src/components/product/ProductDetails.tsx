@@ -37,7 +37,6 @@ type Tab = 'Description' | 'Specs' | 'Shipping';
 const SHIPPING_INFO = [
   { label: 'Standard (UAE)', value: '2–4 business days', sub: 'Free over AED 250' },
   { label: 'Express (Dubai)', value: 'Same / next day', sub: 'AED 25' },
-  { label: 'GCC countries', value: '5–7 business days', sub: 'Calculated at checkout' },
 ];
 
 export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle }: Props) {
