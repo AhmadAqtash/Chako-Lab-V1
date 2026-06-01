@@ -5,23 +5,13 @@ import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { Search, ShoppingBag } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import LanguageSwitcher from './LanguageSwitcher';
-
-const NAV_LINKS = [
-  { href: '/collections/linlin-kettles', key: 'nav_kettles' as const },
-  { href: '/collections/kada-bottles', key: 'nav_bottles' as const },
-  { href: '/collections/mugs', key: 'nav_mugs' as const },
-  { href: '/collections/bobo-tumblers', key: 'nav_tumblers' as const },
-  { href: '/collections', key: 'nav_all_products' as const },
-];
 
 export default function Header() {
   const { openCart, totalQuantity } = useCart();
   const { t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -99,22 +89,7 @@ export default function Header() {
           <span style={{ display: 'none' }} className="font-display font-bold text-lg tracking-tight">CHAKO LAB®</span>
         </Link>
 
-        <nav className="flex items-center gap-1 flex-1">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
-                pathname === link.href
-                  ? 'text-chako-ink'
-                  : 'text-chako-ink/55 hover:text-chako-ink hover:bg-black/5'
-              )}
-            >
-              {t(link.key)}
-            </Link>
-          ))}
-        </nav>
+        <div className="flex-1" />
 
         <div className="flex items-center gap-1">
           <LanguageSwitcher />
