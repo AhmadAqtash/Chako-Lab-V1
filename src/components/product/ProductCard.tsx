@@ -52,10 +52,15 @@ export default function ProductCard({ product }: Props) {
   return (
     <Link
       href={`/products/${product.handle}`}
-      className="group relative flex flex-col rounded-2xl overflow-hidden bg-chako-bg border border-black/[0.06] hover:border-black/[0.12] hover:shadow-lg hover:-translate-y-0.5 transition-[border-color,box-shadow,transform] duration-300 ease-out cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chako-ink focus-visible:ring-offset-2"
+      className={cn(
+        'group relative flex flex-col rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-[border-color,box-shadow,transform] duration-300 ease-out cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+        isTitanium
+          ? 'bg-[#1F232B] border border-white/10 hover:border-white/20 focus-visible:ring-white/40'
+          : 'bg-chako-bg border border-black/[0.06] hover:border-black/[0.12] focus-visible:ring-chako-ink'
+      )}
     >
       {/* Image area */}
-      <div className={cn('relative aspect-[4/5] overflow-hidden', imgBg)}>
+      <div className={cn('relative aspect-[4/5] overflow-hidden', isTitanium ? 'bg-white' : imgBg)}>
         {product.featuredImage ? (
           <Image
             src={product.featuredImage.url}
@@ -103,15 +108,15 @@ export default function ProductCard({ product }: Props) {
       </div>
 
       {/* Product info */}
-      <div className="p-3 flex-1 flex flex-col gap-1">
-        <p className="text-[10px] text-chako-ink/40 font-medium uppercase tracking-wider">
+      <div className={cn('p-3 flex-1 flex flex-col gap-1', isTitanium && 'bg-[#1F232B]')}>
+        <p className={cn('text-[10px] font-medium uppercase tracking-wider', isTitanium ? 'text-white/45' : 'text-chako-ink/40')}>
           {product.productType}
         </p>
-        <h3 className="text-sm font-semibold leading-snug line-clamp-2 flex-1">
+        <h3 className={cn('text-sm font-semibold leading-snug line-clamp-2 flex-1', isTitanium ? 'text-white' : 'text-chako-ink')}>
           {product.title}
         </h3>
         <div className="flex items-baseline gap-2 mt-1">
-          <span className="font-display font-bold text-sm text-chako-ink">
+          <span className={cn('font-display font-bold text-sm', isTitanium ? 'text-white' : 'text-chako-ink')}>
             {formatPrice(price)}
           </span>
           {compareAt && parseFloat(compareAt.amount) > parseFloat(price.amount) && (
@@ -133,7 +138,8 @@ export default function ProductCard({ product }: Props) {
           }}
           className={cn(
             'w-full flex items-center justify-center gap-2',
-            'py-3 bg-chako-ink text-chako-cream text-xs font-semibold uppercase tracking-wider',
+            'py-3 text-xs font-semibold uppercase tracking-wider',
+            isTitanium ? 'bg-white text-[#1F232B]' : 'bg-chako-ink text-chako-cream',
             'touch-manipulation cursor-pointer',
             'disabled:opacity-50',
             'md:opacity-0 md:group-hover:opacity-100',
