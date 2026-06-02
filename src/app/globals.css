@@ -288,9 +288,8 @@
 .titanium-theme nav[aria-label="Breadcrumb"] .text-chako-ink\/70,
 .titanium-theme nav[aria-label="Breadcrumb"] span { color: rgba(232,234,238,0.8); }
 .titanium-theme .border-y { border-color: rgba(255,255,255,0.14) !important; }
-.titanium-theme .text-chako-ink\/40 { color: rgba(232,234,238,0.5) !important; }
-/* SectionLabel eyebrow */
-.titanium-theme [class*="uppercase"] { color: rgba(232,234,238,0.6); }
+.titanium-theme > div > .mb-6 [class*="uppercase"],
+.titanium-theme .border-y .text-chako-ink\/40 { color: rgba(232,234,238,0.6) !important; }
 
 @media (prefers-reduced-motion: reduce) {
   .titanium-theme::before { animation: none; }
