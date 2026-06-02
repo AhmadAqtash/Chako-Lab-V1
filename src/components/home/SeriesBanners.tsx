@@ -165,6 +165,7 @@ export default function SeriesBanners() {
             const shortName = isAr ? series.shortAr : series.shortEn;
             const desc = isAr ? series.descAr : series.descEn;
             const pal = PALETTE[i] ?? PALETTE[0];
+            const isTitanium = series.handle === 'titanium';
             const shopLabel = isAr ? `تسوق ${series.shortAr}` : `Shop ${series.shortEn}`;
 
             return (
@@ -203,7 +204,7 @@ export default function SeriesBanners() {
                       'font-sans font-semibold text-[11px] md:text-xs uppercase tracking-wider',
                       'transition-transform duration-150 group-hover:scale-105 group-active:scale-95 touch-manipulation',
                       isAr ? 'left-3' : 'right-3',
-                      pal.btnBg, pal.btnText
+                      isTitanium ? 'titanium-pill ps-6' : cn(pal.btnBg, pal.btnText)
                     )}
                   >
                     {isAr ? `تسوق ${series.shortAr}` : `Shop ${series.shortEn}`}
