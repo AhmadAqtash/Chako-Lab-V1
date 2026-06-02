@@ -32,6 +32,7 @@ export default function CategoryNav() {
   const pathname = usePathname();
   const { t } = useLanguage();
   const isActive = (href: string) => pathname === href;
+  const onTitanium = pathname === '/collections/titanium';
 
   return (
     <div className="border-b border-black/8 bg-chako-bg">
@@ -42,6 +43,8 @@ export default function CategoryNav() {
             'flex-shrink-0 px-4 min-h-[38px] inline-flex items-center rounded-full text-sm font-semibold transition-colors whitespace-nowrap',
             isActive('/collections')
               ? 'bg-chako-ink text-chako-cream'
+              : onTitanium
+              ? 'text-white/65 hover:text-white hover:bg-white/10'
               : 'text-chako-ink/55 hover:text-chako-ink hover:bg-black/5'
           )}
         >
@@ -58,9 +61,13 @@ export default function CategoryNav() {
               className={cn(
                 'flex-shrink-0 px-4 min-h-[38px] inline-flex items-center gap-1.5 rounded-full text-sm font-semibold transition-colors whitespace-nowrap',
                 featured
-                  ? 'titanium-pill ps-7 shadow-sm'
+                  ? onTitanium
+                    ? 'bg-gradient-to-r from-[#D4AF37] to-[#F2D272] text-[#1a1a1a] shadow-md ps-4'
+                    : 'titanium-pill ps-7 shadow-sm'
                   : active
                   ? cn(accent ?? 'bg-chako-ink', accentText ?? 'text-chako-cream')
+                  : onTitanium
+                  ? 'text-white/65 hover:text-white hover:bg-white/10'
                   : 'text-chako-ink/55 hover:text-chako-ink hover:bg-black/5'
               )}
             >

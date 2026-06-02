@@ -363,3 +363,31 @@ body[data-titanium] .border-y { border-color: rgba(255,255,255,0.14) !important;
 @media (prefers-reduced-motion: reduce) {
   body[data-titanium]::before { animation: none; }
 }
+
+/* ── Titanium universe: rescue dark-on-dark text (targeted) ──────────────── */
+/* Toolbar: In Stock / sort / product count / density toggle */
+body[data-titanium] .bg-black\/5 { background-color: rgba(255,255,255,0.08) !important; }
+body[data-titanium] .text-chako-ink\/60,
+body[data-titanium] .text-chako-ink\/70,
+body[data-titanium] .text-chako-ink\/65,
+body[data-titanium] .text-chako-ink\/50,
+body[data-titanium] .text-chako-ink\/45,
+body[data-titanium] .text-chako-ink\/40,
+body[data-titanium] .text-chako-ink\/35 { color: rgba(232,234,238,0.7) !important; }
+/* Solid ink text (titles, prices, labels, tab labels) -> light */
+body[data-titanium] .text-chako-ink { color: #E8EAEE !important; }
+/* Active tab underline + active toolbar pills use bg-chako-ink -> keep readable as light chip */
+body[data-titanium] .border-chako-ink { border-color: #E8EAEE !important; }
+/* Tab/section divider borders */
+body[data-titanium] .border-black\/8,
+body[data-titanium] .border-black\/5 { border-color: rgba(255,255,255,0.12) !important; }
+/* Description prose body */
+body[data-titanium] .chako-description,
+body[data-titanium] .chako-description * { color: rgba(232,234,238,0.78) !important; }
+/* bullet dots in description */
+body[data-titanium] .bg-chako-ink\/40 { background-color: rgba(232,234,238,0.5) !important; }
+
+/* IMPORTANT EXCEPTION: product cards have their OWN light image stage + dark info zone.
+   Don't let the rules above flip the card's white photo background or its dark info plate.
+   Cards use bg-[#1F232B] for the info zone and bg-white for the image — leave those alone. */
+body[data-titanium] .bg-white { background-color: #fff !important; }
