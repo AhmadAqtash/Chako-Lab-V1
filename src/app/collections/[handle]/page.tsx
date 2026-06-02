@@ -11,6 +11,7 @@ import {
 import type { ShopifyLanguage } from '@/lib/shopify';
 import CollectionGrid from '@/components/collection/CollectionGrid';
 import Breadcrumb from '@/components/ui/Breadcrumb';
+import TitaniumBodyFlag from '@/components/titanium/TitaniumBodyFlag';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
@@ -46,7 +47,8 @@ export default async function CollectionPage({ params }: Props) {
   if (params.handle === 'titanium') {
     const titaniumProducts = await getTitaniumProducts(lang);
     return (
-      <div className="titanium-theme max-w-screen-xl mx-auto px-4 md:px-8 py-8 md:py-10">
+      <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8 md:py-10">
+        <TitaniumBodyFlag />
         <Breadcrumb
           crumbs={[
             { label: 'Home', href: '/' },

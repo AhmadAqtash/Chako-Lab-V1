@@ -8,6 +8,7 @@ import ProductDetails from '@/components/product/ProductDetails';
 import ProductFeatures from '@/components/product/ProductFeatures';
 import RelatedProducts from '@/components/product/RelatedProducts';
 import Breadcrumb from '@/components/ui/Breadcrumb';
+import TitaniumBodyFlag from '@/components/titanium/TitaniumBodyFlag';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
@@ -57,7 +58,8 @@ export default async function ProductPage({ params }: Props) {
   ];
 
   return (
-    <div className={`${isTitanium ? 'titanium-theme ' : ''}max-w-screen-xl mx-auto px-4 md:px-8 py-6 md:py-10`}>
+    <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-6 md:py-10">
+      {isTitanium && <TitaniumBodyFlag />}
       <Breadcrumb crumbs={crumbs} />
 
       <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">

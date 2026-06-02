@@ -306,3 +306,60 @@
 @media (prefers-reduced-motion: reduce) {
   .ti-badge-sheen { animation: none; opacity: 0; }
 }
+
+/* ── Titanium UNIVERSE: full-site dark flip (body-driven) ──────────────── */
+body[data-titanium] {
+  background-color: #15171C;
+  background-image:
+    linear-gradient(rgba(18,20,25,0.82), rgba(24,27,33,0.86)),
+    url('/titanium/titanium-bg-portrait.webp');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  color: #E8EAEE;
+}
+@media (min-width: 768px) {
+  body[data-titanium] {
+    background-image:
+      linear-gradient(rgba(18,20,25,0.8), rgba(24,27,33,0.84)),
+      url('/titanium/titanium-bg-landscape.webp');
+  }
+}
+/* Slow sheen drifting across the whole page */
+body[data-titanium]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%);
+  background-size: 250% 100%;
+  animation: titanium-sheen 11s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+/* Header + announcement go dark/transparent */
+body[data-titanium] header {
+  background-color: rgba(21,23,28,0.85) !important;
+  backdrop-filter: blur(10px);
+  border-color: rgba(255,255,255,0.08) !important;
+}
+/* Light up the logo (it's a dark PNG; invert makes it white) */
+body[data-titanium] header img[alt="Chako Lab"] { filter: invert(1) brightness(1.6); }
+/* Header icon buttons + hover */
+body[data-titanium] header button { color: #E8EAEE; }
+body[data-titanium] header .hover\:bg-black\/5:hover { background-color: rgba(255,255,255,0.08) !important; }
+/* CategoryNav bar dark */
+body[data-titanium] header + div {
+  background-color: rgba(21,23,28,0.6) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+/* Collection header eyebrow + breadcrumb + toolbar text light */
+body[data-titanium] h1 { color: #F4F6F8 !important; }
+body[data-titanium] nav[aria-label="Breadcrumb"] { color: rgba(232,234,238,0.55) !important; }
+body[data-titanium] nav[aria-label="Breadcrumb"] span { color: rgba(232,234,238,0.8) !important; }
+body[data-titanium] [class*="uppercase"].text-chako-ink\/40,
+body[data-titanium] .border-y .text-chako-ink\/40 { color: rgba(232,234,238,0.6) !important; }
+body[data-titanium] .border-y { border-color: rgba(255,255,255,0.14) !important; }
+/* keep product cards' own dark styling (already handled in ProductCard) */
+@media (prefers-reduced-motion: reduce) {
+  body[data-titanium]::before { animation: none; }
+}
