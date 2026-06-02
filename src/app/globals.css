@@ -202,3 +202,47 @@
     transform: none;
   }
 }
+
+/* ── Titanium premium pill: solid fill + moving sheen + twinkle ───────────── */
+@keyframes titanium-sheen {
+  0%   { background-position: -150% 0; }
+  60%  { background-position: 250% 0; }
+  100% { background-position: 250% 0; }
+}
+@keyframes titanium-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.6) rotate(0deg); }
+  50%      { opacity: 1; transform: scale(1) rotate(90deg); }
+}
+.titanium-pill {
+  position: relative;
+  overflow: hidden;
+  background-color: #6366F1;
+  color: #fff;
+  isolation: isolate;
+}
+.titanium-pill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 48%, rgba(255,255,255,0.0) 62%);
+  background-size: 250% 100%;
+  animation: titanium-sheen 3.6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+.titanium-pill::after {
+  content: '\2726';
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 8px;
+  margin-top: -7px;
+  font-size: 10px;
+  line-height: 1;
+  color: rgba(255,255,255,0.95);
+  animation: titanium-twinkle 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .titanium-pill::before { animation: none; }
+  .titanium-pill::after { animation: none; opacity: 0.9; }
+}

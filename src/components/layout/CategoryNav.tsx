@@ -57,14 +57,13 @@ export default function CategoryNav() {
               href={href}
               className={cn(
                 'flex-shrink-0 px-4 min-h-[38px] inline-flex items-center gap-1.5 rounded-full text-sm font-semibold transition-colors whitespace-nowrap',
-                active
+                featured
+                  ? 'titanium-pill ps-7 shadow-sm'
+                  : active
                   ? cn(accent ?? 'bg-chako-ink', accentText ?? 'text-chako-cream')
                   : 'text-chako-ink/55 hover:text-chako-ink hover:bg-black/5'
               )}
             >
-              {featured && (
-                <span className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', active ? 'bg-white/80' : 'bg-chako-titanium')} />
-              )}
               {t(key)}
             </Link>
           );
