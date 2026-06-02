@@ -6,6 +6,7 @@ import {
   COLLECTION_DISPLAY_NAMES,
   ALL_COLLECTION_HANDLES,
   getTitaniumProducts,
+  getProduct,
 } from '@/lib/shopify';
 import type { ShopifyLanguage } from '@/lib/shopify';
 import CollectionGrid from '@/components/collection/CollectionGrid';
@@ -62,7 +63,16 @@ export default async function CollectionPage({ params }: Props) {
   if (!productType) notFound();
 
   const displayName = COLLECTION_DISPLAY_NAMES[params.handle];
-  const products = await getProducts({ first: 250, productType, language: lang });
+  let products = await getProducts({ first: 250, productType, language: lang });
+
+  // PangPang also surfaces the Dual-Layer Ti Tumbler (a Tumbler-type product),
+  // without changing the Shopify backend. It still lives on the Titanium page too.
+  if (params.handle === 'pangpang-cups') {
+    const dualLayerTi = await getProduct('chako-lab-dual-layer-ti-tumbler-brown', lang);
+    if (dualLayerTi && !products.some((p) => p.handle === dualLayerTi.handle)) {
+      products = [...products, dualLayerTi];
+    }
+  }
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8">
