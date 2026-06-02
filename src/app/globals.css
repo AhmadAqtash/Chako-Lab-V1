@@ -225,7 +225,7 @@
   inset: 0;
   background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 48%, rgba(255,255,255,0.0) 62%);
   background-size: 250% 100%;
-  animation: titanium-sheen 4.5s ease-in-out infinite alternate;
+  animation: titanium-sheen 2.8s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: -1;
 }
