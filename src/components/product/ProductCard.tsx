@@ -75,29 +75,17 @@ export default function ProductCard({ product }: Props) {
           </div>
         )}
 
-        {/* Titanium premium badge */}
+        {/* Titanium premium badge — real Ti icon + sheen */}
         {isTitanium && (
-          <div className="absolute top-2.5 right-2.5 rtl:right-auto rtl:left-2.5 z-10 w-9 h-9 md:w-10 md:h-10">
-            <svg viewBox="0 0 100 116" className="w-full h-full drop-shadow-md" xmlns="http://www.w3.org/2000/svg" aria-label="Titanium">
-              <defs>
-                <clipPath id={`ti-shield-${product.handle}`}>
-                  <path d="M50 2 L96 20 V58 C96 86 74 104 50 114 C26 104 4 86 4 58 V20 Z" />
-                </clipPath>
-                <linearGradient id={`ti-fill-${product.handle}`} x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#8E9BB3" />
-                  <stop offset="45%" stop-color="#C9D2DE" />
-                  <stop offset="55%" stop-color="#EEF2F6" />
-                  <stop offset="100%" stop-color="#9AA6B8" />
-                </linearGradient>
-              </defs>
-              <path d="M50 2 L96 20 V58 C96 86 74 104 50 114 C26 104 4 86 4 58 V20 Z"
-                    fill={`url(#ti-fill-${product.handle})`} stroke="#5B6478" stroke-width="3" />
-              <g clip-path={`url(#ti-shield-${product.handle})`}>
-                <rect className="ti-badge-sheen" x="-60" y="0" width="60" height="116" fill="rgba(255,255,255,0.75)" />
-              </g>
-              <text x="50" y="74" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif"
-                    font-size="40" font-weight="800" fill="#3A4252">Ti</text>
-            </svg>
+          <div className="absolute top-2 right-2 rtl:right-auto rtl:left-2 z-10 w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden shadow-lg ring-1 ring-white/30"
+               style={{ background: 'radial-gradient(circle at 35% 30%, #3A4150, #15171C)' }}>
+            <img
+              src="/titanium/ti-badge-white.png"
+              alt="Titanium"
+              className="absolute inset-0 w-full h-full object-contain p-1.5"
+            />
+            <span className="ti-badge-sheen absolute inset-y-0 -left-1/2 w-1/2 block"
+                  style={{ background: 'linear-gradient(115deg, transparent, rgba(255,255,255,0.6), transparent)' }} />
           </div>
         )}
 
