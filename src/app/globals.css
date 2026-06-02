@@ -283,3 +283,15 @@
 @media (prefers-reduced-motion: reduce) {
   .titanium-theme::before { animation: none; }
 }
+
+/* Ti badge sheen sweep */
+@keyframes ti-badge-sweep {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(220px); }
+}
+.ti-badge-sheen {
+  animation: ti-badge-sweep 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ti-badge-sheen { animation: none; opacity: 0; }
+}
