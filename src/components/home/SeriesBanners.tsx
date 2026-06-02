@@ -179,48 +179,36 @@ export default function SeriesBanners() {
                 <Link
                   href={`/collections/${series.handle}`}
                   className={cn(
-                    'group block rounded-2xl overflow-hidden cursor-pointer',
+                    'group relative block rounded-2xl overflow-hidden cursor-pointer',
+                    'aspect-[3/4]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chako-ink focus-visible:ring-offset-2',
                     pal.softBg
                   )}
                 >
-                  {/* Card header: series name + CTA */}
-                  <div className="flex items-end justify-between px-3 pt-4 pb-3 md:px-4 md:pt-5 md:pb-3">
-                    <div className="min-w-0">
-                      <h3 className={cn(
-                        'font-display font-bold leading-none tracking-tight truncate',
-                        'text-xl md:text-2xl lg:text-3xl',
-                        pal.nameColor
-                      )}>
-                        {shortName}
-                      </h3>
-                    </div>
-                    <span
-                      className={cn(
-                        'flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 md:px-3 md:py-2 rounded-full',
-                        'font-sans font-semibold text-[10px] md:text-xs uppercase tracking-wider',
-                        'transition-transform duration-150 group-hover:scale-105 group-active:scale-95',
-                        'touch-manipulation ml-2 rtl:ml-0 rtl:mr-2',
-                        pal.btnBg, pal.btnText
-                      )}
-                    >
-                      {isAr ? 'تسوق' : 'Shop'}
-                      <span className="text-xs">→</span>
-                    </span>
-                  </div>
+                  {/* Full-bleed banner image fills the whole card */}
+                  <Image
+                    src={img}
+                    alt={isAr ? series.labelAr : series.labelEn}
+                    fill
+                    quality={100}
+                    sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 320px"
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                    priority={i < 4}
+                  />
 
-                  {/* Banner image */}
-                  <div className="relative w-full aspect-[4/3] md:aspect-[3/4] overflow-hidden">
-                    <Image
-                      src={img}
-                      alt={isAr ? series.labelAr : series.labelEn}
-                      fill
-                      quality={100}
-                      sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 320px"
-                      className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                      priority={i < 4}
-                    />
-                  </div>
+                  {/* Overlaid Shop button (bottom corner) */}
+                  <span
+                    className={cn(
+                      'absolute bottom-3 z-10 inline-flex items-center gap-1 px-3 py-2 rounded-full shadow-md',
+                      'font-sans font-semibold text-[11px] md:text-xs uppercase tracking-wider',
+                      'transition-transform duration-150 group-hover:scale-105 group-active:scale-95 touch-manipulation',
+                      isAr ? 'left-3' : 'right-3',
+                      pal.btnBg, pal.btnText
+                    )}
+                  >
+                    {isAr ? `تسوق ${series.shortAr}` : `Shop ${series.shortEn}`}
+                    <span className="text-xs">→</span>
+                  </span>
                 </Link>
               </div>
             );
