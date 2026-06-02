@@ -46,7 +46,7 @@ export default async function CollectionPage({ params }: Props) {
   if (params.handle === 'titanium') {
     const titaniumProducts = await getTitaniumProducts(lang);
     return (
-      <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8">
+      <div className="titanium-theme max-w-screen-xl mx-auto px-4 md:px-8 py-8 md:py-10">
         <Breadcrumb
           crumbs={[
             { label: 'Home', href: '/' },

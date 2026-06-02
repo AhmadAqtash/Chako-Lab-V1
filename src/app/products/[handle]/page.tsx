@@ -34,6 +34,8 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProduct(params.handle, lang);
   if (!product) notFound();
 
+  const isTitanium = /titanium|\bti\b/i.test(product.title);
+
   const collectionHandle = PRODUCT_TYPE_TO_COLLECTION[product.productType];
   const collectionName = collectionHandle ? COLLECTION_DISPLAY_NAMES[collectionHandle] : null;
 
@@ -55,7 +57,7 @@ export default async function ProductPage({ params }: Props) {
   ];
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-6 md:py-10">
+    <div className={`${isTitanium ? 'titanium-theme ' : ''}max-w-screen-xl mx-auto px-4 md:px-8 py-6 md:py-10`}>
       <Breadcrumb crumbs={crumbs} />
 
       <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">

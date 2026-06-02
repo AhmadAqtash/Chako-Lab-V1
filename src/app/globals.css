@@ -213,11 +213,13 @@
   50%      { opacity: 1; transform: scale(1) rotate(90deg); }
 }
 .titanium-pill {
-  position: relative;
   overflow: hidden;
   background-color: #6366F1;
   color: #fff;
   isolation: isolate;
+}
+.titanium-pill:not([class*="absolute"]):not([class*="fixed"]) {
+  position: relative;
 }
 .titanium-pill::before {
   content: '';
@@ -244,4 +246,40 @@
 @media (prefers-reduced-motion: reduce) {
   .titanium-pill::before { animation: none; }
   .titanium-pill::after { animation: none; opacity: 0.9; }
+}
+
+/* ── Titanium premium page theme: silver bg + slow shimmer ──────────────── */
+.titanium-theme {
+  position: relative;
+  background-color: #EDEEF0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.62), rgba(255,255,255,0.62)),
+    url('/titanium/titanium-bg-portrait.webp');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: scroll;
+  border-radius: 1.25rem;
+}
+@media (min-width: 768px) {
+  .titanium-theme {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)),
+      url('/titanium/titanium-bg-landscape.webp');
+  }
+}
+.titanium-theme::before {
+  /* slow diagonal sheen sweeping across the whole page block */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,0.45) 50%, transparent 62%);
+  background-size: 220% 100%;
+  animation: titanium-sheen 9s ease-in-out infinite alternate;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+.titanium-theme > * { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .titanium-theme::before { animation: none; }
 }
