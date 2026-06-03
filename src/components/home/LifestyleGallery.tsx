@@ -13,31 +13,43 @@ const IMAGES = [
     src: '/lifestyle/lifestyle-08.jpg',
     altEn: 'Model carrying a purple polka-dot Chako Lab cup as a crossbody',
     altAr: 'عارضة تحمل كوب تشاكو لاب الأرجواني المنقّط كحقيبة كتف',
+    en: 'Goes where you go',
+    ar: 'أينما تذهب',
   },
   {
     src: '/lifestyle/lifestyle-02.jpg',
     altEn: 'Two Chako Lab tumblers resting in a car cup holder',
     altAr: 'كوبان من تشاكو لاب في حامل أكواب السيارة',
+    en: 'Made for the long drive',
+    ar: 'رفيق الطريق الطويل',
   },
   {
     src: '/lifestyle/lifestyle-06.jpg',
     altEn: 'BoBo cups on a table during a cozy game night',
     altAr: 'أكواب بوبو على الطاولة في أمسية ألعاب دافئة',
+    en: 'Game night, sorted',
+    ar: 'ليلة ألعاب مثالية',
   },
   {
     src: '/lifestyle/lifestyle-10.jpg',
     altEn: 'Hung Kettle bottles on a picnic table outdoors',
     altAr: 'زجاجات هانج كيتل على طاولة نزهة في الخارج',
+    en: 'Picnic-ready, every time',
+    ar: 'جاهز لكل نزهة',
   },
   {
     src: '/lifestyle/lifestyle-04.jpg',
     altEn: 'Chako Lab bottles tucked into a picnic basket on the grass',
     altAr: 'زجاجات تشاكو لاب داخل سلة نزهة على العشب',
+    en: 'Packed for the outdoors',
+    ar: 'مُجهّز للخارج',
   },
   {
     src: '/lifestyle/brand-section-01.jpg',
     altEn: 'Hand holding a yellow Chako Lab tumbler by its handle',
     altAr: 'يد تمسك بكوب تشاكو لاب الأصفر من المقبض',
+    en: 'Everyday, in your colour',
+    ar: 'كل يوم، بلونك',
   },
 ];
 
@@ -112,6 +124,12 @@ export default function LifestyleGallery() {
                   sizes="(max-width: 768px) 50vw, 33vw"
                   className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                 />
+                {/* Readability scrim */}
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+                {/* Caption */}
+                <span className={`absolute bottom-3 ${isAr ? 'right-4 left-auto' : 'left-4'} z-10 font-display font-bold text-white text-sm md:text-base leading-tight drop-shadow-sm pe-4`}>
+                  {isAr ? img.ar : img.en}
+                </span>
               </div>
             </div>
           ))}
