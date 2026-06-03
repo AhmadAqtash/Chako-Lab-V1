@@ -122,7 +122,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
       <div className="flex flex-col gap-5 min-w-0">
         {/* Header */}
         <div>
-          <p className="text-label font-semibold text-chako-ink/40 uppercase tracking-widest mb-1.5">
+          <p className="text-sm font-bold text-chako-ink/55 uppercase tracking-widest mb-1.5">
             {product.productType}
           </p>
           <div className="flex items-start justify-between gap-4 min-w-0">
@@ -218,10 +218,10 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                 key={key}
                 onClick={() => setActiveTab(key)}
                 className={cn(
-                  'flex-1 md:flex-none px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors touch-manipulation min-h-[48px]',
+                  'flex-1 md:flex-none px-4 py-3 text-base font-bold border-b-2 -mb-px transition-colors touch-manipulation min-h-[48px]',
                   activeTab === key
                     ? 'border-chako-ink text-chako-ink'
-                    : 'border-transparent text-chako-ink/45 hover:text-chako-ink'
+                    : 'border-transparent text-chako-ink/55 hover:text-chako-ink'
                 )}
               >
                 {label}
@@ -230,7 +230,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
           </div>
 
           {activeTab === 'Description' && (
-            <div className="text-sm text-chako-ink/65 leading-relaxed px-4 md:px-0">
+            <div className="text-[15px] md:text-base text-chako-ink/80 leading-relaxed px-4 md:px-0 font-medium">
               {displayDescHtml ? (
                 <div
                   className="chako-description prose prose-sm max-w-none prose-p:leading-relaxed prose-ul:pl-4 prose-ol:pl-4 prose-li:marker:text-chako-ink/40"
@@ -263,8 +263,8 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                     key={key}
                     className="flex justify-between py-2.5 border-b border-black/5 last:border-0"
                   >
-                    <span className="text-sm text-chako-ink/50 capitalize">{key}</span>
-                    <span className="text-sm font-medium text-right max-w-[55%]">{val}</span>
+                    <span className="text-[15px] text-chako-ink/65 capitalize">{key}</span>
+                    <span className="text-[15px] font-semibold text-right max-w-[55%]">{val}</span>
                   </div>
                 ))
               ) : (
@@ -298,10 +298,10 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                   className="flex items-start justify-between gap-4 py-2.5 border-b border-black/5 last:border-0"
                 >
                   <div>
-                    <p className="text-sm font-medium">{label}</p>
-                    <p className="text-xs text-chako-ink/45 mt-0.5">{sub}</p>
+                    <p className="text-[15px] font-semibold">{label}</p>
+                    <p className="text-xs text-chako-ink/60 mt-0.5">{sub}</p>
                   </div>
-                  <span className="text-sm text-chako-ink/70 flex-shrink-0">{value}</span>
+                  <span className="text-[15px] font-medium text-chako-ink/80 flex-shrink-0">{value}</span>
                 </div>
               ))}
               <p className="text-xs text-chako-ink/35 pt-1">

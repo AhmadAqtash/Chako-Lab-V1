@@ -20,12 +20,12 @@ export default function TrustBadges() {
       {BADGE_DEFS.map(({ Icon, labelKey, subKey, wide, highlight }) => (
         <div
           key={labelKey}
-          className={`flex items-start gap-2.5 rounded-xl px-3 py-2.5 ${wide ? 'col-span-2' : ''} ${highlight ? 'bg-chako-highlight/30' : 'bg-chako-accent'}`}
+          className={`flex items-start gap-2.5 rounded-xl px-3.5 py-3 ${wide ? 'col-span-2' : ''} ${highlight ? 'bg-chako-highlight/30' : 'bg-chako-accent'}`}
         >
-          <Icon size={16} className="flex-shrink-0 mt-0.5 text-chako-ink/50" />
+          <Icon size={18} className="flex-shrink-0 mt-0.5 text-chako-ink/70" />
           <div>
-            <p className="text-xs font-semibold">{t(labelKey)}</p>
-            <p className="text-[11px] text-chako-ink/45 leading-tight">{t(subKey)}</p>
+            <p className="text-sm font-bold">{t(labelKey)}</p>
+            <p className="text-xs text-chako-ink/60 leading-tight mt-0.5">{t(subKey)}</p>
           </div>
         </div>
       ))}
