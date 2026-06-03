@@ -47,7 +47,7 @@ const SLIDES: Slide[] = [
 ];
 
 export default function HeroSlideshow() {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const isAr = language === 'ar';
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);

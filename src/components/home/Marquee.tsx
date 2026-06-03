@@ -3,9 +3,6 @@
 import { useLanguage } from '@/context/LanguageContext';
 
 const BRAND_CLAIMS = [
-  '10+ PRODUCT LINES',
-  'BASED IN THE UAE',
-  '100% QUALITY ASSURED',
   'RED DOT WINNER 2024',
   'iF DESIGN AWARD 2023',
   'BPA FREE',
