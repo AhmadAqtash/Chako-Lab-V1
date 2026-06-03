@@ -178,20 +178,6 @@ export default function HeroSlideshow() {
           </button>
         ))}
       </div>
-
-      {/* Stats — desktop only */}
-      <div className="absolute bottom-8 right-8 z-20 hidden md:flex gap-8">
-        {[
-          { value: t('hero_stat1_value'), label: t('hero_stat1_label') },
-          { value: t('hero_stat2_value'), label: t('hero_stat2_label') },
-          { value: t('hero_stat3_value'), label: t('hero_stat3_label') },
-        ].map(({ value, label }) => (
-          <div key={label} className="text-right">
-            <p className="text-2xl font-bold text-white drop-shadow">{value}</p>
-            <p className="text-xs text-white/70 mt-0.5 drop-shadow">{label}</p>
-          </div>
-        ))}
-      </div>
     </section>
   );
 }

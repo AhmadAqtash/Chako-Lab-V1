@@ -3,6 +3,9 @@
 import { useLanguage } from '@/context/LanguageContext';
 
 const BRAND_CLAIMS = [
+  '10+ PRODUCT LINES',
+  'BASED IN THE UAE',
+  '100% QUALITY ASSURED',
   'RED DOT WINNER 2024',
   'iF DESIGN AWARD 2023',
   'BPA FREE',
@@ -30,10 +33,10 @@ export default function Marquee() {
         {doubled.map((item, i) => (
           <span
             key={i}
-            className="inline-flex items-center gap-3 px-6 py-3.5 flex-shrink-0 border-r border-white/[0.08]"
+            className="inline-flex items-center gap-3 px-7 py-5 flex-shrink-0 border-r border-white/[0.08]"
           >
-            <span className="text-chako-linlin text-sm leading-none">✦</span>
-            <span className="font-display font-bold text-white text-[11px] md:text-xs uppercase tracking-[0.12em]">
+            <span className="text-chako-linlin text-base leading-none">✦</span>
+            <span className="font-display font-bold text-white text-[13px] md:text-sm uppercase tracking-[0.12em]">
               {item}
             </span>
           </span>
