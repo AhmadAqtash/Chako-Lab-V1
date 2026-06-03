@@ -367,13 +367,14 @@ body[data-titanium] .border-y { border-color: rgba(255,255,255,0.14) !important;
 /* ── Titanium universe: rescue dark-on-dark text (targeted) ──────────────── */
 /* Toolbar: In Stock / sort / product count / density toggle */
 body[data-titanium] .bg-black\/5 { background-color: rgba(255,255,255,0.08) !important; }
+body[data-titanium] .text-chako-ink\/80,
 body[data-titanium] .text-chako-ink\/60,
 body[data-titanium] .text-chako-ink\/70,
 body[data-titanium] .text-chako-ink\/65,
 body[data-titanium] .text-chako-ink\/50,
 body[data-titanium] .text-chako-ink\/45,
 body[data-titanium] .text-chako-ink\/40,
-body[data-titanium] .text-chako-ink\/35 { color: rgba(232,234,238,0.7) !important; }
+body[data-titanium] .text-chako-ink\/35 { color: rgba(232,234,238,0.85) !important; }
 /* Solid ink text (titles, prices, labels, tab labels) -> light */
 body[data-titanium] .text-chako-ink { color: #E8EAEE !important; }
 /* Active tab underline + active toolbar pills use bg-chako-ink -> keep readable as light chip */
