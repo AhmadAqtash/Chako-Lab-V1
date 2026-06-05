@@ -44,6 +44,14 @@ export default function CategoryNav() {
   // close on route change
   useEffect(() => { setOpenCats(false); }, [pathname]);
 
+  // close dropdown on scroll (prevents the fixed panel from detaching/floating)
+  useEffect(() => {
+    if (!openCats) return;
+    const close = () => setOpenCats(false);
+    window.addEventListener('scroll', close, { passive: true });
+    return () => window.removeEventListener('scroll', close);
+  }, [openCats]);
+
   const linkBase = 'flex-shrink-0 px-3 py-2 rounded-full text-sm font-semibold transition-colors whitespace-nowrap';
   const linkIdle = onTitanium
     ? 'text-white/70 hover:text-white hover:bg-white/10'
