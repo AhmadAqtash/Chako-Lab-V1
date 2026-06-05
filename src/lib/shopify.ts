@@ -142,6 +142,15 @@ const PRODUCTS_QUERY = `
   }
 `;
 
+const NEW_PRODUCTS_QUERY = `
+  ${PRODUCT_CARD_FRAGMENT}
+  query GetNewProducts($first: Int!, $query: String, $language: LanguageCode!) @inContext(language: $language) {
+    products(first: $first, sortKey: CREATED_AT, reverse: true, query: $query) {
+      nodes { ...ProductCard }
+    }
+  }
+`;
+
 const PRODUCT_DETAIL_QUERY = `
   ${IMAGE_FIELDS}
   query GetProduct($handle: String!, $language: LanguageCode!) @inContext(language: $language) {
@@ -227,6 +236,25 @@ export async function getProducts({
   } catch (err) {
     console.error('[Shopify] getProducts failed, using mock data:', err);
     return getMockProducts({ first, productType, query: extraQuery });
+  }
+}
+
+export async function getNewProducts(
+  language: ShopifyLanguage = 'EN',
+  first = 24,
+): Promise<Product[]> {
+  if (IS_DEMO) {
+    return getMockProducts({ first });
+  }
+  try {
+    const data = await storefrontFetch<{ products: { nodes: Product[] } }>(
+      NEW_PRODUCTS_QUERY,
+      { first, query: `vendor:'${VENDOR}'`, language }
+    );
+    return data.products.nodes.filter((p) => p.vendor === VENDOR);
+  } catch (err) {
+    console.error('[Shopify] getNewProducts failed, using mock data:', err);
+    return getMockProducts({ first });
   }
 }
 

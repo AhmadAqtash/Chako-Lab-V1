@@ -6,6 +6,7 @@ import {
   COLLECTION_DISPLAY_NAMES,
   ALL_COLLECTION_HANDLES,
   getTitaniumProducts,
+  getNewProducts,
   getProduct,
 } from '@/lib/shopify';
 import type { ShopifyLanguage } from '@/lib/shopify';
@@ -22,7 +23,7 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  return [...ALL_COLLECTION_HANDLES, 'titanium'].map((handle) => ({ handle }));
+  return [...ALL_COLLECTION_HANDLES, 'titanium', 'new'].map((handle) => ({ handle }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -30,6 +31,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: 'Titanium',
       description: 'Shop the Chako Lab Titanium Collection — premium titanium drinkware delivered across the UAE.',
+    };
+  }
+  if (params.handle === 'new') {
+    return {
+      title: 'New Arrivals',
+      description: 'Shop the newest Chako Lab drinkware — fresh arrivals delivered across the UAE.',
     };
   }
   const name = COLLECTION_DISPLAY_NAMES[params.handle];
@@ -57,6 +64,22 @@ export default async function CollectionPage({ params }: Props) {
           ]}
         />
         <CollectionGrid products={titaniumProducts} title="Titanium" />
+      </div>
+    );
+  }
+
+  if (params.handle === 'new') {
+    const newProducts = await getNewProducts(lang);
+    return (
+      <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8">
+        <Breadcrumb
+          crumbs={[
+            { label: 'Home', href: '/' },
+            { label: 'Collections', href: '/collections' },
+            { label: 'New Arrivals' },
+          ]}
+        />
+        <CollectionGrid products={newProducts} title="New Arrivals" />
       </div>
     );
   }
