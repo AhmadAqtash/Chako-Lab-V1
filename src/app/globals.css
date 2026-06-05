@@ -404,3 +404,16 @@ body[data-titanium] .bg-white { background-color: #fff !important; }
 /* keep the photo stage bright */
 .related-ti-card .bg-chako-titanium-soft,
 .related-ti-card [class*="aspect-"] { background-color: #fff !important; }
+
+/* Trust badge tiles on titanium PDP: darken the light tile backgrounds so the (already-lightened) text is readable */
+body[data-titanium] .bg-chako-accent {
+  background-color: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+body[data-titanium] .bg-chako-highlight\/30 {
+  background-color: rgba(212,175,55,0.14) !important;
+  border: 1px solid rgba(212,175,55,0.30);
+}
+/* the badge icon + sub text inside titanium */
+body[data-titanium] .bg-chako-accent .text-chako-ink\/70,
+body[data-titanium] .bg-chako-highlight\/30 .text-chako-ink\/70 { color: rgba(232,234,238,0.85) !important; }
