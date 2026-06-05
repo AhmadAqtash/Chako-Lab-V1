@@ -431,3 +431,31 @@ body[data-titanium] .sticky-atc .bg-chako-accent { background-color: rgba(255,25
 
 /* Inactive PDP tabs on titanium: /55 wasn't in the rescue list, so lift it here */
 body[data-titanium] .text-chako-ink\/55 { color: rgba(232,234,238,0.65) !important; }
+
+/* Cart drawer on titanium pages: full dark treatment (bg + faint inner surfaces + text) */
+body[data-titanium] .cart-drawer {
+  background-color: #15171C !important;
+  color: #E8EAEE;
+}
+body[data-titanium] .cart-drawer .border-b,
+body[data-titanium] .cart-drawer .border-t { border-color: rgba(255,255,255,0.12) !important; }
+/* faint light backgrounds inside the drawer -> dark equivalents */
+body[data-titanium] .cart-drawer .bg-chako-accent { background-color: rgba(255,255,255,0.07) !important; }
+body[data-titanium] .cart-drawer .bg-black\/5 { background-color: rgba(255,255,255,0.08) !important; }
+body[data-titanium] .cart-drawer .bg-chako-highlight\/30 { background-color: rgba(212,175,55,0.16) !important; }
+/* text opacities -> light */
+body[data-titanium] .cart-drawer .text-chako-ink,
+body[data-titanium] .cart-drawer .font-bold,
+body[data-titanium] .cart-drawer .font-semibold { color: #E8EAEE !important; }
+body[data-titanium] .cart-drawer .text-chako-ink\/70,
+body[data-titanium] .cart-drawer .text-chako-ink\/60,
+body[data-titanium] .cart-drawer .text-chako-ink\/50,
+body[data-titanium] .cart-drawer .text-chako-ink\/40 { color: rgba(232,234,238,0.7) !important; }
+/* the checkout button (bg-chako-ink) -> make it pop on dark: silver/light */
+body[data-titanium] .cart-drawer a[href*="checkout"],
+body[data-titanium] .cart-drawer .bg-chako-ink {
+  background-color: #E8EAEE !important;
+  color: #15171C !important;
+}
+/* the small qty badge uses bg-chako-ink too — keep it visible but distinct */
+body[data-titanium] .cart-drawer span.bg-chako-ink { background-color: rgba(212,175,55,0.9) !important; color: #15171C !important; }
