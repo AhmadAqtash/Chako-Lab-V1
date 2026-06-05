@@ -5,9 +5,10 @@ import T from '@/components/ui/T';
 interface Props {
   productType: string;
   excludeHandles: string[];
+  isTitanium?: boolean;
 }
 
-export default async function RelatedProducts({ productType, excludeHandles }: Props) {
+export default async function RelatedProducts({ productType, excludeHandles, isTitanium = false }: Props) {
   const products = await getRelatedProducts(productType, excludeHandles).catch(() => []);
   if (!products.length) return null;
 
@@ -17,12 +18,12 @@ export default async function RelatedProducts({ productType, excludeHandles }: P
       <div className="relative overflow-x-hidden">
         <div className="flex md:grid md:grid-cols-4 gap-3 md:gap-4 overflow-x-auto md:overflow-visible scrollbar-hide snap-x snap-mandatory md:snap-none scroll-momentum -mx-4 md:mx-0 px-4 md:px-0 pb-2 md:pb-0">
           {products.map((product) => (
-            <div key={product.id} className="flex-none w-[60vw] sm:w-[45vw] md:w-auto snap-start">
+            <div key={product.id} className={`flex-none w-[60vw] sm:w-[45vw] md:w-auto snap-start ${isTitanium ? 'related-ti-card' : ''}`}>
               <ProductCard product={product} />
             </div>
           ))}
         </div>
-        <div className="absolute top-0 right-0 bottom-2 w-10 bg-gradient-to-l from-chako-bg to-transparent pointer-events-none md:hidden" />
+        <div className={`absolute top-0 right-0 bottom-2 w-10 bg-gradient-to-l to-transparent pointer-events-none md:hidden ${isTitanium ? 'from-[#15171C]' : 'from-chako-bg'}`} />
       </div>
     </section>
   );

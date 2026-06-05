@@ -81,6 +81,7 @@ export default async function ProductPage({ params }: Props) {
       <RelatedProducts
         productType={product.productType}
         excludeHandles={siblingHandles}
+        isTitanium={isTitanium}
       />
     </div>
   );

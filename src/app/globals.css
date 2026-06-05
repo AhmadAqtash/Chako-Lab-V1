@@ -392,3 +392,15 @@ body[data-titanium] .bg-chako-ink\/40 { background-color: rgba(232,234,238,0.5) 
    Don't let the rules above flip the card's white photo background or its dark info plate.
    Cards use bg-[#1F232B] for the info zone and bg-white for the image — leave those alone. */
 body[data-titanium] .bg-white { background-color: #fff !important; }
+
+/* "You may also like" cards on a titanium PDP — context-dark treatment */
+.related-ti-card a[class*="bg-chako-bg"],
+.related-ti-card a {
+  background-color: #1F232B !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+.related-ti-card .text-chako-ink { color: #E8EAEE !important; }
+.related-ti-card .text-chako-ink\/40 { color: rgba(232,234,238,0.55) !important; }
+/* keep the photo stage bright */
+.related-ti-card .bg-chako-titanium-soft,
+.related-ti-card [class*="aspect-"] { background-color: #fff !important; }
