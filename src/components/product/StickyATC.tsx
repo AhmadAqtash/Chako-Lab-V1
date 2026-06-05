@@ -43,7 +43,7 @@ export default function StickyATC({ title, price, variantId, available, triggerR
 
   return (
     <div
-      className={`md:hidden fixed left-0 right-0 z-20 bg-chako-bg/95 backdrop-blur-md border-t border-black/8 px-4 py-3 flex items-center gap-3 transition-transform duration-300 ${
+      className={`sticky-atc md:hidden fixed left-0 right-0 z-20 bg-chako-bg/95 backdrop-blur-md border-t border-black/8 px-4 py-3 flex items-center gap-3 transition-transform duration-300 ${
         visible ? 'translate-y-0' : 'translate-y-full'
       }`}
       style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 58px)' }}
