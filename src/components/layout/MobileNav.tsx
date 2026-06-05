@@ -83,7 +83,7 @@ export default function MobileNav() {
     : [...linkEls, cartEl];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-chako-bg/95 backdrop-blur-md border-t border-black/8 safe-area-pb">
+    <nav className="mobile-nav md:hidden fixed bottom-0 left-0 right-0 z-30 bg-chako-bg/95 backdrop-blur-md border-t border-black/8 safe-area-pb">
       <div className="relative grid py-1" style={{ gridTemplateColumns: `repeat(${ITEM_COUNT}, 1fr)` }}>
         {/* Sliding background pill — branded ink tint + orange accent */}
         <span

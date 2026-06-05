@@ -459,3 +459,15 @@ body[data-titanium] .cart-drawer .bg-chako-ink {
 }
 /* the small qty badge uses bg-chako-ink too — keep it visible but distinct */
 body[data-titanium] .cart-drawer span.bg-chako-ink { background-color: rgba(212,175,55,0.9) !important; color: #15171C !important; }
+
+/* Mobile bottom nav on titanium pages: dark treatment */
+body[data-titanium] .mobile-nav {
+  background-color: rgba(21,23,28,0.95) !important;
+  border-top-color: rgba(255,255,255,0.12) !important;
+}
+/* the sliding indicator pill bg */
+body[data-titanium] .mobile-nav .bg-chako-ink\/\[0\.07\] { background-color: rgba(255,255,255,0.10) !important; }
+/* inactive icons/labels (text-chako-ink/40) -> readable light */
+body[data-titanium] .mobile-nav .text-chako-ink\/40 { color: rgba(232,234,238,0.6) !important; }
+/* active icon/label (text-chako-ink) -> bright */
+body[data-titanium] .mobile-nav .text-chako-ink { color: #F4F6F8 !important; }
