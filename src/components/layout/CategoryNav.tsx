@@ -42,7 +42,7 @@ export default function CategoryNav() {
   // close on route change
   useEffect(() => { setOpenCats(false); }, [pathname]);
 
-  const linkBase = 'px-3 py-2 rounded-full text-sm font-semibold transition-colors whitespace-nowrap';
+  const linkBase = 'flex-shrink-0 px-3 py-2 rounded-full text-sm font-semibold transition-colors whitespace-nowrap';
   const linkIdle = onTitanium
     ? 'text-white/70 hover:text-white hover:bg-white/10'
     : 'text-chako-ink/70 hover:text-chako-ink hover:bg-black/5';
@@ -53,8 +53,8 @@ export default function CategoryNav() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <div className="hidden md:block border-b border-black/8 bg-chako-bg">
-      <nav className="flex items-center justify-center gap-1 px-8 py-2.5 max-w-screen-xl mx-auto">
+    <div className="border-b border-black/8 bg-chako-bg">
+      <nav className="flex items-center md:justify-center gap-1 px-4 md:px-8 py-2 md:py-2.5 max-w-screen-xl mx-auto overflow-x-auto overflow-y-visible scrollbar-hide">
         {/* Home */}
         <Link href="/" className={cn(linkBase, isActive('/') ? linkActive : linkIdle)}>
           {t('nav_home')}
@@ -78,7 +78,7 @@ export default function CategoryNav() {
             <ChevronDown size={15} className={cn('transition-transform', openCats && 'rotate-180')} />
           </button>
           {openCats && (
-            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 min-w-[200px] bg-white rounded-xl shadow-xl border border-black/8 py-2">
+            <div className="absolute top-full mt-2 start-0 md:left-1/2 md:-translate-x-1/2 z-50 min-w-[200px] bg-white rounded-xl shadow-xl border border-black/8 py-2">
               {SERIES.map(({ handle, key }) => (
                 <Link
                   key={handle}
@@ -101,7 +101,7 @@ export default function CategoryNav() {
         <Link
           href="/collections/titanium"
           className={cn(
-            'inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors whitespace-nowrap ms-1',
+            'flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors whitespace-nowrap ms-1',
             onTitanium
               ? 'bg-gradient-to-r from-[#D4AF37] to-[#F2D272] text-[#1a1a1a] shadow-md'
               : 'titanium-pill ps-7 shadow-sm'
