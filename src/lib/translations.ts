@@ -3,6 +3,8 @@ const translations = {
     // Navigation
     nav_home: 'Home',
     nav_all_products: 'All Products',
+    nav_categories: 'Categories',
+    nav_new: 'New',
     nav_kettles: 'Kettles',
     nav_bottles: 'Bottles',
     nav_mugs: 'Mugs',
@@ -130,6 +132,8 @@ const translations = {
     // Navigation
     nav_home: 'الرئيسية',
     nav_all_products: 'جميع المنتجات',
+    nav_categories: 'الفئات',
+    nav_new: 'جديد',
     nav_kettles: 'الأباريق',
     nav_bottles: 'الزجاجات',
     nav_mugs: 'الأكواب',
