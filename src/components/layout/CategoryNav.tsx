@@ -27,7 +27,9 @@ export default function CategoryNav() {
   const pathname = usePathname();
   const { t } = useLanguage();
   const [openCats, setOpenCats] = useState(false);
+  const [catsPos, setCatsPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const catsRef = useRef<HTMLDivElement>(null);
+  const catsBtnRef = useRef<HTMLButtonElement>(null);
   const onTitanium = pathname === '/collections/titanium';
 
   // close dropdown on outside click
@@ -53,7 +55,7 @@ export default function CategoryNav() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <div className="border-b border-black/8 bg-chako-bg">
+    <div className="sticky top-12 md:top-14 z-20 border-b border-black/8 bg-chako-bg">
       <nav className="flex items-center md:justify-center gap-1 px-4 md:px-8 py-2 md:py-2.5 max-w-screen-xl mx-auto overflow-x-auto overflow-y-visible scrollbar-hide">
         {/* Home */}
         <Link href="/" className={cn(linkBase, isActive('/') ? linkActive : linkIdle)}>
@@ -68,8 +70,13 @@ export default function CategoryNav() {
         {/* Categories dropdown */}
         <div className="relative" ref={catsRef}>
           <button
+            ref={catsBtnRef}
             type="button"
-            onClick={() => setOpenCats((v) => !v)}
+            onClick={() => {
+              const r = catsBtnRef.current?.getBoundingClientRect();
+              if (r) setCatsPos({ top: r.bottom + 8, left: r.left });
+              setOpenCats((v) => !v);
+            }}
             className={cn(linkBase, 'inline-flex items-center gap-1', openCats ? linkActive : linkIdle)}
             aria-expanded={openCats}
             aria-haspopup="true"
@@ -78,7 +85,10 @@ export default function CategoryNav() {
             <ChevronDown size={15} className={cn('transition-transform', openCats && 'rotate-180')} />
           </button>
           {openCats && (
-            <div className="absolute top-full mt-2 start-0 md:left-1/2 md:-translate-x-1/2 z-50 min-w-[200px] bg-white rounded-xl shadow-xl border border-black/8 py-2">
+            <div
+              className="fixed z-[70] min-w-[200px] max-h-[70vh] overflow-y-auto bg-white rounded-xl shadow-xl border border-black/8 py-2"
+              style={{ top: catsPos.top, left: catsPos.left }}
+            >
               {SERIES.map(({ handle, key }) => (
                 <Link
                   key={handle}
