@@ -471,3 +471,6 @@ body[data-titanium] .mobile-nav .bg-chako-ink\/\[0\.07\] { background-color: rgb
 body[data-titanium] .mobile-nav .text-chako-ink\/40 { color: rgba(232,234,238,0.6) !important; }
 /* active icon/label (text-chako-ink) -> bright */
 body[data-titanium] .mobile-nav .text-chako-ink { color: #F4F6F8 !important; }
+
+/* Empty-cart icon + empty text on titanium drawer */
+body[data-titanium] .cart-drawer .text-black\/20 { color: rgba(255,255,255,0.25) !important; }
