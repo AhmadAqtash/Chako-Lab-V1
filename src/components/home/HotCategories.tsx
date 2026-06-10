@@ -40,16 +40,24 @@ const TYPE_IMG_BG: Record<string, string> = {
   'Kada Bottle':   'bg-chako-kada-soft',
 };
 
+// One aliased request, one bucket per tab. Family filtering happens in the
+// Shopify search query (matches BASE product_type values regardless of
+// @inContext) — never client-side against localized fields: under
+// @inContext(language: AR) productType comes back translated, so comparing it
+// to the English constants above matched nothing and Arabic showed no products.
+const CARD_FIELDS = `
+  id handle title productType vendor
+  featuredImage { url altText }
+  priceRange { minVariantPrice { amount currencyCode } }
+  variants(first: 1) { nodes { id availableForSale } }
+`;
+
 const PRODUCTS_GQL = `
-  query GetAllChakoProducts($first: Int!, $query: String, $language: LanguageCode!) @inContext(language: $language) {
-    products(first: $first, sortKey: BEST_SELLING, query: $query) {
-      nodes {
-        id handle title productType vendor
-        featuredImage { url altText }
-        priceRange { minVariantPrice { amount currencyCode } }
-        variants(first: 1) { nodes { id availableForSale } }
-      }
-    }
+  query GetHotCategories($language: LanguageCode!) @inContext(language: $language) {
+    ${TABS.map(
+      (tab, i) =>
+        `fam${i}: products(first: 24, sortKey: BEST_SELLING, query: "vendor:'Chako Lab' AND product_type:'${tab.productType}'") { nodes { ${CARD_FIELDS} } }`
+    ).join('\n    ')}
   }
 `;
 
@@ -58,7 +66,8 @@ const EASE = 'cubic-bezier(0.23,1,0.32,1)';
 export default function HotCategories() {
   const { language } = useLanguage();
   const isAr = language === 'ar';
-  const [allProducts, setAllProducts] = useState<CardProduct[]>([]);
+  // One bucket per tab, same order as TABS
+  const [families, setFamilies] = useState<CardProduct[][]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [gridVisible, setGridVisible] = useState(true);
@@ -80,6 +89,7 @@ export default function HotCategories() {
   }, []);
 
   useEffect(() => {
+    const ctrl = new AbortController();
     const load = async () => {
       setLoading(true);
       try {
@@ -91,24 +101,28 @@ export default function HotCategories() {
           },
           body: JSON.stringify({
             query: PRODUCTS_GQL,
-            variables: { first: 100, query: `vendor:'Chako Lab'`, language: isAr ? 'AR' : 'EN' },
+            variables: { language: isAr ? 'AR' : 'EN' },
           }),
+          signal: ctrl.signal,
         });
         const data = await res.json();
-        const nodes = (data.data?.products?.nodes ?? []) as CardProduct[];
-        setAllProducts(nodes.filter((p) => p.vendor === 'Chako Lab'));
+        setFamilies(
+          TABS.map((_, i) => (data.data?.[`fam${i}`]?.nodes ?? []) as CardProduct[])
+        );
       } catch (err) {
+        if ((err as Error).name === 'AbortError') return;
         console.error('[HotCategories] Shopify fetch failed:', err);
-      } finally {
-        setLoading(false);
       }
+      if (!ctrl.signal.aborted) setLoading(false);
     };
     load();
+    // Abort on language change/unmount so a slow stale-language response
+    // can never overwrite the current one
+    return () => ctrl.abort();
   }, [isAr]);
 
-  const tabProducts = allProducts
-    .filter((p) => p.productType === TABS[activeTab].productType)
-    .slice(0, 8);
+  const familyProducts = families[activeTab] ?? [];
+  const tabProducts = familyProducts.slice(0, 8);
 
   const selectTab = (idx: number) => {
     if (idx === activeTab) return;
@@ -119,7 +133,7 @@ export default function HotCategories() {
     }, 200);
   };
 
-  if (!loading && allProducts.length === 0) return (
+  if (!loading && families.flat().length === 0) return (
     <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-14 md:py-20" dir={isAr ? 'rtl' : 'ltr'}>
       <h2 className="text-heading font-display font-bold mb-8">
         {isAr ? 'الفئات الرائجة' : 'Shop the Drop'}
@@ -173,8 +187,8 @@ export default function HotCategories() {
 
       {/* Product grid: horizontal snap scroll */}
       <div className="relative">
-        {/* Right-edge fade — mobile only */}
-        <div className="absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-chako-bg to-transparent pointer-events-none z-10 md:hidden" />
+        {/* Scroll-end fade — mobile only (left edge in RTL) */}
+        <div className="absolute right-0 rtl:right-auto rtl:left-0 top-0 bottom-2 w-12 bg-gradient-to-l rtl:bg-gradient-to-r from-chako-bg to-transparent pointer-events-none z-10 md:hidden" />
 
         <div
           ref={gridRef}
@@ -200,14 +214,15 @@ export default function HotCategories() {
                 </p>
               )
             : tabProducts.map((product, idx) => {
-                const siblings = allProducts.filter(
-                  (p) =>
-                    p.productType === product.productType &&
-                    extractBaseName(p.title) === extractBaseName(product.title)
+                // Same family bucket by construction; group color variants by
+                // base name (works per-locale since all titles share the locale)
+                const siblings = familyProducts.filter(
+                  (p) => extractBaseName(p.title) === extractBaseName(product.title)
                 );
                 const soldOut = !product.variants.nodes[0]?.availableForSale;
                 const displayTitle = product.title.replace(/^Chako Lab\s+/i, '');
-                const imgBg = TYPE_IMG_BG[product.productType] ?? 'bg-chako-accent';
+                // Key on the tab's EN constant — product.productType is localized
+                const imgBg = TYPE_IMG_BG[TABS[activeTab].productType] ?? 'bg-chako-accent';
 
                 return (
                   <div

@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createCart, CartUserError } from '@/lib/storefront';
 
-// POST /api/cart → create a new cart
-export async function POST() {
+// POST /api/cart → create a new cart (?lang=ar|en for localized content)
+export async function POST(req: Request) {
   try {
-    const cart = await createCart();
+    const lang = new URL(req.url).searchParams.get('lang') === 'ar' ? 'AR' : 'EN';
+    const cart = await createCart(lang);
     return NextResponse.json(cart);
   } catch (err) {
     console.error('[/api/cart POST]', err);

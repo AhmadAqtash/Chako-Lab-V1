@@ -281,6 +281,26 @@ export async function getProduct(handle: string, language: ShopifyLanguage = 'EN
   }
 }
 
+// Base (untranslated) productType. Under @inContext a product's own
+// productType comes back localized, but Shopify search filters
+// (product_type:'…') and our EN-keyed collection maps need the base value.
+export async function getProductBaseType(handle: string): Promise<string | null> {
+  if (IS_DEMO) {
+    const p = await getMockProduct(handle);
+    return p?.productType ?? null;
+  }
+  try {
+    const data = await storefrontFetch<{ product: { productType: string } | null }>(
+      `query GetProductBaseType($handle: String!) { product(handle: $handle) { productType } }`,
+      { handle }
+    );
+    return data.product?.productType ?? null;
+  } catch (err) {
+    console.error('[Shopify] getProductBaseType failed:', err);
+    return null;
+  }
+}
+
 export async function getColorSiblings(
   productType: string,
   baseName: string
@@ -291,9 +311,10 @@ export async function getColorSiblings(
 
 export async function getRelatedProducts(
   productType: string,
-  excludeHandles: string[]
+  excludeHandles: string[],
+  language: ShopifyLanguage = 'EN'
 ): Promise<Product[]> {
-  const all = await getProducts({ first: 20, productType });
+  const all = await getProducts({ first: 20, productType, language });
   return all.filter((p) => !excludeHandles.includes(p.handle)).slice(0, 4);
 }
 

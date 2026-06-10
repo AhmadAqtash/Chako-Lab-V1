@@ -2,6 +2,8 @@
 import { Cart } from '@/types/shopify';
 import { SHOPIFY_API_VERSION } from './shopify-config';
 
+export type CartLanguage = 'EN' | 'AR';
+
 const STORE = process.env.SHOPIFY_STORE_DOMAIN || 'qpd26f-qg.myshopify.com';
 const TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || '';
 const ENDPOINT = `https://${STORE}/api/${SHOPIFY_API_VERSION}/graphql.json`;
@@ -81,57 +83,64 @@ function unwrapCart(payload: CartMutationPayload | undefined, mutation: string):
   return payload.cart;
 }
 
-export async function createCart(): Promise<Cart> {
+export async function createCart(language: CartLanguage = 'EN'): Promise<Cart> {
   const { cartCreate } = await storefrontFetch<{ cartCreate: CartMutationPayload }>(`
     ${CART_FIELDS}
-    mutation { cartCreate { cart { ...CartFields } userErrors { field message } } }
-  `);
+    mutation CartCreate($language: LanguageCode!) @inContext(language: $language) {
+      cartCreate { cart { ...CartFields } userErrors { field message } }
+    }
+  `, { language });
   return unwrapCart(cartCreate, 'cartCreate');
 }
 
-export async function getCart(cartId: string): Promise<Cart | null> {
+export async function getCart(cartId: string, language: CartLanguage = 'EN'): Promise<Cart | null> {
   const { cart } = await storefrontFetch<{ cart: Cart | null }>(`
     ${CART_FIELDS}
-    query GetCart($cartId: ID!) { cart(id: $cartId) { ...CartFields } }
-  `, { cartId });
+    query GetCart($cartId: ID!, $language: LanguageCode!) @inContext(language: $language) {
+      cart(id: $cartId) { ...CartFields }
+    }
+  `, { cartId, language });
   return cart;
 }
 
 export async function addToCart(
   cartId: string,
-  lines: { merchandiseId: string; quantity: number }[]
+  lines: { merchandiseId: string; quantity: number }[],
+  language: CartLanguage = 'EN'
 ): Promise<Cart> {
   const { cartLinesAdd } = await storefrontFetch<{ cartLinesAdd: CartMutationPayload }>(`
     ${CART_FIELDS}
-    mutation CartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
+    mutation CartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!, $language: LanguageCode!) @inContext(language: $language) {
       cartLinesAdd(cartId: $cartId, lines: $lines) { cart { ...CartFields } userErrors { field message } }
     }
-  `, { cartId, lines });
+  `, { cartId, lines, language });
   return unwrapCart(cartLinesAdd, 'cartLinesAdd');
 }
 
 export async function updateCartLine(
   cartId: string,
-  lines: { id: string; quantity: number }[]
+  lines: { id: string; quantity: number }[],
+  language: CartLanguage = 'EN'
 ): Promise<Cart> {
   const { cartLinesUpdate } = await storefrontFetch<{ cartLinesUpdate: CartMutationPayload }>(`
     ${CART_FIELDS}
-    mutation CartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+    mutation CartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!, $language: LanguageCode!) @inContext(language: $language) {
       cartLinesUpdate(cartId: $cartId, lines: $lines) { cart { ...CartFields } userErrors { field message } }
     }
-  `, { cartId, lines });
+  `, { cartId, lines, language });
   return unwrapCart(cartLinesUpdate, 'cartLinesUpdate');
 }
 
 export async function removeCartLines(
   cartId: string,
-  lineIds: string[]
+  lineIds: string[],
+  language: CartLanguage = 'EN'
 ): Promise<Cart> {
   const { cartLinesRemove } = await storefrontFetch<{ cartLinesRemove: CartMutationPayload }>(`
     ${CART_FIELDS}
-    mutation CartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+    mutation CartLinesRemove($cartId: ID!, $lineIds: [ID!]!, $language: LanguageCode!) @inContext(language: $language) {
       cartLinesRemove(cartId: $cartId, lineIds: $lineIds) { cart { ...CartFields } userErrors { field message } }
     }
-  `, { cartId, lineIds });
+  `, { cartId, lineIds, language });
   return unwrapCart(cartLinesRemove, 'cartLinesRemove');
 }

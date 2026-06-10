@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Product, ProductVariant } from '@/types/shopify';
 import { formatPrice, getDiscountPercent } from '@/lib/utils';
 import { cn } from '@/lib/utils';
@@ -11,20 +11,6 @@ import TrustBadges from './TrustBadges';
 import ColorSwatches from './ColorSwatches';
 import { Minus, Plus, Share2, Check } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { SHOPIFY_API_VERSION } from '@/lib/shopify-config';
-
-const PUB_STORE = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-const PUB_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
-
-const AR_PRODUCT_QUERY = `
-  query GetProductAR($handle: String!) @inContext(language: AR) {
-    product(handle: $handle) {
-      title
-      description
-      descriptionHtml
-    }
-  }
-`;
 
 interface Props {
   product: Product;
@@ -35,43 +21,19 @@ interface Props {
 
 type Tab = 'Description' | 'Specs' | 'Shipping';
 
-const SHIPPING_INFO = [
-  { label: 'Standard (UAE)', value: '2–4 business days', sub: 'Free over AED 250' },
-  { label: 'Express (Dubai)', value: 'Same / next day', sub: 'AED 25' },
-];
-
 export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle }: Props) {
-  const { t, language } = useLanguage();
-  const isAr = language === 'ar';
+  const { t } = useLanguage();
 
-  // Client-side Arabic content: re-fetches translated title + description when
-  // language is switched to Arabic without a full page reload, or when the
-  // server didn't have the cookie yet on the first visit.
-  const [arContent, setArContent] = useState<{ title: string; descriptionHtml: string } | null>(null);
-  useEffect(() => {
-    if (!isAr || !PUB_STORE || !PUB_TOKEN) { setArContent(null); return; }
-    let cancelled = false;
-    fetch(`https://${PUB_STORE}/api/${SHOPIFY_API_VERSION}/graphql.json`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token': PUB_TOKEN,
-      },
-      body: JSON.stringify({ query: AR_PRODUCT_QUERY, variables: { handle: product.handle } }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (cancelled) return;
-        const p = data.data?.product;
-        if (p?.title) setArContent({ title: p.title, descriptionHtml: p.descriptionHtml ?? '' });
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [isAr, product.handle]);
+  // The URL locale drives the server fetch, so product content arrives in the
+  // right language — the old client-side AR re-fetch workaround is gone.
+  const displayTitle = product.title;
+  const displayDescHtml = product.descriptionHtml;
+  const displayDesc = product.description;
 
-  const displayTitle = (isAr && arContent?.title) ? arContent.title : product.title;
-  const displayDescHtml = (isAr && arContent?.descriptionHtml) ? arContent.descriptionHtml : product.descriptionHtml;
-  const displayDesc = (isAr && arContent?.descriptionHtml) ? '' : product.description;
+  const SHIPPING_INFO = [
+    { label: t('product_ship_std'), value: t('product_ship_std_time'), sub: t('product_ship_std_sub') },
+    { label: t('product_ship_express'), value: t('product_ship_express_time'), sub: t('product_ship_express_sub') },
+  ];
 
   const TABS: { key: Tab; label: string }[] = [
     { key: 'Description', label: t('product_description') },
@@ -306,7 +268,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                 </div>
               ))}
               <p className="text-xs text-chako-ink/35 pt-1">
-                Orders placed before 3pm GST typically ship same day.
+                {t('product_ship_note')}
               </p>
             </div>
           )}

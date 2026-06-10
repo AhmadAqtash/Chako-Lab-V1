@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Cart } from '@/types/shopify';
 import toast from 'react-hot-toast';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface CartContextValue {
   cart: Cart | null;
@@ -21,21 +22,22 @@ const CART_ID_KEY = 'chako_cart_id';
 
 // ─── API helpers ──────────────────────────────────────────────────────────────
 
-async function apiCreateCart(): Promise<Cart> {
-  const res = await fetch('/api/cart', { method: 'POST' });
+// lang rides along as ?lang= so the API routes fetch localized line content
+async function apiCreateCart(lang: string): Promise<Cart> {
+  const res = await fetch(`/api/cart?lang=${lang}`, { method: 'POST' });
   if (!res.ok) throw new Error('Failed to create cart');
   return res.json();
 }
 
-async function apiGetCart(cartId: string): Promise<Cart | null> {
-  const res = await fetch(`/api/cart/${encodeURIComponent(cartId)}`);
+async function apiGetCart(cartId: string, lang: string): Promise<Cart | null> {
+  const res = await fetch(`/api/cart/${encodeURIComponent(cartId)}?lang=${lang}`);
   if (res.status === 404) return null;
   if (!res.ok) throw new Error('Failed to fetch cart');
   return res.json();
 }
 
-async function apiAddLines(cartId: string, lines: { merchandiseId: string; quantity: number }[]): Promise<Cart> {
-  const res = await fetch(`/api/cart/${encodeURIComponent(cartId)}/lines`, {
+async function apiAddLines(cartId: string, lines: { merchandiseId: string; quantity: number }[], lang: string): Promise<Cart> {
+  const res = await fetch(`/api/cart/${encodeURIComponent(cartId)}/lines?lang=${lang}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ lines }),
@@ -44,8 +46,8 @@ async function apiAddLines(cartId: string, lines: { merchandiseId: string; quant
   return res.json();
 }
 
-async function apiUpdateLines(cartId: string, lines: { id: string; quantity: number }[]): Promise<Cart> {
-  const res = await fetch(`/api/cart/${encodeURIComponent(cartId)}/lines`, {
+async function apiUpdateLines(cartId: string, lines: { id: string; quantity: number }[], lang: string): Promise<Cart> {
+  const res = await fetch(`/api/cart/${encodeURIComponent(cartId)}/lines?lang=${lang}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ lines }),
@@ -54,8 +56,8 @@ async function apiUpdateLines(cartId: string, lines: { id: string; quantity: num
   return res.json();
 }
 
-async function apiRemoveLines(cartId: string, lineIds: string[]): Promise<Cart> {
-  const res = await fetch(`/api/cart/${encodeURIComponent(cartId)}/lines`, {
+async function apiRemoveLines(cartId: string, lineIds: string[], lang: string): Promise<Cart> {
+  const res = await fetch(`/api/cart/${encodeURIComponent(cartId)}/lines?lang=${lang}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ lineIds }),
@@ -67,6 +69,7 @@ async function apiRemoveLines(cartId: string, lineIds: string[]): Promise<Cart> 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { language } = useLanguage();
   const [cart, setCart] = useState<Cart | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -74,11 +77,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Resolves to a usable cart, or null if Shopify is unreachable.
   // Only replaces a stored cart id when Shopify confirms it's gone (404) —
   // a transient failure (network/5xx) must never wipe the customer's cart.
+  // Re-runs on language change so existing cart lines re-localize.
   const initCart = useCallback(async (): Promise<Cart | null> => {
     const storedId = localStorage.getItem(CART_ID_KEY);
     if (storedId) {
       try {
-        const existing = await apiGetCart(storedId);
+        const existing = await apiGetCart(storedId, language);
         if (existing) { setCart(existing); return existing; }
         // null → genuine 404: cart expired, fall through and create fresh
       } catch {
@@ -86,14 +90,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     }
     try {
-      const newCart = await apiCreateCart();
+      const newCart = await apiCreateCart(language);
       localStorage.setItem(CART_ID_KEY, newCart.id);
       setCart(newCart);
       return newCart;
     } catch {
       return null;
     }
-  }, []);
+  }, [language]);
 
   useEffect(() => { initCart(); }, [initCart]);
 
@@ -106,7 +110,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         toast.error('Could not add to cart');
         return false;
       }
-      const updated = await apiAddLines(target.id, [{ merchandiseId, quantity }]);
+      const updated = await apiAddLines(target.id, [{ merchandiseId, quantity }], language);
       setCart(updated);
       setIsOpen(true);
       toast.success('Added to cart');
@@ -117,33 +121,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [cart, initCart]);
+  }, [cart, initCart, language]);
 
   const updateItem = useCallback(async (lineId: string, quantity: number) => {
     if (!cart) return;
     setIsLoading(true);
     try {
-      const updated = await apiUpdateLines(cart.id, [{ id: lineId, quantity }]);
+      const updated = await apiUpdateLines(cart.id, [{ id: lineId, quantity }], language);
       setCart(updated);
     } catch {
       toast.error('Could not update cart');
     } finally {
       setIsLoading(false);
     }
-  }, [cart]);
+  }, [cart, language]);
 
   const removeItem = useCallback(async (lineId: string) => {
     if (!cart) return;
     setIsLoading(true);
     try {
-      const updated = await apiRemoveLines(cart.id, [lineId]);
+      const updated = await apiRemoveLines(cart.id, [lineId], language);
       setCart(updated);
     } catch {
       toast.error('Could not remove item');
     } finally {
       setIsLoading(false);
     }
-  }, [cart]);
+  }, [cart, language]);
 
   return (
     <CartContext.Provider value={{

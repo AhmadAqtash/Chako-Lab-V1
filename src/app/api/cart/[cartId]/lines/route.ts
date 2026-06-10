@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
-import { addToCart, updateCartLine, removeCartLines, CartUserError } from '@/lib/storefront';
+import { addToCart, updateCartLine, removeCartLines, CartUserError, type CartLanguage } from '@/lib/storefront';
 
 interface Context {
   params: { cartId: string };
+}
+
+// ?lang=ar|en → @inContext language for localized line titles/options
+function langFrom(req: Request): CartLanguage {
+  return new URL(req.url).searchParams.get('lang') === 'ar' ? 'AR' : 'EN';
 }
 
 function errorResponse(err: unknown, fallback: string) {
@@ -17,7 +22,7 @@ export async function POST(req: Request, { params }: Context) {
   try {
     const cartId = decodeURIComponent(params.cartId);
     const { lines } = await req.json() as { lines: { merchandiseId: string; quantity: number }[] };
-    const cart = await addToCart(cartId, lines);
+    const cart = await addToCart(cartId, lines, langFrom(req));
     return NextResponse.json(cart);
   } catch (err) {
     console.error('[/api/cart/lines POST]', err);
@@ -30,7 +35,7 @@ export async function PATCH(req: Request, { params }: Context) {
   try {
     const cartId = decodeURIComponent(params.cartId);
     const { lines } = await req.json() as { lines: { id: string; quantity: number }[] };
-    const cart = await updateCartLine(cartId, lines);
+    const cart = await updateCartLine(cartId, lines, langFrom(req));
     return NextResponse.json(cart);
   } catch (err) {
     console.error('[/api/cart/lines PATCH]', err);
@@ -43,7 +48,7 @@ export async function DELETE(req: Request, { params }: Context) {
   try {
     const cartId = decodeURIComponent(params.cartId);
     const { lineIds } = await req.json() as { lineIds: string[] };
-    const cart = await removeCartLines(cartId, lineIds);
+    const cart = await removeCartLines(cartId, lineIds, langFrom(req));
     return NextResponse.json(cart);
   } catch (err) {
     console.error('[/api/cart/lines DELETE]', err);

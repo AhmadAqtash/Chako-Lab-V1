@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getCart } from '@/lib/storefront';
 
-// GET /api/cart/:cartId → fetch cart
-export async function GET(_req: Request, { params }: { params: { cartId: string } }) {
+// GET /api/cart/:cartId → fetch cart (?lang=ar|en for localized content)
+export async function GET(req: Request, { params }: { params: { cartId: string } }) {
   try {
     // cartId from URL is base64-encoded because of the gid:// prefix
     const cartId = decodeURIComponent(params.cartId);
-    const cart = await getCart(cartId);
+    const lang = new URL(req.url).searchParams.get('lang') === 'ar' ? 'AR' : 'EN';
+    const cart = await getCart(cartId, lang);
     if (!cart) return NextResponse.json({ error: 'Cart not found' }, { status: 404 });
     return NextResponse.json(cart);
   } catch (err) {

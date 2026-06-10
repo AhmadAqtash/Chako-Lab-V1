@@ -10,8 +10,19 @@ import { Button } from '@/components/ui/Button';
 
 export default function CartDrawer() {
   const { cart, isOpen, closeCart, updateItem, removeItem, isLoading } = useCart();
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, language } = useLanguage();
   const touchStartX = useRef<number | null>(null);
+
+  // Open Shopify checkout in the storefront's current language
+  function checkoutHref(url: string): string {
+    try {
+      const u = new URL(url);
+      u.searchParams.set('locale', language);
+      return u.toString();
+    } catch {
+      return url;
+    }
+  }
 
   function handleTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX;
@@ -146,7 +157,7 @@ export default function CartDrawer() {
               {t('cart_taxes_note')}
             </p>
             <a
-              href={cart.checkoutUrl}
+              href={checkoutHref(cart.checkoutUrl)}
               className="flex w-full items-center justify-center min-h-[56px] px-8 py-4 bg-chako-ink text-chako-cream font-display font-bold text-base rounded-2xl hover:bg-chako-ink/90 transition-all duration-150 active:scale-[0.98] touch-manipulation select-none"
             >
               {t('cart_checkout')} — {formatPrice(cart.cost.subtotalAmount)}

@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getProduct, getColorSiblings, PRODUCT_TYPE_TO_COLLECTION, COLLECTION_DISPLAY_NAMES } from '@/lib/shopify';
+import { getProduct, getProductBaseType, getColorSiblings, PRODUCT_TYPE_TO_COLLECTION, COLLECTION_DISPLAY_NAMES } from '@/lib/shopify';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
 import { extractBaseName, extractColorName } from '@/lib/utils';
@@ -41,14 +41,21 @@ export default async function ProductPage({ params }: Props) {
 
   const isTitanium = /titanium|(^|-)ti(-|$)/i.test(product.handle);
 
-  const collectionHandle = PRODUCT_TYPE_TO_COLLECTION[product.productType];
+  // product.productType is localized under @inContext — search filters and
+  // the EN-keyed collection maps need the base value
+  const baseType =
+    lang === 'EN'
+      ? product.productType
+      : (await getProductBaseType(params.handle)) ?? product.productType;
+
+  const collectionHandle = PRODUCT_TYPE_TO_COLLECTION[baseType];
   const collectionName = collectionHandle ? COLLECTION_DISPLAY_NAMES[collectionHandle] : null;
 
   const baseName = extractBaseName(product.title);
   const colorName = extractColorName(product.title);
 
   const [colorSiblings] = await Promise.all([
-    getColorSiblings(product.productType, baseName).catch(() => []),
+    getColorSiblings(baseType, baseName).catch(() => []),
   ]);
 
   const siblingHandles = colorSiblings.map((p) => p.handle);
@@ -83,9 +90,10 @@ export default async function ProductPage({ params }: Props) {
       <ProductFeatures metafields={product.metafields} />
 
       <RelatedProducts
-        productType={product.productType}
+        productType={baseType}
         excludeHandles={siblingHandles}
         isTitanium={isTitanium}
+        language={lang}
       />
     </div>
   );
