@@ -234,8 +234,10 @@ export async function getProducts({
     );
     return data.products.nodes.filter((p) => p.vendor === VENDOR);
   } catch (err) {
-    console.error('[Shopify] getProducts failed, using mock data:', err);
-    return getMockProducts({ first, productType, query: extraQuery });
+    // Production (token set): never substitute the mock catalog — let callers
+    // decide between an explicit error state and hiding the section.
+    console.error('[Shopify] getProducts failed:', err);
+    throw err;
   }
 }
 
@@ -253,8 +255,8 @@ export async function getNewProducts(
     );
     return data.products.nodes.filter((p) => p.vendor === VENDOR);
   } catch (err) {
-    console.error('[Shopify] getNewProducts failed, using mock data:', err);
-    return getMockProducts({ first });
+    console.error('[Shopify] getNewProducts failed:', err);
+    throw err;
   }
 }
 
@@ -272,8 +274,10 @@ export async function getProduct(handle: string, language: ShopifyLanguage = 'EN
     if (!p || p.vendor !== VENDOR) return null;
     return p;
   } catch (err) {
-    console.error('[Shopify] getProduct failed, using mock data:', err);
-    return getMockProduct(handle);
+    // Rethrow instead of returning null/mock: a transient Shopify failure must
+    // hit the error boundary, not 404 a real product (soft-404s get indexed).
+    console.error('[Shopify] getProduct failed:', err);
+    throw err;
   }
 }
 
@@ -335,7 +339,7 @@ export async function searchProducts(query: string, language: ShopifyLanguage = 
     );
     return broad.products.nodes.filter((p) => p.vendor === VENDOR);
   } catch (err) {
-    console.error('[Shopify] searchProducts failed, using mock data:', err);
-    return getMockProducts({ query, first: 48 });
+    console.error('[Shopify] searchProducts failed:', err);
+    throw err;
   }
 }

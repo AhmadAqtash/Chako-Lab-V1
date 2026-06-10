@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { searchProducts } from '@/lib/shopify';
 import type { ShopifyLanguage } from '@/lib/shopify';
+import type { Product } from '@/types/shopify';
 import ProductCard from '@/components/product/ProductCard';
 import SearchInput from './SearchInput';
 import T from '@/components/ui/T';
@@ -17,14 +18,29 @@ interface Props {
 export default async function SearchPage({ searchParams }: Props) {
   const query = searchParams.q?.trim() || '';
   const lang: ShopifyLanguage = cookies().get('chako_lang')?.value === 'ar' ? 'AR' : 'EN';
-  const products = query ? await searchProducts(query, lang) : [];
+
+  let products: Product[] = [];
+  let searchFailed = false;
+  if (query) {
+    try {
+      products = await searchProducts(query, lang);
+    } catch {
+      searchFailed = true;
+    }
+  }
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-10">
       <h1 className="text-heading font-display font-bold mb-6"><T k="nav_search" /></h1>
       <SearchInput initialQuery={query} />
 
-      {query && (
+      {query && searchFailed && (
+        <div className="mt-8 text-center py-20 bg-chako-accent rounded-3xl">
+          <p className="text-chako-ink/40 text-sm font-medium"><T k="products_load_error" /></p>
+        </div>
+      )}
+
+      {query && !searchFailed && (
         <div className="mt-8">
           <p className="text-sm text-chako-ink/50 mb-6">
             {products.length > 0

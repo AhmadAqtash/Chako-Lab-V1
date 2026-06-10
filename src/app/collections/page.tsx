@@ -1,4 +1,5 @@
 import { getProducts } from '@/lib/shopify';
+import type { Product } from '@/types/shopify';
 import ProductCard from '@/components/product/ProductCard';
 import Breadcrumb from '@/components/ui/Breadcrumb';
 import T from '@/components/ui/T';
@@ -12,7 +13,13 @@ export const metadata: Metadata = {
 };
 
 export default async function CollectionsPage() {
-  const products = await getProducts({ first: 48 }).catch(() => []);
+  let products: Product[] = [];
+  let loadFailed = false;
+  try {
+    products = await getProducts({ first: 48 });
+  } catch {
+    loadFailed = true;
+  }
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8">
@@ -33,7 +40,11 @@ export default async function CollectionsPage() {
         </p>
       </div>
 
-      {products.length === 0 ? (
+      {loadFailed ? (
+        <div className="text-center py-24 bg-chako-accent rounded-3xl">
+          <p className="text-chako-ink/40 text-sm font-medium"><T k="products_load_error" /></p>
+        </div>
+      ) : products.length === 0 ? (
         <div className="text-center py-24 bg-chako-accent rounded-3xl">
           <p className="text-chako-ink/40 text-sm font-medium"><T k="collection_no_products" /></p>
         </div>

@@ -111,6 +111,7 @@ const translations = {
     collection_no_products: 'No products in this collection yet.',
     collection_no_instock: 'No in-stock products found.',
     collection_show_all: 'Show all products',
+    products_load_error: "We couldn't load products right now — please try again in a moment.",
     // Footer
     footer_tagline: 'Crafted drinkware for everyday rituals. Every sip, beautifully made.',
     footer_shop: 'Shop',
@@ -240,6 +241,7 @@ const translations = {
     collection_no_products: 'لا توجد منتجات في هذه المجموعة بعد.',
     collection_no_instock: 'لا توجد منتجات متوفرة.',
     collection_show_all: 'عرض جميع المنتجات',
+    products_load_error: 'تعذّر تحميل المنتجات حالياً — يرجى المحاولة مرة أخرى بعد قليل.',
     // Footer
     footer_tagline: 'أدوات شرب مصنوعة لطقوس يومية. كل رشفة، بجمال.',
     footer_shop: 'تسوق',

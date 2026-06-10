@@ -19,8 +19,10 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  // On failure fall back to the site-default title — a transient Shopify error
+  // must not label a live product page "Product Not Found"
   const product = await getProduct(params.handle).catch(() => null);
-  if (!product) return { title: 'Product Not Found' };
+  if (!product) return {};
   return {
     title: product.title,
     description: product.description.slice(0, 160),
