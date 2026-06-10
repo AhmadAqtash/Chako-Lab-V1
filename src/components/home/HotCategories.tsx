@@ -40,7 +40,7 @@ const TYPE_IMG_BG: Record<string, string> = {
 };
 
 const PRODUCTS_GQL = `
-  query GetAllChakoProducts($first: Int!, $query: String) {
+  query GetAllChakoProducts($first: Int!, $query: String, $language: LanguageCode!) @inContext(language: $language) {
     products(first: $first, sortKey: BEST_SELLING, query: $query) {
       nodes {
         id handle title productType vendor
@@ -80,6 +80,7 @@ export default function HotCategories() {
 
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
       try {
         const res = await fetch(`https://${STORE}/api/2024-01/graphql.json`, {
           method: 'POST',
@@ -89,7 +90,7 @@ export default function HotCategories() {
           },
           body: JSON.stringify({
             query: PRODUCTS_GQL,
-            variables: { first: 100, query: `vendor:'Chako Lab'` },
+            variables: { first: 100, query: `vendor:'Chako Lab'`, language: isAr ? 'AR' : 'EN' },
           }),
         });
         const data = await res.json();
@@ -102,7 +103,7 @@ export default function HotCategories() {
       }
     };
     load();
-  }, []);
+  }, [isAr]);
 
   const tabProducts = allProducts
     .filter((p) => p.productType === TABS[activeTab].productType)
