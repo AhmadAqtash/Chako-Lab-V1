@@ -1,6 +1,13 @@
 import type { Metadata } from 'next';
+import type { Locale } from '@/lib/locale';
+import { localeAlternates } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Contact Us' };
+export function generateMetadata({ params }: { params: { locale: Locale } }): Metadata {
+  return {
+    title: params.locale === 'ar' ? 'اتصل بنا' : 'Contact Us',
+    alternates: localeAlternates(params.locale, '/pages/contact'),
+  };
+}
 
 export default function ContactPage() {
   return (

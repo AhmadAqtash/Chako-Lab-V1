@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getProduct, getColorSiblings, PRODUCT_TYPE_TO_COLLECTION, COLLECTION_DISPLAY_NAMES } from '@/lib/shopify';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
+import { localeAlternates } from '@/lib/seo';
 import { extractBaseName, extractColorName } from '@/lib/utils';
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductDetails from '@/components/product/ProductDetails';
@@ -18,13 +19,15 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  // Same locale + handle as the page render → Next dedupes the fetch.
   // On failure fall back to the site-default title — a transient Shopify error
   // must not label a live product page "Product Not Found"
-  const product = await getProduct(params.handle).catch(() => null);
+  const product = await getProduct(params.handle, toShopifyLanguage(params.locale)).catch(() => null);
   if (!product) return {};
   return {
     title: product.title,
     description: product.description.slice(0, 160),
+    alternates: localeAlternates(params.locale, `/products/${params.handle}`),
     openGraph: {
       images: product.featuredImage ? [{ url: product.featuredImage.url }] : [],
     },

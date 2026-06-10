@@ -1,6 +1,13 @@
 import type { Metadata } from 'next';
+import type { Locale } from '@/lib/locale';
+import { localeAlternates } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'FAQ' };
+export function generateMetadata({ params }: { params: { locale: Locale } }): Metadata {
+  return {
+    title: params.locale === 'ar' ? 'الأسئلة الشائعة' : 'FAQ',
+    alternates: localeAlternates(params.locale, '/pages/faq'),
+  };
+}
 
 const FAQS = [
   {

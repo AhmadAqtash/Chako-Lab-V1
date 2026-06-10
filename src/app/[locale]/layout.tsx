@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Noto_Sans_Arabic } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import '../globals.css';
-import { LOCALES, isLocale } from '@/lib/locale';
+import { LOCALES, isLocale, type Locale } from '@/lib/locale';
+import { SITE_URL } from '@/lib/seo';
 import { CartProvider } from '@/context/CartContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
@@ -22,19 +23,34 @@ const notoSansArabic = Noto_Sans_Arabic({
   weight: ['400', '500', '600', '700'],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: 'Chako Lab — Crafted Drinkware',
-    template: '%s | Chako Lab',
+const SITE_META = {
+  en: {
+    title: { default: 'Chako Lab — Crafted Drinkware', template: '%s | Chako Lab' },
+    description:
+      'Thoughtfully designed drinkware for your daily ritual. Shop LinLin Kettles, Kada Bottles, BoBo Tumblers, and more — delivered across the UAE.',
   },
-  description: 'Thoughtfully designed drinkware for your daily ritual. Shop LinLin Kettles, Kada Bottles, BoBo Tumblers, and more — delivered across the UAE.',
-  keywords: ['drinkware', 'UAE', 'kettles', 'bottles', 'tumblers', 'mugs', 'Chako Lab'],
-  openGraph: {
-    type: 'website',
-    locale: 'en_AE',
-    siteName: 'Chako Lab',
+  ar: {
+    title: { default: 'تشاكو لاب — أدوات شرب مصممة بعناية', template: '%s | تشاكو لاب' },
+    description:
+      'أدوات شرب مصممة بعناية لطقوسك اليومية. تسوق أباريق لين لين وزجاجات كادا وتمبلر بوبو والمزيد — مع التوصيل في جميع أنحاء الإمارات.',
   },
-};
+} as const;
+
+export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
+  const locale: Locale = isLocale(params.locale) ? params.locale : 'en';
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: SITE_META[locale].title,
+    description: SITE_META[locale].description,
+    keywords: ['drinkware', 'UAE', 'kettles', 'bottles', 'tumblers', 'mugs', 'Chako Lab'],
+    openGraph: {
+      type: 'website',
+      siteName: 'Chako Lab',
+      locale: locale === 'ar' ? 'ar_AE' : 'en_AE',
+      alternateLocale: locale === 'ar' ? 'en_AE' : 'ar_AE',
+    },
+  };
+}
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));

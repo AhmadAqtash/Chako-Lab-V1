@@ -1,7 +1,14 @@
 import type { Metadata } from 'next';
 import Link from '@/components/ui/LocalizedLink';
+import type { Locale } from '@/lib/locale';
+import { localeAlternates } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'About Chako Lab' };
+export function generateMetadata({ params }: { params: { locale: Locale } }): Metadata {
+  return {
+    title: params.locale === 'ar' ? 'عن تشاكو لاب' : 'About Chako Lab',
+    alternates: localeAlternates(params.locale, '/pages/about'),
+  };
+}
 
 export default function AboutPage() {
   return (

@@ -1,6 +1,13 @@
 import type { Metadata } from 'next';
+import type { Locale } from '@/lib/locale';
+import { localeAlternates } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Shipping & Returns' };
+export function generateMetadata({ params }: { params: { locale: Locale } }): Metadata {
+  return {
+    title: params.locale === 'ar' ? 'الشحن والإرجاع' : 'Shipping & Returns',
+    alternates: localeAlternates(params.locale, '/pages/shipping'),
+  };
+}
 
 export default function ShippingPage() {
   return (

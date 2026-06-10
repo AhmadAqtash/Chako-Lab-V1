@@ -1,6 +1,13 @@
 import type { Metadata } from 'next';
+import type { Locale } from '@/lib/locale';
+import { localeAlternates } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Privacy Policy' };
+export function generateMetadata({ params }: { params: { locale: Locale } }): Metadata {
+  return {
+    title: params.locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy',
+    alternates: localeAlternates(params.locale, '/pages/privacy'),
+  };
+}
 
 export default function PrivacyPage() {
   return (

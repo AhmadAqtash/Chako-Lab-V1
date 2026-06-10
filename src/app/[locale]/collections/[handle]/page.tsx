@@ -9,6 +9,8 @@ import {
   getProduct,
 } from '@/lib/shopify';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
+import { localeAlternates } from '@/lib/seo';
+import translations, { type TranslationKey } from '@/lib/translations';
 import type { Product } from '@/types/shopify';
 import CollectionGrid from '@/components/collection/CollectionGrid';
 import Breadcrumb from '@/components/ui/Breadcrumb';
@@ -27,24 +29,55 @@ export async function generateStaticParams() {
   return [...ALL_COLLECTION_HANDLES, 'titanium', 'new'].map((handle) => ({ handle }));
 }
 
+// Localized collection names for metadata (UI gets them via CollectionGrid)
+const HANDLE_TO_CAT_KEY: Record<string, TranslationKey> = {
+  'linlin-kettles':   'cat_linlin',
+  'bawang-cups':      'cat_bawang',
+  'bobo-tumblers':    'cat_bobo',
+  'kada-bottles':     'cat_kada',
+  'pots':             'cat_pots',
+  'mugs':             'cat_mugs',
+  'milk-pods':        'cat_milkpods',
+  'baobao-food-cups': 'cat_baobao',
+  'pangpang-cups':    'cat_pangpang',
+  'square-cups':      'cat_square',
+  'tumbler':          'cat_tumbler',
+  'bobo-cup':         'cat_bobo_cup',
+  'baobao-cup':       'cat_baobao',
+};
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const isAr = params.locale === 'ar';
+  const alternates = localeAlternates(params.locale, `/collections/${params.handle}`);
+
   if (params.handle === 'titanium') {
     return {
-      title: 'Titanium',
-      description: 'Shop the Chako Lab Titanium Collection — premium titanium drinkware delivered across the UAE.',
+      title: isAr ? 'تيتانيوم' : 'Titanium',
+      description: isAr
+        ? 'تسوق مجموعة التيتانيوم من تشاكو لاب — أدوات شرب فاخرة من التيتانيوم مع التوصيل في جميع أنحاء الإمارات.'
+        : 'Shop the Chako Lab Titanium Collection — premium titanium drinkware delivered across the UAE.',
+      alternates,
     };
   }
   if (params.handle === 'new') {
     return {
-      title: 'New Arrivals',
-      description: 'Shop the newest Chako Lab drinkware — fresh arrivals delivered across the UAE.',
+      title: isAr ? 'وصل حديثاً' : 'New Arrivals',
+      description: isAr
+        ? 'تسوق أحدث منتجات تشاكو لاب — وصل حديثاً مع التوصيل في جميع أنحاء الإمارات.'
+        : 'Shop the newest Chako Lab drinkware — fresh arrivals delivered across the UAE.',
+      alternates,
     };
   }
   const name = COLLECTION_DISPLAY_NAMES[params.handle];
   if (!name) return { title: 'Not Found' };
+  const catKey = HANDLE_TO_CAT_KEY[params.handle];
+  const localizedName = isAr && catKey ? translations.ar[catKey] : name;
   return {
-    title: name,
-    description: `Shop Chako Lab ${name} — premium drinkware delivered across the UAE.`,
+    title: localizedName,
+    description: isAr
+      ? `تسوق ${localizedName} من تشاكو لاب — أدوات شرب فاخرة مع التوصيل في جميع أنحاء الإمارات.`
+      : `Shop Chako Lab ${name} — premium drinkware delivered across the UAE.`,
+    alternates,
   };
 }
 

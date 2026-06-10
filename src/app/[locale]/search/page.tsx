@@ -1,14 +1,20 @@
 import { searchProducts } from '@/lib/shopify';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
+import { localeAlternates } from '@/lib/seo';
 import type { Product } from '@/types/shopify';
 import ProductCard from '@/components/product/ProductCard';
 import SearchInput from './SearchInput';
 import T from '@/components/ui/T';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Search',
-};
+export function generateMetadata({ params }: { params: { locale: Locale } }): Metadata {
+  return {
+    title: params.locale === 'ar' ? 'بحث' : 'Search',
+    alternates: localeAlternates(params.locale, '/search'),
+    // Query-driven result pages shouldn't be indexed
+    robots: { index: false, follow: true },
+  };
+}
 
 interface Props {
   params: { locale: Locale };

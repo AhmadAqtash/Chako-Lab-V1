@@ -1,6 +1,13 @@
 import type { Metadata } from 'next';
+import type { Locale } from '@/lib/locale';
+import { localeAlternates } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Terms & Conditions' };
+export function generateMetadata({ params }: { params: { locale: Locale } }): Metadata {
+  return {
+    title: params.locale === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions',
+    alternates: localeAlternates(params.locale, '/pages/terms'),
+  };
+}
 
 export default function TermsPage() {
   return (

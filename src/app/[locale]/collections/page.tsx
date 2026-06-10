@@ -1,6 +1,7 @@
 import { getProducts } from '@/lib/shopify';
 import type { Product } from '@/types/shopify';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
+import { localeAlternates } from '@/lib/seo';
 import ProductCard from '@/components/product/ProductCard';
 import Breadcrumb from '@/components/ui/Breadcrumb';
 import T from '@/components/ui/T';
@@ -8,10 +9,20 @@ import type { Metadata } from 'next';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: 'All Products',
-  description: 'Browse all Chako Lab drinkware — kettles, bottles, tumblers, mugs, and more. Delivered across the UAE.',
-};
+const META = {
+  en: {
+    title: 'All Products',
+    description: 'Browse all Chako Lab drinkware — kettles, bottles, tumblers, mugs, and more. Delivered across the UAE.',
+  },
+  ar: {
+    title: 'جميع المنتجات',
+    description: 'تصفح جميع أدوات الشرب من تشاكو لاب — أباريق وزجاجات وتمبلر وأكواب والمزيد. التوصيل في جميع أنحاء الإمارات.',
+  },
+} as const;
+
+export function generateMetadata({ params }: { params: { locale: Locale } }): Metadata {
+  return { ...META[params.locale], alternates: localeAlternates(params.locale, '/collections') };
+}
 
 export default async function CollectionsPage({ params }: { params: { locale: Locale } }) {
   let products: Product[] = [];

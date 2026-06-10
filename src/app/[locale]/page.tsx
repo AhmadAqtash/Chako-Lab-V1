@@ -10,6 +10,12 @@ import BrandValues from '@/components/home/BrandValues';
 import ProductHotspot from '@/components/home/ProductHotspot';
 import FAQ from '@/components/home/FAQ';
 import type { Locale } from '@/lib/locale';
+import { localeAlternates } from '@/lib/seo';
+import type { Metadata } from 'next';
+
+export function generateMetadata({ params }: { params: { locale: Locale } }): Metadata {
+  return { alternates: localeAlternates(params.locale) };
+}
 
 export default function HomePage({ params }: { params: { locale: Locale } }) {
   return (
