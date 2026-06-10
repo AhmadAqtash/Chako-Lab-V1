@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
-import { addToCart, updateCartLine, removeCartLines } from '@/lib/storefront';
+import { addToCart, updateCartLine, removeCartLines, CartUserError } from '@/lib/storefront';
 
 interface Context {
   params: { cartId: string };
+}
+
+function errorResponse(err: unknown, fallback: string) {
+  if (err instanceof CartUserError) {
+    return NextResponse.json({ error: err.message }, { status: 400 });
+  }
+  return NextResponse.json({ error: fallback }, { status: 500 });
 }
 
 // POST /api/cart/:cartId/lines → add lines
@@ -14,7 +21,7 @@ export async function POST(req: Request, { params }: Context) {
     return NextResponse.json(cart);
   } catch (err) {
     console.error('[/api/cart/lines POST]', err);
-    return NextResponse.json({ error: 'Failed to add to cart' }, { status: 500 });
+    return errorResponse(err, 'Failed to add to cart');
   }
 }
 
@@ -27,7 +34,7 @@ export async function PATCH(req: Request, { params }: Context) {
     return NextResponse.json(cart);
   } catch (err) {
     console.error('[/api/cart/lines PATCH]', err);
-    return NextResponse.json({ error: 'Failed to update cart' }, { status: 500 });
+    return errorResponse(err, 'Failed to update cart');
   }
 }
 
@@ -40,6 +47,6 @@ export async function DELETE(req: Request, { params }: Context) {
     return NextResponse.json(cart);
   } catch (err) {
     console.error('[/api/cart/lines DELETE]', err);
-    return NextResponse.json({ error: 'Failed to remove from cart' }, { status: 500 });
+    return errorResponse(err, 'Failed to remove from cart');
   }
 }

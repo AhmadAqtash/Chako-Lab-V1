@@ -20,7 +20,8 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
 
   async function handleAdd() {
     if (!available) return;
-    await addItem(variantId, quantity);
+    const ok = await addItem(variantId, quantity);
+    if (!ok) return;
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }

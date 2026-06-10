@@ -36,7 +36,8 @@ export default function StickyATC({ title, price, variantId, available, triggerR
 
   async function handleAdd() {
     if (!available) return;
-    await addItem(variantId);
+    const ok = await addItem(variantId);
+    if (!ok) return;
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }

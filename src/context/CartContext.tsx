@@ -10,7 +10,7 @@ interface CartContextValue {
   isLoading: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (merchandiseId: string, quantity?: number) => Promise<void>;
+  addItem: (merchandiseId: string, quantity?: number) => Promise<boolean>;
   updateItem: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
   totalQuantity: number;
@@ -71,41 +71,53 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const initCart = useCallback(async () => {
+  // Resolves to a usable cart, or null if Shopify is unreachable.
+  // Only replaces a stored cart id when Shopify confirms it's gone (404) —
+  // a transient failure (network/5xx) must never wipe the customer's cart.
+  const initCart = useCallback(async (): Promise<Cart | null> => {
     const storedId = localStorage.getItem(CART_ID_KEY);
     if (storedId) {
       try {
         const existing = await apiGetCart(storedId);
-        if (existing) { setCart(existing); return; }
+        if (existing) { setCart(existing); return existing; }
+        // null → genuine 404: cart expired, fall through and create fresh
       } catch {
-        // cart expired or token not yet configured — create fresh
+        return null;
       }
     }
     try {
       const newCart = await apiCreateCart();
       localStorage.setItem(CART_ID_KEY, newCart.id);
       setCart(newCart);
+      return newCart;
     } catch {
-      // Storefront token not yet configured — cart will be available once token is set
+      return null;
     }
   }, []);
 
   useEffect(() => { initCart(); }, [initCart]);
 
-  const addItem = useCallback(async (merchandiseId: string, quantity = 1) => {
-    if (!cart) return;
+  const addItem = useCallback(async (merchandiseId: string, quantity = 1): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const updated = await apiAddLines(cart.id, [{ merchandiseId, quantity }]);
+      // If init failed at page load (or hasn't finished), retry it now
+      const target = cart ?? (await initCart());
+      if (!target) {
+        toast.error('Could not add to cart');
+        return false;
+      }
+      const updated = await apiAddLines(target.id, [{ merchandiseId, quantity }]);
       setCart(updated);
       setIsOpen(true);
       toast.success('Added to cart');
+      return true;
     } catch {
       toast.error('Could not add to cart');
+      return false;
     } finally {
       setIsLoading(false);
     }
-  }, [cart]);
+  }, [cart, initCart]);
 
   const updateItem = useCallback(async (lineId: string, quantity: number) => {
     if (!cart) return;
