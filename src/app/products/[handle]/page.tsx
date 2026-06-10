@@ -35,7 +35,7 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProduct(params.handle, lang);
   if (!product) notFound();
 
-  const isTitanium = /titanium|\bti\b/i.test(product.title);
+  const isTitanium = /titanium|(^|-)ti(-|$)/i.test(product.handle);
 
   const collectionHandle = PRODUCT_TYPE_TO_COLLECTION[product.productType];
   const collectionName = collectionHandle ? COLLECTION_DISPLAY_NAMES[collectionHandle] : null;

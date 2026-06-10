@@ -10,7 +10,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Badge } from '@/components/ui/Badge';
 import { useState } from 'react';
 
-const isTitaniumTitle = (t: string) => /titanium|\bti\b/i.test(t);
+const isTitaniumHandle = (h: string) => /titanium|(^|-)ti(-|$)/i.test(h);
 
 interface Props {
   product: Product;
@@ -39,7 +39,7 @@ export default function ProductCard({ product }: Props) {
   const discount = compareAt ? getDiscountPercent(compareAt, price) : 0;
 
   const imgBg = TYPE_BG[product.productType] ?? 'bg-chako-titanium-soft';
-  const isTitanium = isTitaniumTitle(product.title);
+  const isTitanium = isTitaniumHandle(product.handle);
 
   async function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();

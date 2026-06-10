@@ -297,15 +297,15 @@ export async function getRelatedProducts(
 // Titanium products live under several productTypes (Milk Pod, Bawang Cup,
 // Tumbler). We don't change the Shopify backend, so we identify them by title.
 // They also remain in their own family collections.
-export function isTitaniumTitle(title: string): boolean {
-  return /titanium|\bti\b/i.test(title);
+export function isTitaniumHandle(handle: string): boolean {
+  return /titanium|(^|-)ti(-|$)/i.test(handle);
 }
 
 export async function getTitaniumProducts(
   language: ShopifyLanguage = 'EN'
 ): Promise<Product[]> {
   const all = await getProducts({ first: 100, language });
-  return all.filter((p) => isTitaniumTitle(p.title));
+  return all.filter((p) => isTitaniumHandle(p.handle));
 }
 
 export async function searchProducts(query: string, language: ShopifyLanguage = 'EN'): Promise<Product[]> {
