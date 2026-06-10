@@ -15,7 +15,7 @@ import Breadcrumb from '@/components/ui/Breadcrumb';
 import TitaniumBodyFlag from '@/components/titanium/TitaniumBodyFlag';
 import type { Metadata } from 'next';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 interface Props {
