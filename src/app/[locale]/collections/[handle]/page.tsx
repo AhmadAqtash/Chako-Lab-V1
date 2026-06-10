@@ -18,7 +18,10 @@ import TitaniumBodyFlag from '@/components/titanium/TitaniumBodyFlag';
 import T from '@/components/ui/T';
 import type { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic';
+// Per-locale ISR: locale is part of the path, so /en/... and /ar/... are
+// independent cache entries — stale-wrong-language cannot recur. force-dynamic
+// (added when language came from a cookie) is no longer needed.
+export const revalidate = 60;
 export const dynamicParams = true;
 
 interface Props {
