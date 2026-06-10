@@ -14,7 +14,7 @@ export default function ContactPage() {
       <div className="grid sm:grid-cols-2 gap-4">
         {[
           { label: 'Email', value: 'hello@chakolab.ae', href: 'mailto:hello@chakolab.ae' },
-          { label: 'WhatsApp', value: '+971 50 000 0000', href: 'https://wa.me/97150000000' },
+          { label: 'WhatsApp', value: '+971 56 688 1332', href: 'https://wa.me/971566881332' },
           { label: 'Instagram', value: '@chakolab.ae', href: 'https://instagram.com/chakolab.ae' },
           { label: 'Based in', value: 'Dubai, UAE', href: null },
         ].map(({ label, value, href }) => (
