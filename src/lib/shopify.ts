@@ -1,13 +1,13 @@
 import { Product } from '@/types/shopify';
 import { getMockProducts, getMockProduct } from './mock';
 import { extractBaseName } from './utils';
+import { SHOPIFY_API_VERSION } from './shopify-config';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const STORE = process.env.SHOPIFY_STORE_DOMAIN || 'qpd26f-qg.myshopify.com';
 const TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || '';
-const API_VERSION = '2024-01';
-const ENDPOINT = `https://${STORE}/api/${API_VERSION}/graphql.json`;
+const ENDPOINT = `https://${STORE}/api/${SHOPIFY_API_VERSION}/graphql.json`;
 const VENDOR = 'Chako Lab';
 
 // Demo mode: active when no token is set

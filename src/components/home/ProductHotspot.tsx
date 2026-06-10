@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { SHOPIFY_API_VERSION } from '@/lib/shopify-config';
 
 const STORE = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN!;
 const TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
@@ -42,7 +43,7 @@ export default function ProductHotspot() {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const res = await fetch(`https://${STORE}/api/2024-01/graphql.json`, {
+        const res = await fetch(`https://${STORE}/api/${SHOPIFY_API_VERSION}/graphql.json`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

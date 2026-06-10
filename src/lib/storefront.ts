@@ -1,10 +1,10 @@
 // Storefront API client — server-side only (used in Route Handlers)
 import { Cart } from '@/types/shopify';
+import { SHOPIFY_API_VERSION } from './shopify-config';
 
 const STORE = process.env.SHOPIFY_STORE_DOMAIN || 'qpd26f-qg.myshopify.com';
 const TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || '';
-const API_VERSION = '2024-01';
-const ENDPOINT = `https://${STORE}/api/${API_VERSION}/graphql.json`;
+const ENDPOINT = `https://${STORE}/api/${SHOPIFY_API_VERSION}/graphql.json`;
 
 async function storefrontFetch<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
   const res = await fetch(ENDPOINT, {

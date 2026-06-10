@@ -11,6 +11,7 @@ import TrustBadges from './TrustBadges';
 import ColorSwatches from './ColorSwatches';
 import { Minus, Plus, Share2, Check } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { SHOPIFY_API_VERSION } from '@/lib/shopify-config';
 
 const PUB_STORE = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
 const PUB_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
@@ -50,7 +51,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
   useEffect(() => {
     if (!isAr || !PUB_STORE || !PUB_TOKEN) { setArContent(null); return; }
     let cancelled = false;
-    fetch(`https://${PUB_STORE}/api/2024-01/graphql.json`, {
+    fetch(`https://${PUB_STORE}/api/${SHOPIFY_API_VERSION}/graphql.json`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

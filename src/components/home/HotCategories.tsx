@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { formatPrice, extractBaseName } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { Tag } from '@/components/ui/Tag';
+import { SHOPIFY_API_VERSION } from '@/lib/shopify-config';
 import type { MoneyV2 } from '@/types/shopify';
 
 const STORE = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN!;
@@ -82,7 +83,7 @@ export default function HotCategories() {
     const load = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`https://${STORE}/api/2024-01/graphql.json`, {
+        const res = await fetch(`https://${STORE}/api/${SHOPIFY_API_VERSION}/graphql.json`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
