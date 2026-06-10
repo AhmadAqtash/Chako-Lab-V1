@@ -480,3 +480,8 @@ body[data-titanium] .cat-dropdown a,
 body[data-titanium] .cat-dropdown .text-chako-ink\/80,
 body[data-titanium] .cat-dropdown .text-chako-ink { color: #1a1a1a !important; }
 body[data-titanium] .cat-dropdown a:hover { background-color: rgba(0,0,0,0.05) !important; }
+
+/* Sort dropdown is a white popover even on titanium pages — keep its text dark/readable */
+body[data-titanium] .sort-dropdown,
+body[data-titanium] .sort-dropdown * { color: #1a1a1a !important; }
+body[data-titanium] .sort-dropdown button:hover { background-color: rgba(0,0,0,0.05) !important; }

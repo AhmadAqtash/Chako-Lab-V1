@@ -60,10 +60,10 @@ export default async function CollectionPage({ params }: Props) {
           crumbs={[
             { label: 'Home', href: '/' },
             { label: 'Collections', href: '/collections' },
-            { label: 'Titanium' },
+            { label: lang === 'AR' ? 'تيتانيوم' : 'Titanium' },
           ]}
         />
-        <CollectionGrid products={titaniumProducts} title="Titanium" />
+        <CollectionGrid products={titaniumProducts} title={lang === 'AR' ? 'تيتانيوم' : 'Titanium'} />
       </div>
     );
   }
@@ -76,10 +76,10 @@ export default async function CollectionPage({ params }: Props) {
           crumbs={[
             { label: 'Home', href: '/' },
             { label: 'Collections', href: '/collections' },
-            { label: 'New Arrivals' },
+            { label: lang === 'AR' ? 'وصل حديثاً' : 'New Arrivals' },
           ]}
         />
-        <CollectionGrid products={newProducts} title="New Arrivals" />
+        <CollectionGrid products={newProducts} title={lang === 'AR' ? 'وصل حديثاً' : 'New Arrivals'} />
       </div>
     );
   }

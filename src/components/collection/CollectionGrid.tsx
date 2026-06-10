@@ -152,7 +152,7 @@ export default function CollectionGrid({ products, title, description, showColle
             {sortOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
-                <div className="absolute right-0 top-full mt-1.5 z-20 bg-white rounded-2xl shadow-lg border border-black/8 py-1.5 min-w-[180px]">
+                <div className="sort-dropdown absolute right-0 top-full mt-1.5 z-20 bg-white rounded-2xl shadow-lg border border-black/8 py-1.5 min-w-[180px]">
                   {SORT_OPTIONS.map((opt) => (
                     <button
                       key={opt.value}
