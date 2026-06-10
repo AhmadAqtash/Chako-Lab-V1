@@ -94,7 +94,7 @@ export default function CategoryNav() {
           </button>
           {openCats && (
             <div
-              className="fixed z-[70] min-w-[200px] max-h-[70vh] overflow-y-auto bg-white rounded-xl shadow-xl border border-black/8 py-2"
+              className="cat-dropdown fixed z-[70] min-w-[200px] max-h-[70vh] overflow-y-auto bg-white rounded-xl shadow-xl border border-black/8 py-2"
               style={{ top: catsPos.top, left: catsPos.left }}
             >
               {SERIES.map(({ handle, key }) => (

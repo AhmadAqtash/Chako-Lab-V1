@@ -474,3 +474,9 @@ body[data-titanium] .mobile-nav .text-chako-ink { color: #F4F6F8 !important; }
 
 /* Empty-cart icon + empty text on titanium drawer */
 body[data-titanium] .cart-drawer .text-black\/20 { color: rgba(255,255,255,0.25) !important; }
+
+/* Categories dropdown is a white popover even on titanium pages — keep its text dark/readable */
+body[data-titanium] .cat-dropdown a,
+body[data-titanium] .cat-dropdown .text-chako-ink\/80,
+body[data-titanium] .cat-dropdown .text-chako-ink { color: #1a1a1a !important; }
+body[data-titanium] .cat-dropdown a:hover { background-color: rgba(0,0,0,0.05) !important; }
