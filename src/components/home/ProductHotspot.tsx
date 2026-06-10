@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import Link from '@/components/ui/LocalizedLink';
 import { useLanguage } from '@/context/LanguageContext';
 import { SHOPIFY_API_VERSION } from '@/lib/shopify-config';
 

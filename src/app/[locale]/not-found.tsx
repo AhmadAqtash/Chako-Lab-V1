@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/ui/LocalizedLink';
 
 export default function NotFound() {
   return (

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/ui/LocalizedLink';
 import { ChevronRight } from 'lucide-react';
 
 interface Crumb {

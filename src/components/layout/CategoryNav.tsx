@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Link from '@/components/ui/LocalizedLink';
+import { useLocalePathname } from '@/lib/useLocalePathname';
 import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
@@ -24,7 +24,8 @@ const SERIES: { handle: string; key: TranslationKey }[] = [
 ];
 
 export default function CategoryNav() {
-  const pathname = usePathname();
+  // Locale-stripped pathname: comparisons below stay locale-agnostic
+  const pathname = useLocalePathname();
   const { t } = useLanguage();
   const [openCats, setOpenCats] = useState(false);
   const [catsPos, setCatsPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });

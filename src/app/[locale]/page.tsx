@@ -9,15 +9,16 @@ import LifestyleGallery from '@/components/home/LifestyleGallery';
 import BrandValues from '@/components/home/BrandValues';
 import ProductHotspot from '@/components/home/ProductHotspot';
 import FAQ from '@/components/home/FAQ';
+import type { Locale } from '@/lib/locale';
 
-export default function HomePage() {
+export default function HomePage({ params }: { params: { locale: Locale } }) {
   return (
     <>
       <HeroSlideshow />
       <Marquee />
       <SeriesBanners />
       <HotCategories />
-      <FeaturedProducts />
+      <FeaturedProducts locale={params.locale} />
       <LifestyleGallery />
       <BrandValues />
       <ProductHotspot />

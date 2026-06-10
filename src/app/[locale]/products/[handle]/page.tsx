@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
-import { cookies } from 'next/headers';
 import { getProduct, getColorSiblings, PRODUCT_TYPE_TO_COLLECTION, COLLECTION_DISPLAY_NAMES } from '@/lib/shopify';
-import type { ShopifyLanguage } from '@/lib/shopify';
+import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import { extractBaseName, extractColorName } from '@/lib/utils';
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductDetails from '@/components/product/ProductDetails';
@@ -15,7 +14,7 @@ export const revalidate = 60;
 export const dynamicParams = true;
 
 interface Props {
-  params: { handle: string };
+  params: { locale: Locale; handle: string };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -33,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const lang: ShopifyLanguage = cookies().get('chako_lang')?.value === 'ar' ? 'AR' : 'EN';
+  const lang = toShopifyLanguage(params.locale);
   const product = await getProduct(params.handle, lang);
   if (!product) notFound();
 

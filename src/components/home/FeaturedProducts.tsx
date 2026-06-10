@@ -1,14 +1,12 @@
-import { cookies } from 'next/headers';
 import { getProducts } from '@/lib/shopify';
-import type { ShopifyLanguage } from '@/lib/shopify';
+import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import ProductCard from '@/components/product/ProductCard';
 import ScrollReveal from '@/components/ui/ScrollReveal';
-import Link from 'next/link';
+import Link from '@/components/ui/LocalizedLink';
 import T from '@/components/ui/T';
 
-export default async function FeaturedProducts() {
-  const lang: ShopifyLanguage = cookies().get('chako_lang')?.value === 'ar' ? 'AR' : 'EN';
-  const products = await getProducts({ first: 8, language: lang }).catch(() => []);
+export default async function FeaturedProducts({ locale }: { locale: Locale }) {
+  const products = await getProducts({ first: 8, language: toShopifyLanguage(locale) }).catch(() => []);
 
   if (!products.length) return null;
 

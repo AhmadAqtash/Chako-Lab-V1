@@ -1,55 +1,39 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 import translations, { TranslationKey } from '@/lib/translations';
+import type { Locale } from '@/lib/locale';
 
-type Language = 'en' | 'ar';
+type Language = Locale;
 
 interface LanguageContextValue {
   language: Language;
-  setLanguage: (lang: Language) => void;
   t: (key: TranslationKey) => string;
   isRTL: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextValue>({
   language: 'en',
-  setLanguage: () => {},
   t: (key) => translations.en[key] as string,
   isRTL: false,
 });
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('en');
-
-  // Read from localStorage after mount (avoids SSR/hydration mismatch)
-  useEffect(() => {
-    const stored = localStorage.getItem('chako_lang') as Language;
-    if (stored === 'en' || stored === 'ar') {
-      setLanguageState(stored);
-    }
-  }, []);
-
-  // Apply dir/lang to <html> and persist preference
-  useEffect(() => {
-    const rtl = language === 'ar';
-    document.documentElement.dir = rtl ? 'rtl' : 'ltr';
-    document.documentElement.lang = language;
-    localStorage.setItem('chako_lang', language);
-    // Cookie allows server components to read the active language on next request
-    document.cookie = `chako_lang=${language}; path=/; max-age=31536000; SameSite=Lax`;
-  }, [language]);
-
-  function setLanguage(lang: Language) {
-    setLanguageState(lang);
-  }
-
+// The locale comes from the URL ([locale] segment) via the root layout — the
+// single source of truth. No cookies, no localStorage, no client-side <html>
+// patching: server and client can never disagree on language.
+export function LanguageProvider({
+  locale,
+  children,
+}: {
+  locale: Language;
+  children: React.ReactNode;
+}) {
   function t(key: TranslationKey): string {
-    return (translations[language][key] ?? translations.en[key] ?? key) as string;
+    return (translations[locale][key] ?? translations.en[key] ?? key) as string;
   }
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, isRTL: language === 'ar' }}>
+    <LanguageContext.Provider value={{ language: locale, t, isRTL: locale === 'ar' }}>
       {children}
     </LanguageContext.Provider>
   );

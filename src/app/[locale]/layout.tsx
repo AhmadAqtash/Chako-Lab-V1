@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Noto_Sans_Arabic } from 'next/font/google';
-import './globals.css';
+import { notFound } from 'next/navigation';
+import '../globals.css';
+import { LOCALES, isLocale } from '@/lib/locale';
 import { CartProvider } from '@/context/CartContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
@@ -34,9 +36,23 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
+
+export default function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: { locale: string };
+}) {
+  // Middleware guarantees en/ar; guard stays as defense-in-depth
+  if (!isLocale(params.locale)) notFound();
+  const locale = params.locale;
+
   return (
-    <html lang="en" className={notoSansArabic.variable} suppressHydrationWarning>
+    <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} className={notoSansArabic.variable}>
       <head>
         {/* Clash Display + General Sans via Fontshare (free, commercial-use) */}
         <link rel="preconnect" href="https://api.fontshare.com" />
@@ -52,8 +68,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="flex flex-col min-h-screen font-sans bg-chako-bg text-chako-ink" suppressHydrationWarning>
-        <LanguageProvider>
+      <body className="flex flex-col min-h-screen font-sans bg-chako-bg text-chako-ink">
+        <LanguageProvider locale={locale}>
         <CartProvider>
           <DemoBanner />
           <AnnouncementBar />

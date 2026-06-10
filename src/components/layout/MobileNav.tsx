@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Link from '@/components/ui/LocalizedLink';
+import { useLocalePathname } from '@/lib/useLocalePathname';
 import { Home, Grid, Search, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -10,7 +10,8 @@ import { cn } from '@/lib/utils';
 const ITEM_COUNT = 4;
 
 export default function MobileNav() {
-  const pathname = usePathname();
+  // Locale-stripped pathname: active-tab checks stay locale-agnostic
+  const pathname = useLocalePathname();
   const { openCart, totalQuantity } = useCart();
   const { isRTL, t } = useLanguage();
 

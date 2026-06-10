@@ -1,5 +1,6 @@
 import { getProducts } from '@/lib/shopify';
 import type { Product } from '@/types/shopify';
+import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import ProductCard from '@/components/product/ProductCard';
 import Breadcrumb from '@/components/ui/Breadcrumb';
 import T from '@/components/ui/T';
@@ -12,11 +13,11 @@ export const metadata: Metadata = {
   description: 'Browse all Chako Lab drinkware — kettles, bottles, tumblers, mugs, and more. Delivered across the UAE.',
 };
 
-export default async function CollectionsPage() {
+export default async function CollectionsPage({ params }: { params: { locale: Locale } }) {
   let products: Product[] = [];
   let loadFailed = false;
   try {
-    products = await getProducts({ first: 48 });
+    products = await getProducts({ first: 48, language: toShopifyLanguage(params.locale) });
   } catch {
     loadFailed = true;
   }

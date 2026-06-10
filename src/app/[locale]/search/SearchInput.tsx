@@ -11,7 +11,7 @@ interface Props {
 
 export default function SearchInput({ initialQuery }: Props) {
   const router = useRouter();
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, language } = useLanguage();
   const [value, setValue] = useState(initialQuery);
   const [isPending, startTransition] = useTransition();
 
@@ -19,7 +19,7 @@ export default function SearchInput({ initialQuery }: Props) {
     e.preventDefault();
     if (!value.trim()) return;
     startTransition(() => {
-      router.push(`/search?q=${encodeURIComponent(value.trim())}`);
+      router.push(`/${language}/search?q=${encodeURIComponent(value.trim())}`);
     });
   }
 

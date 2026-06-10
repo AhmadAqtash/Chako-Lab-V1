@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/ui/LocalizedLink';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';

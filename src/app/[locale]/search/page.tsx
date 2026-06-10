@@ -1,6 +1,5 @@
-import { cookies } from 'next/headers';
 import { searchProducts } from '@/lib/shopify';
-import type { ShopifyLanguage } from '@/lib/shopify';
+import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import type { Product } from '@/types/shopify';
 import ProductCard from '@/components/product/ProductCard';
 import SearchInput from './SearchInput';
@@ -12,12 +11,13 @@ export const metadata: Metadata = {
 };
 
 interface Props {
+  params: { locale: Locale };
   searchParams: { q?: string };
 }
 
-export default async function SearchPage({ searchParams }: Props) {
+export default async function SearchPage({ params, searchParams }: Props) {
   const query = searchParams.q?.trim() || '';
-  const lang: ShopifyLanguage = cookies().get('chako_lang')?.value === 'ar' ? 'AR' : 'EN';
+  const lang = toShopifyLanguage(params.locale);
 
   let products: Product[] = [];
   let searchFailed = false;

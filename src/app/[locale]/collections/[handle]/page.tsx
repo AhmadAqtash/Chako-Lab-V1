@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import { cookies } from 'next/headers';
 import {
   getProducts,
   COLLECTION_HANDLE_TO_TYPE,
@@ -9,7 +8,7 @@ import {
   getNewProducts,
   getProduct,
 } from '@/lib/shopify';
-import type { ShopifyLanguage } from '@/lib/shopify';
+import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import type { Product } from '@/types/shopify';
 import CollectionGrid from '@/components/collection/CollectionGrid';
 import Breadcrumb from '@/components/ui/Breadcrumb';
@@ -21,7 +20,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 interface Props {
-  params: { handle: string };
+  params: { locale: Locale; handle: string };
 }
 
 export async function generateStaticParams() {
@@ -59,7 +58,7 @@ function LoadError() {
 }
 
 export default async function CollectionPage({ params }: Props) {
-  const lang: ShopifyLanguage = cookies().get('chako_lang')?.value === 'ar' ? 'AR' : 'EN';
+  const lang = toShopifyLanguage(params.locale);
 
   // Titanium is a virtual collection grouping products from multiple families.
   if (params.handle === 'titanium') {
