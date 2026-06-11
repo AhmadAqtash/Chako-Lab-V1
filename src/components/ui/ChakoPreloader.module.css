@@ -1,0 +1,98 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  /* No-JS / failed-hydration failsafe: the overlay removes itself via pure CSS
+     so a broken script can never trap the user behind it. */
+  animation: failsafe 0.5s ease 4s forwards;
+}
+
+/* The curtain: two cream halves that slide apart on reveal.
+   Slight overlap (50.5%) avoids a hairline seam between them. */
+.half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%;
+  background: #f5f0e8; /* chako-cream */
+  will-change: transform;
+  transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.top {
+  top: 0;
+}
+.bottom {
+  bottom: 0;
+}
+
+.badge {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.45s ease,
+    opacity 0.45s ease;
+}
+
+.spinner {
+  width: min(50vw, 300px);
+  height: auto;
+  animation: spin 3.4s linear infinite;
+  will-change: transform;
+}
+
+.overlay[data-phase='revealing'] {
+  pointer-events: none;
+}
+.overlay[data-phase='revealing'] .top {
+  transform: translateY(-101%);
+}
+.overlay[data-phase='revealing'] .bottom {
+  transform: translateY(101%);
+}
+.overlay[data-phase='revealing'] .badge {
+  transform: scale(0.82);
+  opacity: 0;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+  .half,
+  .badge {
+    transition: none;
+  }
+  .overlay {
+    transition: opacity 0.3s ease;
+  }
+  .overlay[data-phase='revealing'] {
+    opacity: 0;
+  }
+  .overlay[data-phase='revealing'] .top,
+  .overlay[data-phase='revealing'] .bottom {
+    transform: none;
+  }
+  .overlay[data-phase='revealing'] .badge {
+    transform: none;
+    opacity: 1;
+  }
+}

@@ -13,6 +13,7 @@ import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
 import CartDrawer from '@/components/cart/CartDrawer';
 import DemoBanner from '@/components/layout/DemoBanner';
+import ChakoPreloader from '@/components/ui/ChakoPreloader';
 import { Toaster } from 'react-hot-toast';
 
 // Arabic body text — kept for RTL layout
@@ -85,6 +86,7 @@ export default function RootLayout({
         />
       </head>
       <body className="flex flex-col min-h-screen font-sans bg-chako-bg text-chako-ink">
+        <ChakoPreloader />
         <LanguageProvider locale={locale}>
         <CartProvider>
           <DemoBanner />
