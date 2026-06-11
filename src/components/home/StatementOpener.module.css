@@ -1,0 +1,63 @@
+.word {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(8px);
+  transform: translateY(0.35em);
+  will-change: transform, filter, opacity;
+}
+
+.started .word {
+  animation: wordIn 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  animation-delay: calc(var(--i) * 70ms);
+}
+
+@keyframes wordIn {
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.cue {
+  opacity: 0;
+}
+.started .cue {
+  animation: cueIn 0.6s ease forwards;
+  animation-delay: 0.9s;
+}
+@keyframes cueIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.bounce {
+  animation: bounce 2.2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word,
+  .cue {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    animation: none;
+  }
+  .started .word,
+  .started .cue {
+    animation: none;
+  }
+  .bounce {
+    animation: none;
+  }
+}

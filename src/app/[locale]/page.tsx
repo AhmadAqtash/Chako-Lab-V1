@@ -1,5 +1,7 @@
 export const revalidate = 60;
 
+import StatementOpener from '@/components/home/StatementOpener';
+import ChakoStory from '@/components/home/ChakoStory';
 import HeroSlideshow from '@/components/home/HeroSlideshow';
 import Marquee from '@/components/home/Marquee';
 import SeriesBanners from '@/components/home/SeriesBanners';
@@ -20,7 +22,9 @@ export function generateMetadata({ params }: { params: { locale: Locale } }): Me
 export default function HomePage({ params }: { params: { locale: Locale } }) {
   return (
     <>
+      <StatementOpener />
       <HeroSlideshow />
+      <ChakoStory />
       <Marquee />
       <SeriesBanners />
       <HotCategories />

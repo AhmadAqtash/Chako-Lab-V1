@@ -27,6 +27,8 @@ export default function ChakoPreloader() {
       if (revealed.current) return;
       revealed.current = true;
       setPhase('revealing');
+      // Let listeners (e.g. the homepage statement) chain off the curtain reveal
+      window.dispatchEvent(new Event('chako:preloader-done'));
       timers.push(window.setTimeout(() => setPhase('done'), REVEAL_MS + 150));
     };
 
@@ -49,7 +51,7 @@ export default function ChakoPreloader() {
   if (phase === 'done') return null;
 
   return (
-    <div className={styles.overlay} data-phase={phase} aria-hidden="true">
+    <div className={styles.overlay} data-phase={phase} data-chako-preloader="true" aria-hidden="true">
       <div className={`${styles.half} ${styles.top}`} />
       <div className={`${styles.half} ${styles.bottom}`} />
       <div className={styles.badge}>
