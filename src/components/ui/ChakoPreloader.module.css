@@ -39,7 +39,7 @@
 .spinner {
   width: min(50vw, 300px);
   height: auto;
-  animation: spin 3.4s linear infinite;
+  animation: spin 2.7s linear infinite;
   will-change: transform;
 }
 
