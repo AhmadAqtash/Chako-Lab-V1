@@ -3,6 +3,9 @@
   height: 430svh;
   position: relative;
   background: #f5f0e8; /* chako-cream */
+  /* Scroll progress (0-1), written by the canvas draw loop; the ambient
+     droplets read it through calc() — no per-frame JS on the shapes. */
+  --story-p: 0;
 }
 
 .stage {
@@ -38,6 +41,102 @@
   height: 100%;
 }
 
+/* Cream fade strips on all four film edges — guarantees a seamless melt
+   into the page background regardless of tiny per-frame color drift */
+.edgeFade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, #f5f0e8, rgba(245, 240, 232, 0) 7%),
+    linear-gradient(to left, #f5f0e8, rgba(245, 240, 232, 0) 7%),
+    linear-gradient(to bottom, #f5f0e8, rgba(245, 240, 232, 0) 7%),
+    linear-gradient(to top, #f5f0e8, rgba(245, 240, 232, 0) 7%);
+}
+
+/* ── Ambient droplets: blurred chako-palette circles around the canvas.
+      Each drifts at its own parallax rate off --story-p (max ~6vh). ── */
+
+.ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.drop {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.drop1 {
+  width: 11vmin;
+  height: 11vmin;
+  top: 12%;
+  inset-inline-start: 6%;
+  background: #f5a623; /* chako-orange */
+  opacity: 0.16;
+  filter: blur(18px);
+  transform: translate3d(0, calc(var(--story-p, 0) * -6vh), 0);
+}
+
+.drop2 {
+  width: 6vmin;
+  height: 6vmin;
+  top: 24%;
+  inset-inline-end: 8%;
+  background: #1a1a1a; /* chako-ink */
+  opacity: 0.06;
+  filter: blur(14px);
+  transform: translate3d(calc(var(--story-p, 0) * 2vw), calc(var(--story-p, 0) * 4.5vh), 0);
+}
+
+.drop3 {
+  width: 16vmin;
+  height: 16vmin;
+  top: 55%;
+  inset-inline-start: -4%;
+  background: #f5a623;
+  opacity: 0.09;
+  filter: blur(26px);
+  transform: translate3d(0, calc(var(--story-p, 0) * -3.5vh), 0);
+}
+
+.drop4 {
+  width: 10vmin;
+  height: 10vmin;
+  top: 8%;
+  inset-inline-end: 18%;
+  background: #e3d2b4; /* warm sand, between cream and orange */
+  opacity: 0.5;
+  filter: blur(20px);
+  transform: translate3d(0, calc(var(--story-p, 0) * 5.5vh), 0);
+}
+
+.drop5 {
+  width: 5vmin;
+  height: 5vmin;
+  top: 40%;
+  inset-inline-start: 14%;
+  background: #f5a623;
+  opacity: 0.2;
+  filter: blur(10px);
+  transform: translate3d(0, calc(var(--story-p, 0) * -2.5vh), 0);
+}
+
+.drop6 {
+  width: 4vmin;
+  height: 4vmin;
+  top: 62%;
+  inset-inline-end: 6%;
+  background: #1a1a1a;
+  opacity: 0.05;
+  filter: blur(10px);
+  transform: translate3d(0, calc(var(--story-p, 0) * 3vh), 0);
+}
+
+/* ── Beats ── */
+
 .beats {
   position: absolute;
   inset-inline: 0;
@@ -71,7 +170,7 @@
   transform: translateY(14px);
   transition:
     opacity 0.45s ease,
-    transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+    transform 0.45s var(--ease-out-strong);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -93,6 +192,34 @@
   pointer-events: auto;
 }
 
+/* ── Word-by-word title reveal: each word sits inside an overflow-hidden
+      mask and slides up when the beat's active class lands. Stagger comes
+      from the static per-word --wd delay set inline — no per-frame JS. ── */
+
+.wordMask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  /* Escape valve on BOTH edges: Arabic marks (shadda in مثلّجة, hamza in إتقان)
+     overhang the top, deep finals overhang the bottom — pad the mask without
+     shifting layout */
+  padding-block: 0.18em 0.22em;
+  margin-block: -0.18em -0.22em;
+}
+
+.word {
+  display: inline-block;
+  line-height: 1.25;
+  /* 140% (not 110%) so glyphs overhanging the padded box stay hidden pre-reveal */
+  transform: translateY(140%);
+  transition: transform 0.55s var(--ease-out-strong);
+}
+
+.beatActive .word {
+  transform: translateY(0);
+  transition-delay: var(--wd, 0ms);
+}
+
 .index {
   font-size: 0.75rem;
   letter-spacing: 0.18em;
@@ -102,5 +229,15 @@
 @media (prefers-reduced-motion: reduce) {
   .beat {
     transition: none;
+  }
+
+  .word {
+    transition: none;
+    transform: none;
+  }
+
+  /* Ambient shapes are decoration only — remove rather than freeze */
+  .drop {
+    display: none;
   }
 }

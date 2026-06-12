@@ -2,9 +2,9 @@
 
 import Link from '@/components/ui/LocalizedLink';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
+import Reveal from '@/components/ui/Reveal';
 
 const SERIES = [
   {
@@ -110,41 +110,19 @@ const PALETTE = [
   { softBg: 'bg-chako-titanium-soft', nameColor: 'text-chako-titanium',   btnBg: 'bg-chako-titanium',  btnText: 'text-white'      },
 ];
 
-const EASE = 'cubic-bezier(0.23,1,0.32,1)';
-
 export default function SeriesBanners() {
   const { language } = useLanguage();
   const isAr = language === 'ar';
-  const sectionRef = useRef<HTMLElement>(null);
-  const [revealed, setRevealed] = useState(false);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight) { setRevealed(true); return; }
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); obs.disconnect(); } },
-      { threshold: 0.05 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
 
   return (
     <section
-      ref={sectionRef}
       className="py-14 md:py-20"
       dir={isAr ? 'rtl' : 'ltr'}
     >
       {/* Section header */}
-      <div
+      <Reveal
+        variant="up"
         className="max-w-screen-xl mx-auto px-4 md:px-8 flex items-end justify-between mb-8 md:mb-12"
-        style={{
-          opacity: revealed ? 1 : 0,
-          transform: revealed ? 'translateY(0)' : 'translateY(20px)',
-          transition: `opacity 600ms ${EASE}, transform 600ms ${EASE}`,
-        }}
       >
         <h2 className="text-heading font-display font-bold">
           {isAr ? 'تسوق حسب المجموعة' : 'Shop by Series'}
@@ -155,11 +133,11 @@ export default function SeriesBanners() {
         >
           {isAr ? 'عرض الكل' : 'View all'}
         </Link>
-      </div>
+      </Reveal>
 
       {/* Cards: stacked on mobile, 4-col grid on desktop */}
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+        <Reveal stagger={80} className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           {SERIES.map((series, i) => {
             const img = isAr ? series.imageAr : series.imageEn;
             const shortName = isAr ? series.shortAr : series.shortEn;
@@ -169,14 +147,7 @@ export default function SeriesBanners() {
             const shopLabel = isAr ? `تسوق ${series.shortAr}` : `Shop ${series.shortEn}`;
 
             return (
-              <div
-                key={`${series.handle}-${i}`}
-                style={{
-                  opacity: revealed ? 1 : 0,
-                  transform: revealed ? 'translateY(0)' : 'translateY(32px)',
-                  transition: `opacity 600ms ${EASE} ${i * 50}ms, transform 600ms ${EASE} ${i * 50}ms`,
-                }}
-              >
+              <div key={`${series.handle}-${i}`}>
                 <Link
                   href={`/collections/${series.handle}`}
                   className={cn(
@@ -208,13 +179,13 @@ export default function SeriesBanners() {
                     )}
                   >
                     {isAr ? `تسوق ${series.shortAr}` : `Shop ${series.shortEn}`}
-                    <span className="text-xs">→</span>
+                    <span className="text-xs">{isAr ? '←' : '→'}</span>
                   </span>
                 </Link>
               </div>
             );
           })}
-        </div>
+        </Reveal>
       </div>
     </section>
   );

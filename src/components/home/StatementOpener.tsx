@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import styles from './StatementOpener.module.css';
@@ -74,6 +75,18 @@ export default function StatementOpener() {
       ref={sectionRef}
       className={`relative flex flex-col items-center justify-center text-center bg-chako-cream min-h-[72svh] md:min-h-[78vh] px-6 py-20 ${started ? styles.started : ''}`}
     >
+      <div className={styles.seal} aria-hidden="true">
+        <Image
+          src="/loader/chako-loader.png"
+          alt=""
+          width={220}
+          height={220}
+          priority
+          sizes="110px"
+          className={styles.sealImg}
+        />
+      </div>
+
       <h1 className="font-display text-display-hero text-chako-ink max-w-[14ch]">
         {copy.words.map(([word, accent], i) => (
           <span key={i}>

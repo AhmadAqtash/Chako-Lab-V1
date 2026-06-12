@@ -1,3 +1,47 @@
+/* Circular Chako seal above the statement — entrance on the wrapper,
+   idle rotation on the image, so the two transforms never fight. */
+.seal {
+  width: 88px;
+  height: 88px;
+  margin-bottom: 1.75rem;
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+@media (min-width: 768px) {
+  .seal {
+    width: 110px;
+    height: 110px;
+    margin-bottom: 2.25rem;
+  }
+}
+
+.started .seal {
+  /* First element of the cascade: leads the words (they start at 0.14s) */
+  animation: sealIn 0.9s var(--ease-spring) forwards;
+}
+
+@keyframes sealIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Quiet echo of the preloader spin */
+.sealImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: sealSpin 40s linear infinite;
+}
+
+@keyframes sealSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .word {
   display: inline-block;
   opacity: 0;
@@ -8,7 +52,8 @@
 
 .started .word {
   animation: wordIn 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-  animation-delay: calc(var(--i) * 70ms);
+  /* 0.14s base = the seal's two cascade slots, so it always leads word 0 */
+  animation-delay: calc(0.14s + var(--i) * 70ms);
 }
 
 @keyframes wordIn {
@@ -47,17 +92,20 @@
 
 @media (prefers-reduced-motion: reduce) {
   .word,
-  .cue {
+  .cue,
+  .seal {
     opacity: 1;
     filter: none;
     transform: none;
     animation: none;
   }
   .started .word,
-  .started .cue {
+  .started .cue,
+  .started .seal {
     animation: none;
   }
-  .bounce {
+  .bounce,
+  .sealImg {
     animation: none;
   }
 }

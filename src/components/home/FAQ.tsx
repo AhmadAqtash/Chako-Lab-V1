@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { SectionLabel } from '@/components/ui/SectionLabel';
+import Reveal from '@/components/ui/Reveal';
 
 const FAQS_EN = [
   {
@@ -59,61 +60,31 @@ const FAQS_AR = [
   },
 ];
 
-const EASE = 'cubic-bezier(0.23,1,0.32,1)';
-
 export default function FAQ() {
   const { t, language } = useLanguage();
   const isAr = language === 'ar';
   const [open, setOpen] = useState<number | null>(null);
-  const sectionRef = useRef<HTMLElement>(null);
-  const [revealed, setRevealed] = useState(false);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight) { setRevealed(true); return; }
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); obs.disconnect(); } },
-      { threshold: 0.1 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
 
   const FAQS = isAr ? FAQS_AR : FAQS_EN;
 
   return (
     <section
-      ref={sectionRef}
       className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-24"
       dir={isAr ? 'rtl' : 'ltr'}
     >
       <div className="max-w-2xl mx-auto">
-        <div
-          className="text-center mb-10"
-          style={{
-            opacity: revealed ? 1 : 0,
-            transform: revealed ? 'translateY(0)' : 'translateY(20px)',
-            transition: `opacity 600ms ${EASE}, transform 600ms ${EASE}`,
-          }}
-        >
+        <Reveal variant="up" className="text-center mb-10">
           <SectionLabel className="mb-3">
             {t('faq_label')}
           </SectionLabel>
           <h2 className="text-heading font-display font-bold">{t('faq_heading')}</h2>
-        </div>
+        </Reveal>
 
-        <div className="space-y-2">
+        <Reveal stagger={80} className="space-y-2">
           {FAQS.map(({ q, a }, i) => (
             <div
               key={i}
               className="border border-black/[0.08] rounded-2xl overflow-hidden"
-              style={{
-                opacity: revealed ? 1 : 0,
-                transform: revealed ? 'translateY(0)' : 'translateY(16px)',
-                transition: `opacity 500ms ${EASE} ${i * 55}ms, transform 500ms ${EASE} ${i * 55}ms`,
-              }}
             >
               <button
                 className="w-full flex items-center justify-between px-5 py-4 min-h-[56px] text-left hover:bg-black/[0.02] active:bg-black/[0.04] transition-colors cursor-pointer touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-chako-ink/20"
@@ -140,7 +111,7 @@ export default function FAQ() {
               </div>
             </div>
           ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   );

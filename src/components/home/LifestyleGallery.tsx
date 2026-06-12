@@ -1,9 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import SectionLabel from '@/components/ui/SectionLabel';
+import Reveal from '@/components/ui/Reveal';
 
 // Editorial lifestyle imagery. Sources are 940px wide, so tiles are kept
 // modest (≤ ~768px @2× on desktop) to avoid upscaling — never full-bleed.
@@ -53,41 +53,19 @@ const IMAGES = [
   },
 ];
 
-const EASE = 'cubic-bezier(0.23,1,0.32,1)';
-
 export default function LifestyleGallery() {
   const { language } = useLanguage();
   const isAr = language === 'ar';
-  const sectionRef = useRef<HTMLElement>(null);
-  const [revealed, setRevealed] = useState(false);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight) { setRevealed(true); return; }
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); obs.disconnect(); } },
-      { threshold: 0.05 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
 
   return (
     <section
-      ref={sectionRef}
       className="py-14 md:py-20"
       dir={isAr ? 'rtl' : 'ltr'}
     >
       {/* Section header */}
-      <div
+      <Reveal
+        variant="up"
         className="max-w-screen-xl mx-auto px-4 md:px-8 mb-8 md:mb-12"
-        style={{
-          opacity: revealed ? 1 : 0,
-          transform: revealed ? 'translateY(0)' : 'translateY(20px)',
-          transition: `opacity 600ms ${EASE}, transform 600ms ${EASE}`,
-        }}
       >
         {/* PLACEHOLDER COPY — edit freely */}
         <SectionLabel className="mb-3">
@@ -101,21 +79,14 @@ export default function LifestyleGallery() {
             ? 'من زحمة الصباح إلى نزهة العصر — منتجات تشاكو لاب ترافقك أينما ذهب يومك.'
             : 'From the morning commute to the afternoon picnic — Chako Lab drinkware goes wherever your day does.'}
         </p>
-      </div>
+      </Reveal>
 
       {/* Editorial grid: 2-col on mobile, 3-col on desktop. Uniform square
           tiles keep every image well under its 940px source (no upscaling). */}
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-          {IMAGES.map((img, i) => (
-            <div
-              key={img.src}
-              style={{
-                opacity: revealed ? 1 : 0,
-                transform: revealed ? 'translateY(0)' : 'translateY(32px)',
-                transition: `opacity 600ms ${EASE} ${i * 60}ms, transform 600ms ${EASE} ${i * 60}ms`,
-              }}
-            >
+        <Reveal stagger={80} className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+          {IMAGES.map((img) => (
+            <div key={img.src}>
               <div className="group relative aspect-square overflow-hidden rounded-2xl bg-chako-accent">
                 <Image
                   src={img.src}
@@ -133,7 +104,7 @@ export default function LifestyleGallery() {
               </div>
             </div>
           ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   );

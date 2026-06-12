@@ -8,6 +8,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Tag } from '@/components/ui/Tag';
 import { SHOPIFY_API_VERSION } from '@/lib/shopify-config';
 import type { MoneyV2 } from '@/types/shopify';
+import Reveal from '@/components/ui/Reveal';
 
 const STORE = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN!;
 const TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
@@ -61,8 +62,6 @@ const PRODUCTS_GQL = `
   }
 `;
 
-const EASE = 'cubic-bezier(0.23,1,0.32,1)';
-
 export default function HotCategories() {
   const { language } = useLanguage();
   const isAr = language === 'ar';
@@ -72,21 +71,6 @@ export default function HotCategories() {
   const [activeTab, setActiveTab] = useState(0);
   const [gridVisible, setGridVisible] = useState(true);
   const gridRef = useRef<HTMLDivElement>(null);
-  const sectionRef = useRef<HTMLElement>(null);
-  const [revealed, setRevealed] = useState(false);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight) { setRevealed(true); return; }
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); obs.disconnect(); } },
-      { threshold: 0.1 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -148,30 +132,21 @@ export default function HotCategories() {
 
   return (
     <section
-      ref={sectionRef}
       className="max-w-screen-xl mx-auto px-4 md:px-8 py-14 md:py-20"
       dir={isAr ? 'rtl' : 'ltr'}
     >
       {/* Section heading */}
-      <div
-        style={{
-          opacity: revealed ? 1 : 0,
-          transform: revealed ? 'translateY(0)' : 'translateY(20px)',
-          transition: `opacity 600ms ${EASE}, transform 600ms ${EASE}`,
-        }}
-      >
+      <Reveal variant="up">
         <h2 className="text-heading font-display font-bold mb-6">
           {isAr ? 'الفئات الرائجة' : 'Shop the Drop'}
         </h2>
-      </div>
+      </Reveal>
 
       {/* Tab bar: Tag primitives, horizontal scroll on mobile, no arrows */}
-      <div
+      <Reveal
+        variant="fade"
+        delay={80}
         className="flex gap-2 overflow-x-auto scrollbar-hide scroll-momentum pb-1 -mx-4 px-4 mb-7"
-        style={{
-          opacity: revealed ? 1 : 0,
-          transition: `opacity 600ms ${EASE} 80ms`,
-        }}
       >
         {TABS.map((tab, i) => (
           <Tag
@@ -183,10 +158,11 @@ export default function HotCategories() {
             onClick={() => selectTab(i)}
           />
         ))}
-      </div>
+      </Reveal>
 
-      {/* Product grid: horizontal snap scroll */}
-      <div className="relative">
+      {/* Product grid: horizontal snap scroll (tab-switch animation stays
+          inline below — Reveal only fades the whole rail in on scroll) */}
+      <Reveal variant="fade" delay={160} className="relative">
         {/* Scroll-end fade — mobile only (left edge in RTL) */}
         <div className="absolute right-0 rtl:right-auto rtl:left-0 top-0 bottom-2 w-12 bg-gradient-to-l rtl:bg-gradient-to-r from-chako-bg to-transparent pointer-events-none z-10 md:hidden" />
 
@@ -306,7 +282,7 @@ export default function HotCategories() {
                 );
               })}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

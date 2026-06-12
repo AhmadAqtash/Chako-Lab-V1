@@ -1,10 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Badge } from '@/components/ui/Badge';
-
-const EASE = 'cubic-bezier(0.23,1,0.32,1)';
+import Reveal from '@/components/ui/Reveal';
 
 const VALUE_ACCENTS = [
   'text-chako-linlin',
@@ -16,21 +14,6 @@ const VALUE_ACCENTS = [
 export default function BrandValues() {
   const { t, language } = useLanguage();
   const isAr = language === 'ar';
-  const sectionRef = useRef<HTMLElement>(null);
-  const [revealed, setRevealed] = useState(false);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight) { setRevealed(true); return; }
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); obs.disconnect(); } },
-      { threshold: 0.15 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
 
   const VALUES = [
     { title: t('promise_1_title'), description: t('promise_1_desc'), accent: VALUE_ACCENTS[0] },
@@ -41,20 +24,13 @@ export default function BrandValues() {
 
   return (
     <section
-      ref={sectionRef}
       className="bg-chako-ink py-16 md:py-24"
       dir={isAr ? 'rtl' : 'ltr'}
     >
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
 
         {/* Award badges + heading */}
-        <div
-          style={{
-            opacity: revealed ? 1 : 0,
-            transform: revealed ? 'translateY(0)' : 'translateY(24px)',
-            transition: `opacity 600ms ${EASE}, transform 600ms ${EASE}`,
-          }}
-        >
+        <Reveal variant="up">
           {/* Award stickers */}
           <div className="flex flex-wrap gap-3 mb-8">
             <Badge label="RED DOT WINNER 2024" color="linlin" variant="sticker" rotate />
@@ -77,19 +53,12 @@ export default function BrandValues() {
               ? 'أدوات الشرب المميزة المصنوعة لتدوم، مصممة لتسعد.'
               : 'Premium drinkware built to last, designed to delight.'}
           </p>
-        </div>
+        </Reveal>
 
         {/* Value cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Reveal stagger={80} delay={80} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {VALUES.map(({ title, description, accent }, i) => (
-            <div
-              key={title}
-              style={{
-                opacity: revealed ? 1 : 0,
-                transform: revealed ? 'translateY(0)' : 'translateY(32px)',
-                transition: `opacity 600ms ${EASE} ${(i + 1) * 80}ms, transform 600ms ${EASE} ${(i + 1) * 80}ms`,
-              }}
-            >
+            <div key={title}>
               <div className="h-full bg-white/[0.07] hover:bg-white/[0.11] rounded-2xl p-6 flex flex-col gap-3 transition-colors duration-300 border border-white/[0.08]">
                 <span className={`text-2xl leading-none font-display font-bold ${accent}`}>
                   {String(i + 1).padStart(2, '0')}
@@ -103,15 +72,13 @@ export default function BrandValues() {
               </div>
             </div>
           ))}
-        </div>
+        </Reveal>
 
         {/* Material callout strip */}
-        <div
+        <Reveal
+          variant="fade"
+          delay={400}
           className="mt-10 pt-8 border-t border-white/[0.1] flex flex-wrap gap-x-8 gap-y-2"
-          style={{
-            opacity: revealed ? 1 : 0,
-            transition: `opacity 800ms ${EASE} 500ms`,
-          }}
         >
           {[
             isAr ? 'فولاذ SUS 316' : 'SUS 316 Steel',
@@ -123,7 +90,7 @@ export default function BrandValues() {
               {item}
             </span>
           ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   );

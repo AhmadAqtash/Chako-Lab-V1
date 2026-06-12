@@ -9,7 +9,6 @@ import HotCategories from '@/components/home/HotCategories';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
 import LifestyleGallery from '@/components/home/LifestyleGallery';
 import BrandValues from '@/components/home/BrandValues';
-import ProductHotspot from '@/components/home/ProductHotspot';
 import FAQ from '@/components/home/FAQ';
 import type { Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
@@ -31,7 +30,6 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
       <FeaturedProducts locale={params.locale} />
       <LifestyleGallery />
       <BrandValues />
-      <ProductHotspot />
       <FAQ />
     </>
   );

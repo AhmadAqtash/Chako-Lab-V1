@@ -1,7 +1,7 @@
 import { getProducts } from '@/lib/shopify';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import ProductCard from '@/components/product/ProductCard';
-import ScrollReveal from '@/components/ui/ScrollReveal';
+import Reveal from '@/components/ui/Reveal';
 import Link from '@/components/ui/LocalizedLink';
 import T from '@/components/ui/T';
 
@@ -12,7 +12,7 @@ export default async function FeaturedProducts({ locale }: { locale: Locale }) {
 
   return (
     <section className="max-w-screen-xl mx-auto px-4 md:px-8 py-16 md:py-20">
-      <ScrollReveal>
+      <Reveal variant="up">
         <div className="flex items-end justify-between mb-8">
           <div>
             <p className="text-label font-sans font-semibold text-chako-ink/40 uppercase tracking-widest mb-2">
@@ -24,27 +24,25 @@ export default async function FeaturedProducts({ locale }: { locale: Locale }) {
             href="/collections"
             className="text-sm font-semibold text-chako-ink/50 hover:text-chako-ink transition-colors hidden md:block cursor-pointer underline underline-offset-4"
           >
-            <T k="featured_view_all" /> →
+            <T k="featured_view_all" /> {locale === 'ar' ? '←' : '→'}
           </Link>
         </div>
-      </ScrollReveal>
+      </Reveal>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-        {products.map((product, i) => (
-          <ScrollReveal key={product.id} delay={i * 80}>
-            <ProductCard product={product} />
-          </ScrollReveal>
+      <Reveal stagger={80} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
         ))}
-      </div>
+      </Reveal>
 
-      <ScrollReveal className="text-center mt-8 md:hidden">
+      <Reveal variant="up" className="text-center mt-8 md:hidden">
         <Link
           href="/collections"
           className="inline-flex items-center gap-2 px-6 py-3 border-2 border-chako-ink text-sm font-semibold rounded-full hover:bg-chako-ink hover:text-chako-cream active:scale-[0.97] transition-[background-color,color,transform] duration-150 cursor-pointer touch-manipulation"
         >
-          <T k="featured_view_all" /> →
+          <T k="featured_view_all" /> {locale === 'ar' ? '←' : '→'}
         </Link>
-      </ScrollReveal>
+      </Reveal>
     </section>
   );
 }
