@@ -2,6 +2,7 @@
 
 import { ProductVariant } from '@/types/shopify';
 import { cn } from '@/lib/utils';
+import { gsap, prefersReducedMotion } from '@/lib/gsapClient';
 
 interface Props {
   options: { name: string; values: string[] }[];
@@ -42,6 +43,18 @@ function getColorValue(value: string): string | null {
 }
 
 export default function VariantSelector({ options, variants, selected, onChange }: Props) {
+  // Selected swatch does a happy overshoot pop
+  function popAndChange(e: React.MouseEvent<HTMLButtonElement>, option: string, value: string) {
+    if (!prefersReducedMotion()) {
+      gsap.fromTo(
+        e.currentTarget,
+        { scale: 0.82 },
+        { scale: 1, duration: 0.5, ease: 'back.out(3)', overwrite: true }
+      );
+    }
+    onChange(option, value);
+  }
+
   function isAvailable(optionName: string, value: string): boolean {
     const testSelection = { ...selected, [optionName]: value };
     return variants.some((v) => {
@@ -74,12 +87,12 @@ export default function VariantSelector({ options, variants, selected, onChange 
                   return (
                     <button
                       key={value}
-                      onClick={() => onChange(option.name, value)}
+                      onClick={(e) => popAndChange(e, option.name, value)}
                       disabled={!available}
                       title={value}
                       className={cn(
-                        'w-11 h-11 rounded-full border-2 transition-all relative touch-manipulation active:scale-95',
-                        active ? 'border-chako-ink scale-105' : 'border-transparent hover:border-black/20',
+                        'w-11 h-11 rounded-full border-2 transition-colors relative touch-manipulation',
+                        active ? 'border-chako-ink' : 'border-transparent hover:border-black/20',
                         !available && 'opacity-30 cursor-not-allowed'
                       )}
                       style={{ backgroundColor: colorHex }}
@@ -98,10 +111,10 @@ export default function VariantSelector({ options, variants, selected, onChange 
                 return (
                   <button
                     key={value}
-                    onClick={() => onChange(option.name, value)}
+                    onClick={(e) => popAndChange(e, option.name, value)}
                     disabled={!available}
                     className={cn(
-                      'px-4 py-2.5 rounded-xl text-sm font-medium border transition-all min-h-[44px] touch-manipulation active:scale-95',
+                      'px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors min-h-[44px] touch-manipulation',
                       active
                         ? 'bg-chako-ink text-chako-cream border-chako-ink'
                         : 'border-black/10 hover:border-black/25 text-chako-ink',

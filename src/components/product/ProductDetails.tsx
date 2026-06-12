@@ -112,7 +112,10 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
 
         {/* Price */}
         <div className="flex items-baseline gap-3">
-          <span className="text-3xl font-extrabold">{formatPrice(price)}</span>
+          {/* key remount replays the fade-up whenever the variant changes */}
+          <span key={selectedVariant?.id ?? 'base'} className="text-3xl font-extrabold inline-block animate-fade-in">
+            {formatPrice(price)}
+          </span>
           {discount > 0 && compareAt && parseFloat(compareAt.amount) > parseFloat(price.amount) && (
             <>
               <span className="text-base text-chako-ink/40 line-through">{formatPrice(compareAt)}</span>

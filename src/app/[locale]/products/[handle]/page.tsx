@@ -6,6 +6,7 @@ import { extractBaseName, extractColorName } from '@/lib/utils';
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductDetails from '@/components/product/ProductDetails';
 import ProductFeatures from '@/components/product/ProductFeatures';
+import ProductStory from '@/components/product/ProductStory';
 import RelatedProducts from '@/components/product/RelatedProducts';
 import Breadcrumb from '@/components/ui/Breadcrumb';
 import TitaniumBodyFlag from '@/components/titanium/TitaniumBodyFlag';
@@ -88,6 +89,8 @@ export default async function ProductPage({ params }: Props) {
       </div>
 
       <ProductFeatures metafields={product.metafields} />
+
+      <ProductStory product={product} collectionHandle={collectionHandle} isTitanium={isTitanium} />
 
       <RelatedProducts
         productType={baseType}
