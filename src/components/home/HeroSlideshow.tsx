@@ -8,35 +8,47 @@ import { useLanguage } from '@/context/LanguageContext';
 import { SLIDES } from './slides';
 
 const AUTOPLAY_MS = 6000; // per-slide dwell — drives both the interval and the dot progress bar
-const TRANSITION_MS = 850; // banner wipe duration
+const TRANSITION_MS = 1100; // candy circle reveal duration
 const CTA_SWAP_MS = 350; // pill label swap duration
-const CTA_DELAY_MS = 200; // label swap starts once the banner wipe is underway
+const CTA_DELAY_MS = 200; // label swap starts once the banner reveal is underway
+const DIM_DELAY_MS = 250; // outgoing slide starts dimming once the droplet has begun blooming
 
 /**
- * Injected once alongside the component. The slide keyframes read CSS vars
- * (--hero-enter-x / --hero-lag-x) set inline on the entering slide, so the
- * travel direction — and its RTL flip — lives entirely in JS.
+ * Injected once alongside the component. The incoming slide blooms open
+ * through an expanding circular clip-path mask (a droplet at 50% / 42%) —
+ * symmetric in LTR and RTL, so no direction logic touches the banner.
+ * Only clip-path animates on the entering layer; the outgoing slide moves
+ * with transform/opacity only (subtle recede + delayed dim overlay).
  * Restarts are guaranteed without remounting slides because a slide's
  * animation-name always changes between states (enter <-> exit <-> none).
  */
 const heroCss = `
-  @keyframes chakoHeroSlideIn {
-    from { transform: translateX(var(--hero-enter-x, 100%)); }
-    to   { transform: translateX(0); }
+  @keyframes chakoHeroCircleIn {
+    from { clip-path: circle(0% at 50% 42%); }
+    to   { clip-path: circle(135% at 50% 42%); }
   }
-  /* Image lags its container ~12% for a soft parallax wipe. Both layers share
-     the same duration/easing, so the lag can never expose the layer's edge. */
-  @keyframes chakoHeroImgLag {
-    from { transform: translateX(var(--hero-lag-x, -12%)); }
-    to   { transform: translateX(0); }
-  }
-  @keyframes chakoHeroScaleOut {
+  @keyframes chakoHeroRecede {
     from { transform: scale(1); }
-    to   { transform: scale(0.955); }
+    to   { transform: scale(0.97); }
   }
-  .chakoHeroEnter { animation: chakoHeroSlideIn ${TRANSITION_MS}ms var(--ease-in-out-strong) both; }
-  .chakoHeroEnter > .chakoHeroLayer { animation: chakoHeroImgLag ${TRANSITION_MS}ms var(--ease-in-out-strong) both; }
-  .chakoHeroExit { animation: chakoHeroScaleOut ${TRANSITION_MS}ms var(--ease-in-out-strong) both; }
+  @keyframes chakoHeroDim {
+    from { opacity: 0; }
+    to   { opacity: 0.12; }
+  }
+  .chakoHeroEnter { animation: chakoHeroCircleIn ${TRANSITION_MS}ms var(--ease-in-out-strong) both; }
+  /* will-change only while the reveal is in flight (class added/removed in JS) */
+  .chakoHeroRevealing { will-change: clip-path; }
+  .chakoHeroExit { animation: chakoHeroRecede ${TRANSITION_MS}ms var(--ease-in-out-strong) both; }
+  /* Delayed dim on the outgoing slide so it falls back into shadow under the droplet */
+  .chakoHeroExit::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    animation: chakoHeroDim ${TRANSITION_MS - DIM_DELAY_MS}ms var(--ease-in-out-strong) ${DIM_DELAY_MS}ms both;
+  }
 
   /* CTA pill — labels swap vertically inside an overflow mask; the mask's
      width is measured in JS and transitions between labels. The hidden ghost
@@ -93,12 +105,14 @@ const heroCss = `
 
   @media (prefers-reduced-motion: reduce) {
     .chakoHeroEnter,
-    .chakoHeroEnter > .chakoHeroLayer,
     .chakoHeroExit,
+    .chakoHeroExit::after,
     .chakoHeroCtaIn,
     .chakoHeroCtaOut {
       animation: none !important; /* slides + labels swap instantly, always visible */
     }
+    .chakoHeroEnter { clip-path: none !important; } /* instant swap, no mask */
+    .chakoHeroRevealing { will-change: auto; }
     .chakoHeroCtaOut { opacity: 0; } /* outgoing label vanishes instead of sliding */
     .chakoHeroCtaMask { transition: none; } /* width snaps to the new label */
     .chakoHeroProgressFill {
@@ -122,7 +136,9 @@ export default function HeroSlideshow() {
   // Measured width of the current CTA label (px); null until first client measurement.
   const [maskWidth, setMaskWidth] = useState<number | null>(null);
 
-  const dirRef = useRef<1 | -1>(1); // logical direction: 1 = forward in slide order
+  // Logical direction (1 = forward). Kept for the swipe/nav API — the circle
+  // reveal itself is symmetric and never reads it.
+  const dirRef = useRef<1 | -1>(1);
   const wasPaused = useRef(false);
   const ghostRef = useRef<HTMLSpanElement>(null);
   const touchStartX = useRef<number>(0);
@@ -170,7 +186,7 @@ export default function HeroSlideshow() {
     wasPaused.current = paused;
   }, [paused]);
 
-  // Demote the outgoing slide once the incoming wipe has fully covered it.
+  // Demote the outgoing slide once the incoming reveal has fully covered it.
   useEffect(() => {
     if (exiting === null) return;
     const t = setTimeout(() => setExiting(null), TRANSITION_MS + 50);
@@ -216,13 +232,9 @@ export default function HeroSlideshow() {
     return () => ro.disconnect();
   }, []);
 
-  // Physical travel side. Logical "forward" enters from the inline-end side:
-  // from the right in LTR, from the left in RTL.
-  const enterSign = dirRef.current * (isAr ? -1 : 1);
-  const enterVars = {
-    '--hero-enter-x': `${enterSign * 100}%`,
-    '--hero-lag-x': `${enterSign * -12}%`,
-  } as React.CSSProperties;
+  // The circle reveal is symmetric — no direction or RTL flip on the banner.
+  // The reveal is in flight exactly while an outgoing slide is still demoting.
+  const revealing = exiting !== null;
 
   return (
     <section
@@ -234,8 +246,8 @@ export default function HeroSlideshow() {
     >
       <style>{heroCss}</style>
 
-      {/* All slides stay mounted, stacked. The active slide wipes in over the
-          outgoing one, which recedes with a subtle scale-down beneath it. */}
+      {/* All slides stay mounted, stacked. The active slide blooms open over
+          the outgoing one, which recedes and dims slightly beneath it. */}
       {SLIDES.map((s, i) => {
         const desktopSrc = isAr ? s.arDesktop : s.enDesktop;
         const mobileSrc = isAr ? s.arMobile : s.enMobile;
@@ -246,12 +258,11 @@ export default function HeroSlideshow() {
             key={i}
             className={`absolute inset-0 ${
               isActive
-                ? `z-[2] ${hasNavigated ? 'chakoHeroEnter' : ''}`
+                ? `z-[2] ${hasNavigated ? 'chakoHeroEnter' : ''} ${revealing ? 'chakoHeroRevealing' : ''}`
                 : isExiting
                   ? 'z-[1] chakoHeroExit pointer-events-none'
                   : 'z-0 opacity-0 pointer-events-none'
             }`}
-            style={isActive && hasNavigated ? enterVars : undefined}
             aria-hidden={!isActive}
           >
             <div className="chakoHeroLayer absolute inset-0">

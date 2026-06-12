@@ -9,6 +9,7 @@ import AddToCartButton from './AddToCartButton';
 import StickyATC from './StickyATC';
 import TrustBadges from './TrustBadges';
 import ColorSwatches from './ColorSwatches';
+import SpecChips from './SpecChips';
 import { Minus, Plus, Share2, Check } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -17,11 +18,13 @@ interface Props {
   colorSiblings?: Product[];
   colorName?: string | null;
   collectionHandle?: string;
+  baseType?: string;
+  isTitanium?: boolean;
 }
 
 type Tab = 'Description' | 'Specs' | 'Shipping';
 
-export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle }: Props) {
+export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle, baseType, isTitanium }: Props) {
   const { t } = useLanguage();
 
   // The URL locale drives the server fetch, so product content arrives in the
@@ -125,6 +128,14 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
             </>
           )}
         </div>
+
+        {/* Canonical spec chips — capacity + retention (or featherlight for plastic) */}
+        <SpecChips
+          product={product}
+          baseType={baseType}
+          collectionHandle={collectionHandle}
+          isTitanium={isTitanium}
+        />
 
         {/* Variant selector */}
         {hasOptions && (

@@ -5,13 +5,16 @@ import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
 import type { Product } from '@/types/shopify';
 import { useLanguage } from '@/context/LanguageContext';
-import { getSeriesStory, extractSpecs } from '@/lib/pdp-story';
+import { getSeriesStory } from '@/lib/pdp-story';
+import { resolveSpecs } from '@/lib/product-specs';
 import { gsap, prefersReducedMotion } from '@/lib/gsapClient';
 
 interface Props {
   product: Product;
   collectionHandle?: string;
   isTitanium?: boolean;
+  /** Language-stable productType (AR pages localize product.productType) */
+  baseType?: string;
 }
 
 /**
@@ -23,15 +26,27 @@ interface Props {
  * GSAP/ScrollTrigger drives everything; with prefers-reduced-motion (or no
  * JS) the section renders fully visible and static.
  */
-export default function ProductStory({ product, collectionHandle, isTitanium }: Props) {
+export default function ProductStory({ product, collectionHandle, isTitanium, baseType }: Props) {
   const { language } = useLanguage();
   const isAr = language === 'ar';
   const pick = <T extends { en: string; ar: string }>(l: T) => (isAr ? l.ar : l.en);
 
-  const story = getSeriesStory(collectionHandle, isTitanium);
-  // Handle is an EN slug (often carries capacity, e.g. ...-1000ml) — include it
-  // so AR pages, whose translated copy may drop the number, still find specs.
-  const specs = extractSpecs(`${product.handle.replace(/-/g, ' ')} ${product.title} ${product.description}`);
+  // Canonical specs: 36h cold / 18h hot for every insulated product, no
+  // retention claims for plastic bodies, capacity always resolved (extracted
+  // or series fallback) — see src/lib/product-specs.ts
+  const resolved = resolveSpecs(product, baseType);
+  const story = getSeriesStory(collectionHandle, isTitanium, resolved.plastic);
+  const specs = [
+    ...(resolved.capacityMl
+      ? [{ value: resolved.capacityMl, suffix: 'ml', label: { en: 'Capacity', ar: 'السعة' } }]
+      : []),
+    ...(resolved.retention
+      ? [
+          { value: resolved.retention.coldHours, suffix: 'h', label: { en: 'Stays cold', ar: 'يبقى باردًا' } },
+          { value: resolved.retention.hotHours, suffix: 'h', label: { en: 'Stays hot', ar: 'يبقى ساخنًا' } },
+        ]
+      : []),
+  ];
   const images = product.images.nodes.length ? product.images.nodes : [];
   const posterImage = (i: number) => images[i % Math.max(images.length, 1)];
 

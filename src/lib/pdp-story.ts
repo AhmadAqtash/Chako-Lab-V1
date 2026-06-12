@@ -431,10 +431,52 @@ const TITANIUM_OVERRIDE: Pick<SeriesStory, 'accent' | 'accentSoft' | 'posterInk'
   posterInk: 'light',
 };
 
-export function getSeriesStory(collectionHandle?: string, isTitanium?: boolean): SeriesStory {
-  const base = (collectionHandle && SERIES[collectionHandle]) || GENERIC;
-  if (!isTitanium) return base;
-  return { ...base, ...TITANIUM_OVERRIDE };
+// Canonical retention FAQ — insulated products only (36h cold / 18h hot)
+const RETENTION_FAQ: { q: L; a: L } = {
+  q: { en: 'How long does it keep drinks cold or hot?', ar: 'كم تدوم برودة أو حرارة المشروبات؟' },
+  a: {
+    en: 'Double-wall insulation keeps drinks cold for up to 36 hours and hot for up to 18 hours.',
+    ar: 'العزل مزدوج الجدار يحافظ على المشروبات باردة حتى ٣٦ ساعة وساخنة حتى ١٨ ساعة.',
+  },
+};
+
+// Plastic-bodied (Tritan/PPSU) products must never carry insulation claims
+const PLASTIC_FAQ: { q: L; a: L } = {
+  q: { en: 'Is this bottle insulated?', ar: 'هل هذه القارورة معزولة؟' },
+  a: {
+    en: 'This is a lightweight BPA-free plastic bottle built for everyday hydration — it isn’t vacuum-insulated. For temperature retention, check our stainless and ceramic series.',
+    ar: 'هذه قارورة بلاستيكية خفيفة خالية من BPA للترطيب اليومي — وهي غير معزولة. لحفظ الحرارة، تصفّح سلاسلنا الفولاذية والسيراميك.',
+  },
+};
+
+const INSULATION_CHIP_RE = /double-wall|insulated|عزل|الساخنة والباردة|للساخن والبارد|hot & cold/i;
+const PLASTIC_CHIP: L = { en: 'Featherlight BPA-free body', ar: 'جسم خفيف خالٍ من BPA' };
+
+export function getSeriesStory(
+  collectionHandle?: string,
+  isTitanium?: boolean,
+  isPlastic?: boolean
+): SeriesStory {
+  let story = (collectionHandle && SERIES[collectionHandle]) || GENERIC;
+  if (isTitanium) story = { ...story, ...TITANIUM_OVERRIDE };
+
+  if (isPlastic) {
+    // Strip every insulation-flavored callout and swap in plastic-safe ones
+    story = {
+      ...story,
+      features: story.features.map((f) => ({
+        ...f,
+        callouts: f.callouts.map((c) =>
+          INSULATION_CHIP_RE.test(`${c.en} ${c.ar}`) ? PLASTIC_CHIP : c
+        ),
+      })),
+      faqs: [PLASTIC_FAQ, ...story.faqs],
+    };
+  } else {
+    story = { ...story, faqs: [RETENTION_FAQ, ...story.faqs] };
+  }
+
+  return story;
 }
 
 // ── Per-product spec extraction ────────────────────────────────────────────

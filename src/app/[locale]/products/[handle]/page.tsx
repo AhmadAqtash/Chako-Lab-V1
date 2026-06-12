@@ -84,13 +84,15 @@ export default async function ProductPage({ params }: Props) {
             colorSiblings={colorSiblings}
             colorName={colorName}
             collectionHandle={collectionHandle}
+            baseType={baseType}
+            isTitanium={isTitanium}
           />
         </div>
       </div>
 
       <ProductFeatures metafields={product.metafields} />
 
-      <ProductStory product={product} collectionHandle={collectionHandle} isTitanium={isTitanium} />
+      <ProductStory product={product} collectionHandle={collectionHandle} isTitanium={isTitanium} baseType={baseType} />
 
       <RelatedProducts
         productType={baseType}
