@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Noto_Sans_Arabic } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import '../globals.css';
@@ -15,6 +16,10 @@ import CartDrawer from '@/components/cart/CartDrawer';
 import DemoBanner from '@/components/layout/DemoBanner';
 import ChakoPreloader from '@/components/ui/ChakoPreloader';
 import { Toaster } from 'react-hot-toast';
+
+// Google Tag Manager container — public client-side ID, drives Meta ads
+// (and any other) tags configured inside GTM. Change here in one place.
+const GTM_ID = 'GTM-TM95NZ84';
 
 // Arabic body text — kept for RTL layout
 const notoSansArabic = Noto_Sans_Arabic({
@@ -71,6 +76,17 @@ export default function RootLayout({
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} className={notoSansArabic.variable}>
       <head>
+        {/* Google Tag Manager — afterInteractive is the GTM-recommended
+            strategy in Next.js (same as @next/third-parties uses). Loads the
+            container as early as the framework allows without blocking paint. */}
+        <Script id="gtm-init" strategy="afterInteractive">
+          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${GTM_ID}');`}
+        </Script>
+
         {/* Clash Display + General Sans via Fontshare (free, commercial-use) */}
         <link rel="preconnect" href="https://api.fontshare.com" />
         <link
@@ -86,6 +102,16 @@ export default function RootLayout({
         />
       </head>
       <body className="flex flex-col min-h-screen font-sans bg-chako-bg text-chako-ink">
+        {/* Google Tag Manager (noscript) — must be the first thing in <body> */}
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
+
         <ChakoPreloader />
         <LanguageProvider locale={locale}>
         <CartProvider>
