@@ -257,7 +257,7 @@ export default function ProductStory({ product, collectionHandle, isTitanium, ba
       {/* ── What's in the box ── */}
       <section
         data-box
-        className="rounded-[2rem] p-7 md:p-12"
+        className="whats-in-box rounded-[2rem] p-7 md:p-12"
         style={{ backgroundColor: story.accentSoft }}
       >
         <h3 className="font-display text-heading font-bold text-chako-ink mb-6">

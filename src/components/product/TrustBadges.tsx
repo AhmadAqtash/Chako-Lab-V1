@@ -72,7 +72,7 @@ export default function TrustBadges() {
   };
 
   return (
-    <div ref={rootRef} className="grid grid-cols-2 gap-2 pt-2">
+    <div ref={rootRef} className="trust-badges grid grid-cols-2 gap-2 pt-2">
       {BADGE_DEFS.map(({ Icon, labelKey, subKey, wide, highlight }, i) => {
         const tint = TINTS[i % TINTS.length];
         return (

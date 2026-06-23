@@ -423,6 +423,31 @@ body[data-titanium] .bg-chako-highlight\/30 {
 body[data-titanium] .bg-chako-accent .text-chako-ink\/70,
 body[data-titanium] .bg-chako-highlight\/30 .text-chako-ink\/70 { color: rgba(232,234,238,0.85) !important; }
 
+/* ── Titanium PDP rescue for the candy components (TrustBadges + What's-in-box).
+   These have light pastel backgrounds, but the global text-flip above turns
+   their text light → light-on-light = unreadable. On titanium only, convert
+   them to premium dark-glass tiles with light text; the colored icon/check
+   circles stay (bright pop against the dark page). Light PDPs are untouched. */
+body[data-titanium] .trust-badges [data-badge] {
+  background-color: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+body[data-titanium] .trust-badges [data-badge].ring-1 {
+  background-color: rgba(212,175,55,0.14) !important;
+  border-color: rgba(212,175,55,0.32) !important;
+}
+/* tile label (bold, no color class) + sub text → light */
+body[data-titanium] .trust-badges [data-badge] p { color: #E8EAEE !important; }
+body[data-titanium] .trust-badges [data-badge] .text-chako-ink\/60 { color: rgba(232,234,238,0.62) !important; }
+/* keep the icon chips white with their colored glyphs (bg-white preserved above) */
+
+body[data-titanium] .whats-in-box {
+  background-color: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.09);
+}
+body[data-titanium] .whats-in-box h3 { color: #F4F6F8 !important; }
+body[data-titanium] .whats-in-box .text-chako-ink\/85 { color: rgba(232,234,238,0.85) !important; }
+
 /* Sticky Add-to-Cart bar on titanium PDP: dark treatment so it's readable */
 body[data-titanium] .sticky-atc {
   background-color: rgba(21,23,28,0.95) !important;
