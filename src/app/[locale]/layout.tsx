@@ -16,6 +16,7 @@ import CartDrawer from '@/components/cart/CartDrawer';
 import DemoBanner from '@/components/layout/DemoBanner';
 import ChakoPreloader from '@/components/ui/ChakoPreloader';
 import { Toaster } from 'react-hot-toast';
+import { Analytics } from '@vercel/analytics/next';
 
 // Google Tag Manager container — public client-side ID, drives Meta ads
 // (and any other) tags configured inside GTM. Change here in one place.
@@ -141,6 +142,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           />
         </CartProvider>
         </LanguageProvider>
+
+        {/* Vercel Web Analytics — first-party visitors/pageviews/bounce in the
+            Vercel dashboard. No-op in dev, only sends on the deployed site. */}
+        <Analytics />
       </body>
     </html>
   );
