@@ -1,5 +1,5 @@
 import Link from '@/components/ui/LocalizedLink';
-import Image from 'next/image';
+import ShopifyImage from '@/components/ui/ShopifyImage';
 import { Product } from '@/types/shopify';
 import { cn, extractColorName } from '@/lib/utils';
 import T from '@/components/ui/T';
@@ -43,7 +43,7 @@ export default function ColorSwatches({ siblings, currentHandle, colorName, coll
               )}
             >
               {sibling.featuredImage ? (
-                <Image
+                <ShopifyImage
                   src={sibling.featuredImage.url}
                   alt={sibling.title}
                   fill

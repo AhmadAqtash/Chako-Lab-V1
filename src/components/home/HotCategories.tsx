@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from '@/components/ui/LocalizedLink';
-import Image from 'next/image';
+import ShopifyImage from '@/components/ui/ShopifyImage';
 import { formatPrice, extractBaseName } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { Tag } from '@/components/ui/Tag';
@@ -213,7 +213,7 @@ export default function HotCategories() {
                     <Link href={`/products/${product.handle}`} className="group block">
                       <div className={`relative aspect-[4/5] rounded-2xl overflow-hidden ${imgBg}`}>
                         {product.featuredImage ? (
-                          <Image
+                          <ShopifyImage
                             src={product.featuredImage.url}
                             alt={product.featuredImage.altText || product.title}
                             fill

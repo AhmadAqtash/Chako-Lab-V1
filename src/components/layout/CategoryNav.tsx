@@ -1,7 +1,7 @@
 'use client';
 
 import Link from '@/components/ui/LocalizedLink';
-import Image from 'next/image';
+import ShopifyImage from '@/components/ui/ShopifyImage';
 import { useLocalePathname } from '@/lib/useLocalePathname';
 import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -262,7 +262,7 @@ export default function CategoryNav() {
                             until the image arrives, so rows never shift */}
                         <span className="relative w-11 h-11 flex-none rounded-xl overflow-hidden bg-[#EAE2D3]">
                           {thumb && (
-                            <Image
+                            <ShopifyImage
                               src={thumb.url}
                               alt={thumb.alt || t(key)}
                               fill

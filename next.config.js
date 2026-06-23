@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    formats: ['image/avif', 'image/webp'],
+    // WebP-only (dropped AVIF): halves Vercel Image-Optimization transforms for
+    // the few local images still optimized here. Shopify product images bypass
+    // this entirely via the ShopifyImage loader (served + sized by Shopify CDN).
+    formats: ['image/webp'],
+    // Trimmed from the 8 default deviceSizes / 8 imageSizes → fewer width
+    // variants generated per source image (lower transform count, same look).
+    deviceSizes: [640, 828, 1080, 1920],
+    imageSizes: [64, 128, 256, 384],
     remotePatterns: [
       { protocol: 'https', hostname: 'cdn.shopify.com' },
       { protocol: 'https', hostname: 'placehold.co' },

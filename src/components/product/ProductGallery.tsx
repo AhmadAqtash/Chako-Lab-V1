@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import Image from 'next/image';
+import ShopifyImg from '@/components/ui/ShopifyImage';
 import { ShopifyImage } from '@/types/shopify';
 import { cn } from '@/lib/utils';
 import { ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -64,7 +64,7 @@ export default function ProductGallery({ images, title }: Props) {
                     : 'border-transparent opacity-60 hover:opacity-100 hover:border-black/15'
                 )}
               >
-                <Image
+                <ShopifyImg
                   src={img.url}
                   alt={img.altText || `${title} ${i + 1}`}
                   fill
@@ -90,7 +90,7 @@ export default function ProductGallery({ images, title }: Props) {
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <Image
+            <ShopifyImg
               src={activeImage.url}
               alt={activeImage.altText || title}
               fill

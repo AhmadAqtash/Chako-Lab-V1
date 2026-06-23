@@ -1,7 +1,7 @@
 'use client';
 
 import Link from '@/components/ui/LocalizedLink';
-import Image from 'next/image';
+import ShopifyImage from '@/components/ui/ShopifyImage';
 import { Product } from '@/types/shopify';
 import { formatPrice, getDiscountPercent, cn } from '@/lib/utils';
 import { ShoppingBag } from 'lucide-react';
@@ -62,7 +62,7 @@ export default function ProductCard({ product }: Props) {
       {/* Image area */}
       <div className={cn('relative aspect-[4/5] overflow-hidden', isTitanium ? 'bg-white' : imgBg)}>
         {product.featuredImage ? (
-          <Image
+          <ShopifyImage
             src={product.featuredImage.url}
             alt={product.featuredImage.altText || product.title}
             fill

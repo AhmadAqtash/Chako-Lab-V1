@@ -3,7 +3,7 @@
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
-import Image from 'next/image';
+import ShopifyImage from '@/components/ui/ShopifyImage';
 import { X, ShoppingBag, Minus, Plus, Trash2, Clock } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/Button';
@@ -89,7 +89,7 @@ export default function CartDrawer() {
                 <li key={line.id} className="flex gap-4">
                   <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-chako-accent">
                     {line.merchandise.product.featuredImage && (
-                      <Image
+                      <ShopifyImage
                         src={line.merchandise.product.featuredImage.url}
                         alt={line.merchandise.product.featuredImage.altText || line.merchandise.product.title}
                         fill

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import ShopifyImage from '@/components/ui/ShopifyImage';
 import { ChevronDown } from 'lucide-react';
 import type { Product } from '@/types/shopify';
 import { useLanguage } from '@/context/LanguageContext';
@@ -186,7 +186,7 @@ export default function ProductStory({ product, collectionHandle, isTitanium, ba
                     className="relative aspect-square rounded-3xl overflow-hidden bg-chako-cream shadow-2xl will-change-transform"
                   >
                     {img && (
-                      <Image
+                      <ShopifyImage
                         src={img.url}
                         alt={img.altText ?? product.title}
                         fill
