@@ -29,6 +29,7 @@ export const PRODUCT_TYPE_TO_COLLECTION: Record<string, string> = {
   'Tumbler':       'tumbler',
   'Bobo Cup':      'bobo-cup',
   'Baobao Cup':    'baobao-cup',
+  'Accessories':   'accessories',
 };
 
 export const COLLECTION_HANDLE_TO_TYPE: Record<string, string> = {
@@ -45,6 +46,7 @@ export const COLLECTION_HANDLE_TO_TYPE: Record<string, string> = {
   'tumbler':           'Tumbler',
   'bobo-cup':          'Bobo Cup',
   'baobao-cup':        'Baobao Cup',
+  'accessories':       'Accessories',
 };
 
 export const COLLECTION_DISPLAY_NAMES: Record<string, string> = {
@@ -61,6 +63,7 @@ export const COLLECTION_DISPLAY_NAMES: Record<string, string> = {
   'tumbler':           'Tumblers',
   'bobo-cup':          'BoBo Cups',
   'baobao-cup':        'Baobao Food Cups',
+  'accessories':       'Accessories',
 };
 
 export const ALL_COLLECTION_HANDLES = Object.keys(COLLECTION_DISPLAY_NAMES);

@@ -18,6 +18,7 @@ const HANDLE_TO_CAT_KEY: Record<string, TranslationKey> = {
   'tumbler':          'cat_tumbler',
   'bobo-cup':         'cat_bobo_cup',
   'baobao-cup':       'cat_baobao',
+  'accessories':      'cat_accessories',
 };
 
 async function getCategoryImages(): Promise<Record<string, string | null>> {

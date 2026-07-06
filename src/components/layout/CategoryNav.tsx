@@ -26,6 +26,7 @@ const SERIES: { handle: string; key: TranslationKey; type: string }[] = [
   { handle: 'pots',             key: 'cat_pots',     type: 'Pot' },
   { handle: 'mugs',             key: 'cat_mugs',     type: 'Coffee Mug' },
   { handle: 'square-cups',      key: 'cat_square',   type: 'Square Cup' },
+  { handle: 'accessories',      key: 'cat_accessories', type: 'Accessories' },
 ];
 
 /* ── Category thumbnails (client-side Storefront fetch, HotCategories pattern) ──

@@ -46,9 +46,11 @@ const CAPACITY_FALLBACK: Record<string, number | { default: number; plastic?: nu
 
 export interface ResolvedSpecs {
   capacityMl: number | null;
-  /** null = plastic body, no retention claims allowed */
+  /** null = plastic body or accessory, no retention claims allowed */
   retention: typeof RETENTION | null;
   plastic: boolean;
+  /** true = accessory (handles/straps/sleeves/towels/pads): no drinkware specs at all */
+  accessory: boolean;
 }
 
 /**
@@ -59,6 +61,15 @@ export function resolveSpecs(
   p: Pick<Product, 'title' | 'handle' | 'description' | 'productType'>,
   baseType?: string | null
 ): ResolvedSpecs {
+  // Accessories (handles, straps, sleeves, towels, heating pads) are not
+  // drinkware — they must never carry capacity or temperature-retention
+  // claims, so they exit before any extraction or fallback logic runs.
+  // Regex (not equality) so the guard survives AR pages where a failed
+  // base-type fetch falls back to the localized productType (إكسسوارات).
+  if (/accessor|إكسسوار/i.test(baseType || p.productType)) {
+    return { capacityMl: null, retention: null, plastic: false, accessory: true };
+  }
+
   const plastic = isPlasticBody(p);
 
   // Capacity: the product's own words win; series fallback otherwise
@@ -70,5 +81,5 @@ export function resolveSpecs(
     else if (fb) capacityMl = plastic && fb.plastic ? fb.plastic : fb.default;
   }
 
-  return { capacityMl, retention: plastic ? null : RETENTION, plastic };
+  return { capacityMl, retention: plastic ? null : RETENTION, plastic, accessory: false };
 }

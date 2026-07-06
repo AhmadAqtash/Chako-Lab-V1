@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Droplets, Snowflake, Flame, Feather } from 'lucide-react';
+import { Droplets, Snowflake, Flame, Feather, Sparkles } from 'lucide-react';
 import type { Product } from '@/types/shopify';
 import { useLanguage } from '@/context/LanguageContext';
 import { resolveSpecs } from '@/lib/product-specs';
@@ -31,6 +31,16 @@ export default function SpecChips({ product, baseType, collectionHandle, isTitan
 
   const chips: { icon: React.ReactNode; text: string; bg: string; fg: string }[] = [];
 
+  if (resolved.accessory) {
+    // Accessories carry no drinkware specs — just a playful, always-true chip
+    chips.push({
+      icon: <Sparkles size={14} />,
+      text: isAr ? 'إكسسوار تشاكو الأصلي' : 'Original Chako accessory',
+      bg: story.accentSoft,
+      fg: '#1a1a1a',
+    });
+  }
+
   if (resolved.capacityMl) {
     chips.push({
       icon: <Droplets size={14} />,
@@ -54,7 +64,8 @@ export default function SpecChips({ product, baseType, collectionHandle, isTitan
         fg: '#F97316',
       }
     );
-  } else {
+  } else if (resolved.plastic) {
+    // Plastic drinkware only — accessories already got their chip above
     chips.push({
       icon: <Feather size={14} />,
       text: isAr ? 'خفيفة وخالية من BPA' : 'Featherlight · BPA-free',

@@ -25,6 +25,7 @@ const translations = {
     cat_square: 'Square Cups',
     cat_tumbler: 'Tumblers',
     cat_bobo_cup: 'BoBo Cups',
+    cat_accessories: 'Accessories',
     cat_titanium: 'Titanium',
     // Homepage
     hero_label: 'Chako Lab × UAE',
@@ -162,6 +163,7 @@ const translations = {
     cat_square: 'الأكواب المربعة',
     cat_tumbler: 'التمبلر',
     cat_bobo_cup: 'أكواب بوبو',
+    cat_accessories: 'الإكسسوارات',
     cat_titanium: 'تيتانيوم',
     // Homepage
     hero_label: 'تشاكو لاب × الإمارات',

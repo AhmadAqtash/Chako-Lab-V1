@@ -47,6 +47,7 @@ const HANDLE_TO_CAT_KEY: Record<string, TranslationKey> = {
   'tumbler':          'cat_tumbler',
   'bobo-cup':         'cat_bobo_cup',
   'baobao-cup':       'cat_baobao',
+  'accessories':      'cat_accessories',
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -75,6 +76,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!name) return { title: 'Not Found' };
   const catKey = HANDLE_TO_CAT_KEY[params.handle];
   const localizedName = isAr && catKey ? translations.ar[catKey] : name;
+  // Accessories aren't drinkware — the shared description template would misdescribe them
+  if (params.handle === 'accessories') {
+    return {
+      title: localizedName,
+      description: isAr
+        ? 'تسوق إكسسوارات تشاكو لاب — مقابض وأحزمة وأكمام أكواب والمزيد، مع التوصيل في جميع أنحاء الإمارات.'
+        : 'Shop Chako Lab accessories — handles, straps, cup sleeves and more, delivered across the UAE.',
+      alternates,
+    };
+  }
   return {
     title: localizedName,
     description: isAr

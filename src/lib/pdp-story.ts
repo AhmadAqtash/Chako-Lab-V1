@@ -370,6 +370,80 @@ const SERIES: Record<string, SeriesStory> = {
   },
 };
 
+// Accessories: handles, straps, sleeves, towels, heating pads. NOT drinkware —
+// this story makes zero capacity/insulation claims (mix-and-match + color only).
+SERIES['accessories'] = {
+  accent: '#F5A623',
+  accentSoft: '#FFF3E0',
+  posterInk: 'dark',
+  narrative: {
+    en: 'Little add-ons. Big personality.',
+    ar: 'إضافات صغيرة. شخصية كبيرة.',
+  },
+  features: [
+    {
+      title: { en: 'Mix. Match. Yours.', ar: 'نسّق وبدّل على ذوقك.' },
+      body: {
+        en: 'Collect handles, straps and cup sleeves in every candy color — and dress each Chako piece your way.',
+        ar: 'اجمع المقابض والأحزمة وأكمام الأكواب بكل الألوان المبهجة — وزيّن كل قطعة تشاكو على طريقتك.',
+      },
+      callouts: [
+        { en: 'Designed by Chako Lab', ar: 'بتصميم تشاكو لاب' },
+        { en: 'Candy color range', ar: 'تشكيلة ألوان مبهجة' },
+      ],
+    },
+    {
+      title: { en: 'The details do the talking.', ar: 'التفاصيل تتحدث عنك.' },
+      body: {
+        en: 'Playful shapes, joyful colors and that unmistakable Chako charm — down to the smallest piece.',
+        ar: 'أشكال مرحة وألوان مبهجة وسحر تشاكو المميز — حتى في أصغر قطعة.',
+      },
+      callouts: [
+        { en: 'Signature Chako look', ar: 'طابع تشاكو المميز' },
+        { en: 'Cheerful, giftable details', ar: 'تفاصيل مبهجة تصلح للإهداء' },
+      ],
+    },
+    {
+      title: { en: 'Small gifts, big smiles.', ar: 'هدايا صغيرة وابتسامات كبيرة.' },
+      body: {
+        en: 'The easiest way to gift Chako — or to treat your own bottle to something new.',
+        ar: 'أسهل طريقة لإهداء تشاكو — أو لتدليل قارورتك بشيء جديد.',
+      },
+      callouts: [
+        { en: 'Gift-friendly price', ar: 'سعر مثالي للهدايا' },
+        { en: 'UAE-wide delivery', ar: 'توصيل لكل الإمارات' },
+      ],
+    },
+  ],
+  // Single item only — packaging varies per accessory, so we claim nothing else
+  inBox: [{ en: 'Your Chako Lab accessory', ar: 'إكسسوار تشاكو لاب الخاص بك' }],
+  // Bespoke FAQs — the drinkware COMMON_FAQS talk about lids and food-grade
+  // materials, which reads wrong on towels/straps/pads.
+  faqs: [
+    {
+      q: { en: 'Will it fit my Chako piece?', ar: 'هل يناسب قطعة تشاكو الخاصة بي؟' },
+      a: {
+        en: 'Handles, straps and cup sleeves are made for the series in their product name (e.g. a MilkMate handle fits MilkMate tumblers). Towels and heating pads are one-size — no matching needed. Not sure? Message us before ordering.',
+        ar: 'المقابض والأحزمة وأكمام الأكواب مصممة للسلسلة المذكورة في اسم المنتج (مثلاً مقبض ميلك ميت يناسب تمبلر ميلك ميت). أما المناشف ووسادة التسخين فمقاس واحد يناسب الجميع — دون حاجة للمطابقة. لست متأكدًا؟ راسلنا قبل الطلب.',
+      },
+    },
+    {
+      q: { en: 'How do I care for it?', ar: 'كيف أعتني به؟' },
+      a: {
+        en: 'Towels, sleeves, straps and handles: a gentle hand-wash and air-dry keeps them looking their best — avoid harsh cleaners on printed surfaces. The Heating Pad is electric: never immerse it in water. Unplug it and wipe with a soft, slightly damp cloth only.',
+        ar: 'المناشف وأكمام الأكواب والأحزمة والمقابض: اغسلها يدويًا بلطف وجففها بالهواء، وتجنّب المنظفات القاسية على الأسطح المطبوعة. أما وسادة التسخين فهي كهربائية: لا تغمرها في الماء أبدًا — افصلها عن الكهرباء وامسحها بقطعة قماش ناعمة رطبة قليلًا فقط.',
+      },
+    },
+    {
+      q: { en: 'Do you deliver across the UAE?', ar: 'هل توصلون لجميع أنحاء الإمارات؟' },
+      a: {
+        en: 'Yes — we deliver UAE-wide. Standard and express options are shown at checkout.',
+        ar: 'نعم — نوصل لجميع أنحاء الإمارات. خيارات التوصيل العادي والسريع تظهر عند إتمام الطلب.',
+      },
+    },
+  ],
+};
+
 // Series aliases — multiple collections share one story
 SERIES['bobo-cup'] = SERIES['bobo-tumblers'];
 SERIES['tumbler'] = SERIES['bobo-tumblers'];
@@ -459,6 +533,10 @@ export function getSeriesStory(
 ): SeriesStory {
   let story = (collectionHandle && SERIES[collectionHandle]) || GENERIC;
   if (isTitanium) story = { ...story, ...TITANIUM_OVERRIDE };
+
+  // Accessories carry their own FAQs (incl. fit guidance) and make no
+  // drinkware claims — neither the retention nor the plastic FAQ applies.
+  if (collectionHandle === 'accessories') return story;
 
   if (isPlastic) {
     // Strip every insulation-flavored callout and swap in plastic-safe ones
