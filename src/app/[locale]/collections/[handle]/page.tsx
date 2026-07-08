@@ -5,6 +5,7 @@ import {
   COLLECTION_DISPLAY_NAMES,
   ALL_COLLECTION_HANDLES,
   getTitaniumProducts,
+  getTwistProducts,
   getNewProducts,
   getProduct,
 } from '@/lib/shopify';
@@ -29,7 +30,7 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  return [...ALL_COLLECTION_HANDLES, 'titanium', 'new'].map((handle) => ({ handle }));
+  return [...ALL_COLLECTION_HANDLES, 'titanium', 'new', 'twist'].map((handle) => ({ handle }));
 }
 
 // Localized collection names for metadata (UI gets them via CollectionGrid)
@@ -69,6 +70,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: isAr
         ? 'تسوق أحدث منتجات تشاكو لاب — وصل حديثاً مع التوصيل في جميع أنحاء الإمارات.'
         : 'Shop the newest Chako Lab drinkware — fresh arrivals delivered across the UAE.',
+      alternates,
+    };
+  }
+  if (params.handle === 'twist') {
+    return {
+      title: isAr ? 'مجموعة تويست' : 'Twist Series',
+      description: isAr
+        ? 'تسوق مجموعة تويست من تشاكو لاب — تمبلر تويست وإكسسواراتها مع التوصيل في جميع أنحاء الإمارات.'
+        : 'Shop the Chako Lab Twist Series — Twist tumblers and their matching accessories, delivered across the UAE.',
       alternates,
     };
   }
@@ -129,6 +139,31 @@ export default async function CollectionPage({ params }: Props) {
         {loadFailed
           ? <LoadError />
           : <CollectionGrid products={titaniumProducts} title={lang === 'AR' ? 'تيتانيوم' : 'Titanium'} />}
+      </div>
+    );
+  }
+
+  // Twist is a handle-family virtual collection (cups + matching accessories)
+  if (params.handle === 'twist') {
+    let twistProducts: Product[] = [];
+    let loadFailed = false;
+    try {
+      twistProducts = await getTwistProducts(lang);
+    } catch {
+      loadFailed = true;
+    }
+    return (
+      <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8">
+        <Breadcrumb
+          crumbs={[
+            { label: 'Home', href: '/' },
+            { label: 'Collections', href: '/collections' },
+            { label: lang === 'AR' ? 'مجموعة تويست' : 'Twist Series' },
+          ]}
+        />
+        {loadFailed
+          ? <LoadError />
+          : <CollectionGrid products={twistProducts} title={lang === 'AR' ? 'مجموعة تويست' : 'Twist Series'} />}
       </div>
     );
   }

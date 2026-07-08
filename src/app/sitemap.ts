@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/collections',
     '/collections/titanium',
     '/collections/new',
+    '/collections/twist',
     ...ALL_COLLECTION_HANDLES.map((h) => `/collections/${h}`),
     '/pages/faq',
     '/pages/about',

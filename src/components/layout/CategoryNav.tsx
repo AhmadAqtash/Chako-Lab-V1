@@ -15,13 +15,16 @@ import { ChevronDown } from 'lucide-react';
 // `type` = base productType: the site's collections are VIRTUAL (productType
 // filters, see PRODUCT_TYPE_TO_COLLECTION) — Shopify collection(handle:)
 // returns null for these handles, so thumbnails must come from products.
-const SERIES: { handle: string; key: TranslationKey; type: string }[] = [
+// `q` overrides the thumbnail product query for title-family collections
+// (Twist spans types, so it matches by title instead of product_type).
+const SERIES: { handle: string; key: TranslationKey; type?: string; q?: string }[] = [
   { handle: 'linlin-kettles',   key: 'cat_linlin',   type: 'LinLin Kettle' },
   { handle: 'bawang-cups',      key: 'cat_bawang',   type: 'Bawang Cup' },
   { handle: 'milk-pods',        key: 'cat_milkpods', type: 'Milk Pod' },
   { handle: 'bobo-tumblers',    key: 'cat_bobo',     type: 'Thermos Cup' },
   { handle: 'kada-bottles',     key: 'cat_kada',     type: 'Kada Bottle' },
   { handle: 'pangpang-cups',    key: 'cat_pangpang', type: 'PangPang Cup' },
+  { handle: 'twist',            key: 'cat_twist',    q: "vendor:'Chako Lab' AND title:twist" },
   { handle: 'baobao-food-cups', key: 'cat_baobao',   type: 'Food Cup' },
   { handle: 'pots',             key: 'cat_pots',     type: 'Pot' },
   { handle: 'mugs',             key: 'cat_mugs',     type: 'Coffee Mug' },
@@ -44,8 +47,8 @@ type LangCode = 'EN' | 'AR';
 const THUMBS_GQL = `
   query CategoryNavThumbs($language: LanguageCode!) @inContext(language: $language) {
     ${SERIES.map(
-      ({ type }, i) =>
-        `c${i}: products(first: 1, query: "vendor:'Chako Lab' AND product_type:'${type}'") {
+      ({ type, q }, i) =>
+        `c${i}: products(first: 1, query: "${q ?? `vendor:'Chako Lab' AND product_type:'${type}'`}") {
           nodes { featuredImage { url altText } }
         }`
     ).join('\n    ')}

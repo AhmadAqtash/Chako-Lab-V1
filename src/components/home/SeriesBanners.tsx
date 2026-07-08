@@ -85,6 +85,28 @@ const SERIES = [
     imageAr: '/banners/ar-hung-kettle.png',
   },
   {
+    handle: 'twist',
+    shortEn: 'Twist',
+    shortAr: 'تويست',
+    labelEn: 'Twist Series',
+    labelAr: 'مجموعة تويست',
+    descEn: 'Tumblers',
+    descAr: 'تمبلر',
+    imageEn: '/banners/en-twist.png',
+    imageAr: '/banners/ar-twist.png',
+  },
+  {
+    handle: 'accessories',
+    shortEn: 'Accessories',
+    shortAr: 'الإكسسوارات',
+    labelEn: 'Accessories',
+    labelAr: 'الإكسسوارات',
+    descEn: 'Add-ons',
+    descAr: 'إضافات',
+    imageEn: '/banners/en-accessories.png',
+    imageAr: '/banners/ar-accessories.png',
+  },
+  {
     handle: 'titanium',
     shortEn: 'Titanium',
     shortAr: 'تيتانيوم',
@@ -106,6 +128,10 @@ const PALETTE = [
   { softBg: 'bg-chako-bobo-soft',     nameColor: 'text-chako-bobo',       btnBg: 'bg-chako-bobo',      btnText: 'text-white'      },
   { softBg: 'bg-chako-kada-soft',     nameColor: 'text-chako-ink',        btnBg: 'bg-chako-kada',      btnText: 'text-chako-ink'  },
   { softBg: 'bg-chako-pangpang-soft', nameColor: 'text-chako-pangpang',   btnBg: 'bg-chako-pangpang',  btnText: 'text-white'      },
+  { softBg: 'bg-chako-linlin-soft',   nameColor: 'text-chako-ink',        btnBg: 'bg-chako-linlin',    btnText: 'text-chako-ink'  },
+  // Twist — rose pill matches the banner's pink lids
+  { softBg: 'bg-chako-bawang-soft',   nameColor: 'text-chako-bawang',     btnBg: 'bg-chako-bawang',    btnText: 'text-white'      },
+  // Accessories — sunny yellow matches the banner's silicone carrier
   { softBg: 'bg-chako-linlin-soft',   nameColor: 'text-chako-ink',        btnBg: 'bg-chako-linlin',    btnText: 'text-chako-ink'  },
   { softBg: 'bg-chako-titanium-soft', nameColor: 'text-chako-titanium',   btnBg: 'bg-chako-titanium',  btnText: 'text-white'      },
 ];
@@ -162,7 +188,7 @@ export default function SeriesBanners() {
                     src={img}
                     alt={isAr ? series.labelAr : series.labelEn}
                     fill
-                    quality={100}
+                    quality={75}
                     sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 320px"
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                     priority={i < 4}

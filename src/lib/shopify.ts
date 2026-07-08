@@ -332,8 +332,21 @@ export function isTitaniumHandle(handle: string): boolean {
 export async function getTitaniumProducts(
   language: ShopifyLanguage = 'EN'
 ): Promise<Product[]> {
-  const all = await getProducts({ first: 100, language });
+  // 250 (storefront max): the catalog passed 100 products — a lower cap
+  // silently drops whatever sorts last, which included titanium items.
+  const all = await getProducts({ first: 250, language });
   return all.filter((p) => isTitaniumHandle(p.handle));
+}
+
+// Twist is a title-family, not a productType (the Twist Tumbler shares type
+// 'Tumbler' with titanium products) — so the collection is handle-matched.
+// Handles are locale-stable EN slugs, and every current + future Twist item
+// (cups and their accessories) carries 'twist' in its handle.
+export async function getTwistProducts(
+  language: ShopifyLanguage = 'EN'
+): Promise<Product[]> {
+  const all = await getProducts({ first: 250, language });
+  return all.filter((p) => /twist/i.test(p.handle));
 }
 
 export async function searchProducts(query: string, language: ShopifyLanguage = 'EN'): Promise<Product[]> {
