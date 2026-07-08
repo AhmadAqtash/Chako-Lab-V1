@@ -13,18 +13,21 @@ export default function MobileNav() {
   // Locale-stripped pathname: active-tab checks stay locale-agnostic
   const pathname = useLocalePathname();
   const { openCart, totalQuantity } = useCart();
-  const { isRTL, t } = useLanguage();
+  const { t } = useLanguage();
 
   // Determine which link page is active (0=home, 1=collections, 2=search)
   const homeActive       = pathname === '/';
   const collectionsActive = pathname !== '/' && pathname.startsWith('/collections');
   const searchActive     = pathname.startsWith('/search');
 
-  // In LTR display order: [home(0), collections(1), search(2), cart(3)]
-  // In RTL display order: [cart(0), search(1), collections(2), home(3)]
-  const activeLinkDisplayIndex = isRTL
-    ? homeActive ? 3 : collectionsActive ? 2 : searchActive ? 1 : -1
-    : homeActive ? 0 : collectionsActive ? 1 : searchActive ? 2 : -1;
+  // The grid container is pinned dir="ltr", so display order is the DOM order
+  // [home(0), collections(1), search(2), cart(3)] in BOTH locales and the
+  // left-based indicator math below is always valid. (The old approach —
+  // manually reversing the array for AR — was itself re-reversed by the
+  // page's dir="rtl" grid, leaving the tabs in LTR order but the indicator
+  // index shifted one slot off the pressed tab.)
+  const activeLinkDisplayIndex =
+    homeActive ? 0 : collectionsActive ? 1 : searchActive ? 2 : -1;
 
   // Indicator pill — slides via CSS left calc (equal-width 4-col grid)
   const indicatorStyle: React.CSSProperties = {
@@ -78,14 +81,12 @@ export default function MobileNav() {
     </Link>
   ));
 
-  // RTL reversal
-  const orderedEls = isRTL
-    ? [cartEl, ...([...linkEls].reverse())]
-    : [...linkEls, cartEl];
-
   return (
     <nav className="mobile-nav md:hidden fixed bottom-0 left-0 right-0 z-30 bg-chako-bg/95 backdrop-blur-md border-t border-black/8 safe-area-pb">
-      <div className="relative grid py-1" style={{ gridTemplateColumns: `repeat(${ITEM_COUNT}, 1fr)` }}>
+      {/* dir="ltr" pins tab order and the left-based indicator to one
+          coordinate system in both locales; Arabic labels inside still
+          render correctly via Unicode bidi */}
+      <div dir="ltr" className="relative grid py-1" style={{ gridTemplateColumns: `repeat(${ITEM_COUNT}, 1fr)` }}>
         {/* Sliding background pill — branded ink tint + orange accent */}
         <span
           className="absolute top-1.5 h-[46px] bg-chako-ink/[0.07] rounded-xl pointer-events-none"
@@ -94,7 +95,8 @@ export default function MobileNav() {
         >
           <span className="absolute top-1 left-1/2 -translate-x-1/2 w-6 h-1 bg-chako-orange rounded-full" />
         </span>
-        {orderedEls}
+        {linkEls}
+        {cartEl}
       </div>
     </nav>
   );
