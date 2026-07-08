@@ -77,8 +77,19 @@ module.exports = {
         'marquee-reverse': 'marquee-reverse 30s linear infinite',
         'fade-in':         'fade-in 0.5s ease-out',
         'slide-in-right':  'slide-in-right 0.3s ease-out',
+        wobble:            'wobble 0.7s ease-in-out',
       },
       keyframes: {
+        // Jelly wobble — playful hover greeting (floating contact buttons)
+        wobble: {
+          '0%':   { transform: 'rotate(0deg) scale(1)' },
+          '15%':  { transform: 'rotate(-14deg) scale(1.1)' },
+          '30%':  { transform: 'rotate(10deg) scale(1.1)' },
+          '45%':  { transform: 'rotate(-8deg) scale(1.06)' },
+          '60%':  { transform: 'rotate(6deg) scale(1.04)' },
+          '75%':  { transform: 'rotate(-3deg) scale(1.02)' },
+          '100%': { transform: 'rotate(0deg) scale(1)' },
+        },
         marquee: {
           '0%':   { transform: 'translateX(0%)' },
           '100%': { transform: 'translateX(-50%)' },

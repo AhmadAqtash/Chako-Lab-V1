@@ -12,6 +12,7 @@ import Header from '@/components/layout/Header';
 import CategoryNav from '@/components/layout/CategoryNav';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
+import FloatingContact from '@/components/layout/FloatingContact';
 import CartDrawer from '@/components/cart/CartDrawer';
 import DemoBanner from '@/components/layout/DemoBanner';
 import ChakoPreloader from '@/components/ui/ChakoPreloader';
@@ -126,6 +127,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           </main>
           <Footer />
           <MobileNav />
+          <FloatingContact />
           <CartDrawer />
           <Toaster
             position="bottom-center"
