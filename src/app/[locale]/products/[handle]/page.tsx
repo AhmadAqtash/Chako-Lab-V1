@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
-import { getProduct, getProductBaseType, getColorSiblings, PRODUCT_TYPE_TO_COLLECTION, COLLECTION_DISPLAY_NAMES } from '@/lib/shopify';
+import { getProduct, getProductBaseType, getColorSiblings, getPairingAccessories, PRODUCT_TYPE_TO_COLLECTION, COLLECTION_DISPLAY_NAMES } from '@/lib/shopify';
+import { getProductReviews } from '@/lib/judgeme';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
 import { extractBaseName, extractColorName } from '@/lib/utils';
@@ -7,6 +8,7 @@ import ProductGallery from '@/components/product/ProductGallery';
 import ProductDetails from '@/components/product/ProductDetails';
 import ProductFeatures from '@/components/product/ProductFeatures';
 import ProductStory from '@/components/product/ProductStory';
+import ProductReviews from '@/components/product/ProductReviews';
 import RelatedProducts from '@/components/product/RelatedProducts';
 import Breadcrumb from '@/components/ui/Breadcrumb';
 import TitaniumBodyFlag from '@/components/titanium/TitaniumBodyFlag';
@@ -55,8 +57,14 @@ export default async function ProductPage({ params }: Props) {
   const baseName = extractBaseName(product.title);
   const colorName = extractColorName(product.title);
 
-  const [colorSiblings] = await Promise.all([
+  // Locale-proof accessory guard (same pattern as product-specs): accessories
+  // don't pair with themselves, so the carousel is drinkware-only
+  const isAccessory = /accessor|إكسسوار/i.test(baseType || product.productType);
+
+  const [colorSiblings, pairingItems, reviews] = await Promise.all([
     getColorSiblings(baseType, baseName).catch(() => []),
+    isAccessory ? Promise.resolve([]) : getPairingAccessories(lang).catch(() => []),
+    getProductReviews(product.id).catch(() => null),
   ]);
 
   const siblingHandles = colorSiblings.map((p) => p.handle);
@@ -86,6 +94,8 @@ export default async function ProductPage({ params }: Props) {
             collectionHandle={collectionHandle}
             baseType={baseType}
             isTitanium={isTitanium}
+            pairingItems={pairingItems}
+            reviewSummary={reviews ? { rating: reviews.averageRating, count: reviews.count } : null}
           />
         </div>
       </div>
@@ -93,6 +103,8 @@ export default async function ProductPage({ params }: Props) {
       <ProductFeatures metafields={product.metafields} />
 
       <ProductStory product={product} collectionHandle={collectionHandle} isTitanium={isTitanium} baseType={baseType} />
+
+      {reviews && <ProductReviews data={reviews} isAr={params.locale === 'ar'} />}
 
       <RelatedProducts
         productType={baseType}

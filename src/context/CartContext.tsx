@@ -12,6 +12,10 @@ interface CartContextValue {
   openCart: () => void;
   closeCart: () => void;
   addItem: (merchandiseId: string, quantity?: number) => Promise<boolean>;
+  addItems: (
+    lines: { merchandiseId: string; quantity: number }[],
+    opts?: { suppressErrorToast?: boolean }
+  ) => Promise<boolean>;
   updateItem: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
   totalQuantity: number;
@@ -101,27 +105,40 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { initCart(); }, [initCart]);
 
-  const addItem = useCallback(async (merchandiseId: string, quantity = 1): Promise<boolean> => {
+  // All lines land in ONE cartLinesAdd call — a bundle add (product +
+  // paired accessories) is atomic: one toast, no partial carts.
+  // suppressErrorToast lets a caller retry a failed bundle (e.g. main product
+  // only) without flashing "Could not add" before the retry's own outcome.
+  const addItems = useCallback(async (
+    lines: { merchandiseId: string; quantity: number }[],
+    opts?: { suppressErrorToast?: boolean }
+  ): Promise<boolean> => {
+    if (lines.length === 0) return false;
     setIsLoading(true);
     try {
       // If init failed at page load (or hasn't finished), retry it now
       const target = cart ?? (await initCart());
       if (!target) {
-        toast.error('Could not add to cart');
+        if (!opts?.suppressErrorToast) toast.error('Could not add to cart');
         return false;
       }
-      const updated = await apiAddLines(target.id, [{ merchandiseId, quantity }], language);
+      const updated = await apiAddLines(target.id, lines, language);
       setCart(updated);
       setIsOpen(true);
       toast.success('Added to cart');
       return true;
     } catch {
-      toast.error('Could not add to cart');
+      if (!opts?.suppressErrorToast) toast.error('Could not add to cart');
       return false;
     } finally {
       setIsLoading(false);
     }
   }, [cart, initCart, language]);
+
+  const addItem = useCallback(
+    (merchandiseId: string, quantity = 1) => addItems([{ merchandiseId, quantity }]),
+    [addItems]
+  );
 
   const updateItem = useCallback(async (lineId: string, quantity: number) => {
     if (!cart) return;
@@ -157,6 +174,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       openCart: () => setIsOpen(true),
       closeCart: () => setIsOpen(false),
       addItem,
+      addItems,
       updateItem,
       removeItem,
       totalQuantity: cart?.totalQuantity ?? 0,

@@ -74,7 +74,9 @@ const SERIES = [
     imageAr: '/banners/ar-pangpang.png',
   },
   {
-    handle: 'tumbler',
+    // Hung kettles are productType 'Pot' — the 'tumbler' collection was the
+    // wrong destination (it holds Twist/Ti tumblers, not these kettles)
+    handle: 'pots',
     shortEn: 'Hung',
     shortAr: 'هانج',
     labelEn: 'Hung Kettle',

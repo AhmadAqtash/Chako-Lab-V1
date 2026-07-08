@@ -10,8 +10,12 @@ import StickyATC from './StickyATC';
 import TrustBadges from './TrustBadges';
 import ColorSwatches from './ColorSwatches';
 import SpecChips from './SpecChips';
+import PairingCarousel from './PairingCarousel';
+import ReviewStars from './ReviewStars';
 import { Minus, Plus, Share2, Check } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { reviewCountLabel } from '@/lib/translations';
+import type { PairingItem } from '@/lib/shopify';
 
 interface Props {
   product: Product;
@@ -20,12 +24,16 @@ interface Props {
   collectionHandle?: string;
   baseType?: string;
   isTitanium?: boolean;
+  /** In-stock accessories for the pairing carousel (empty/omitted → hidden) */
+  pairingItems?: PairingItem[];
+  /** Judge.me aggregate — stars under the title linking to #reviews */
+  reviewSummary?: { rating: number; count: number } | null;
 }
 
 type Tab = 'Description' | 'Specs' | 'Shipping';
 
-export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle, baseType, isTitanium }: Props) {
-  const { t } = useLanguage();
+export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle, baseType, isTitanium, pairingItems, reviewSummary }: Props) {
+  const { t, language } = useLanguage();
 
   // The URL locale drives the server fetch, so product content arrives in the
   // right language — the old client-side AR re-fetch workaround is gone.
@@ -54,7 +62,21 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<Tab>('Description');
   const [copied, setCopied] = useState(false);
+  const [paired, setPaired] = useState<Set<string>>(new Set());
   const atcRef = useRef<HTMLDivElement>(null);
+
+  const togglePaired = useCallback((variantId: string) => {
+    setPaired((prev) => {
+      const next = new Set(prev);
+      if (next.has(variantId)) next.delete(variantId);
+      else next.add(variantId);
+      return next;
+    });
+  }, []);
+
+  const pairedLines = (pairingItems ?? [])
+    .filter((i) => paired.has(i.variantId))
+    .map((i) => ({ merchandiseId: i.variantId, quantity: 1 }));
 
   const selectedVariant: ProductVariant | undefined = product.variants.nodes.find((v) =>
     v.selectedOptions.every((opt) => selected[opt.name] === opt.value)
@@ -92,7 +114,17 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
             {product.productType}
           </p>
           <div className="flex items-start justify-between gap-4 min-w-0">
-            <h1 className="text-heading font-display font-bold leading-tight min-w-0">{displayTitle}</h1>
+            <div className="min-w-0">
+              <h1 className="text-heading font-display font-bold leading-tight min-w-0">{displayTitle}</h1>
+              {reviewSummary && reviewSummary.count > 0 && (
+                <a href="#reviews" className="inline-flex items-center gap-2 mt-1.5 group">
+                  <ReviewStars rating={reviewSummary.rating} size={15} />
+                  <span className="text-sm font-semibold text-chako-ink/55 group-hover:text-chako-ink underline underline-offset-4 decoration-chako-ink/20 transition-colors">
+                    {reviewCountLabel(reviewSummary.count, language === 'ar')}
+                  </span>
+                </a>
+              )}
+            </div>
             <button
               onClick={handleShare}
               className="flex-shrink-0 mt-1 p-2.5 rounded-full hover:bg-black/5 active:scale-95 transition-[transform,background-color] duration-150 text-chako-ink/40 hover:text-chako-ink touch-manipulation"
@@ -147,6 +179,11 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
           />
         )}
 
+        {/* Accessory pairing — checked items join the main ATC call */}
+        {pairingItems && pairingItems.length > 0 && (
+          <PairingCarousel items={pairingItems} selected={paired} onToggle={togglePaired} />
+        )}
+
         {/* Quantity + ATC */}
         <div ref={atcRef} className="flex gap-3">
           <div className="flex items-center gap-1 bg-black/5 rounded-xl px-2 py-1.5">
@@ -175,6 +212,8 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
                 available={selectedVariant.availableForSale}
                 quantityAvailable={selectedVariant.quantityAvailable}
                 quantity={quantity}
+                extraLines={pairedLines}
+                onAdded={() => setPaired(new Set())}
               />
             ) : (
               <button disabled className="w-full py-4 bg-black/5 text-chako-ink/40 font-semibold rounded-2xl text-sm cursor-not-allowed">

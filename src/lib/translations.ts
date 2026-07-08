@@ -92,6 +92,18 @@ const translations = {
     product_ship_express_time: 'Same / next day',
     product_ship_express_sub: 'AED 25',
     product_ship_note: 'Orders placed before 2PM GST typically ship same day.',
+    // Reviews (Judge.me)
+    reviews_title: 'Customer Reviews',
+    // (review-count labels live in reviewCountLabel/reviewsBasedOnLabel below —
+    // Arabic plural grammar needs branching, not a flat {n} template)
+    reviews_verified: 'Verified buyer',
+    reviews_store_reply: 'Reply from the store',
+    // Accessory pairing
+    pairing_title: 'The Perfect Chako Lab Pairing',
+    pairing_subtitle: 'Complete your Chako Lab with useful matching accessories.',
+    pairing_view_details: 'View details',
+    pairing_selected: '+ {n} selected · {total} — added with this product',
+    pairing_add_failed: 'The selected accessories could not be added — please add them separately',
     // Cart
     cart_title: 'Cart',
     cart_empty: 'Your cart is empty',
@@ -231,6 +243,16 @@ const translations = {
     product_ship_express_time: 'نفس اليوم / اليوم التالي',
     product_ship_express_sub: '٢٥ درهم',
     product_ship_note: 'الطلبات المقدمة قبل الساعة ٢ ظهراً بتوقيت الخليج تُشحن عادةً في نفس اليوم.',
+    // Reviews (Judge.me)
+    reviews_title: 'آراء العملاء',
+    reviews_verified: 'مشترٍ موثّق',
+    reviews_store_reply: 'رد المتجر',
+    // Accessory pairing
+    pairing_title: 'توليفة تشاكو لاب المثالية',
+    pairing_subtitle: 'أكمل تشاكو لاب الخاص بك بإكسسوارات متناسقة.',
+    pairing_view_details: 'عرض التفاصيل',
+    pairing_selected: '+ تم تحديد {n} · {total} — تُضاف مع هذا المنتج',
+    pairing_add_failed: 'تعذّرت إضافة الإكسسوارات المحددة — يرجى إضافتها بشكل منفصل',
     // Cart
     cart_title: 'السلة',
     cart_empty: 'سلتك فارغة',
@@ -281,3 +303,22 @@ const translations = {
 
 export default translations;
 export type TranslationKey = keyof typeof translations.en;
+
+// Arabic count grammar can't be expressed with one {n} template: 2 takes the
+// dual, 3–10 the sound plural, 11+ the singular accusative — so review-count
+// labels live here as functions instead of flat keys.
+export function reviewCountLabel(n: number, isAr: boolean): string {
+  if (!isAr) return n === 1 ? '1 review' : `${n} reviews`;
+  if (n === 1) return 'تقييم واحد';
+  if (n === 2) return 'تقييمان';
+  if (n <= 10) return `${n} تقييمات`;
+  return `${n} تقييمًا`;
+}
+
+export function reviewsBasedOnLabel(n: number, isAr: boolean): string {
+  if (!isAr) return n === 1 ? 'Based on 1 review' : `Based on ${n} reviews`;
+  if (n === 1) return 'بناءً على تقييم واحد';
+  if (n === 2) return 'بناءً على تقييمين'; // dual takes the genitive after على
+  if (n <= 10) return `بناءً على ${n} تقييمات`;
+  return `بناءً على ${n} تقييمًا`;
+}

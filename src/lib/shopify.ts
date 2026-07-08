@@ -349,6 +349,40 @@ export async function getTwistProducts(
   return all.filter((p) => /twist/i.test(p.handle));
 }
 
+// Slim accessory shape for the PDP pairing carousel — the full Product would
+// bloat the RSC payload 26× over (descriptions, image arrays, variants).
+export interface PairingItem {
+  handle: string;
+  title: string;
+  price: { amount: string; currencyCode: string };
+  image: string | null;
+  variantId: string;
+}
+
+// All in-stock accessories, slimmed for the pairing carousel. Titles arrive
+// localized via @inContext. Sold-out accessories are excluded — a checkbox
+// that can't be added to cart is just friction.
+export async function getPairingAccessories(
+  language: ShopifyLanguage = 'EN'
+): Promise<PairingItem[]> {
+  const all = await getProducts({ first: 250, productType: 'Accessories', language });
+  return all
+    .map((p) => {
+      // Catalog query fetches variants(first:1) without price — accessories
+      // are single-variant, so priceRange.minVariantPrice IS the variant price
+      const variant = p.variants.nodes.find((v) => v.availableForSale);
+      if (!variant) return null;
+      return {
+        handle: p.handle,
+        title: p.title,
+        price: p.priceRange.minVariantPrice,
+        image: p.featuredImage?.url ?? null,
+        variantId: variant.id,
+      };
+    })
+    .filter((x): x is PairingItem => x !== null);
+}
+
 export async function searchProducts(query: string, language: ShopifyLanguage = 'EN'): Promise<Product[]> {
   if (!query.trim()) return [];
 

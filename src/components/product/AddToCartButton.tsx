@@ -4,6 +4,7 @@ import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { ShoppingBag } from 'lucide-react';
 import { useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
 import { gsap, prefersReducedMotion } from '@/lib/gsapClient';
 
@@ -12,10 +13,14 @@ interface Props {
   available: boolean;
   quantityAvailable: number;
   quantity?: number;
+  /** Paired accessory lines added alongside the main product (one atomic cart call) */
+  extraLines?: { merchandiseId: string; quantity: number }[];
+  /** Fires after a successful add — lets the PDP clear pairing checkboxes */
+  onAdded?: () => void;
 }
 
-export default function AddToCartButton({ variantId, available, quantityAvailable, quantity = 1 }: Props) {
-  const { addItem, isLoading } = useCart();
+export default function AddToCartButton({ variantId, available, quantityAvailable, quantity = 1, extraLines, onAdded }: Props) {
+  const { addItems, isLoading } = useCart();
   const { t } = useLanguage();
   const [added, setAdded] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -29,7 +34,22 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
       gsap.to(btnRef.current, { scale: 0.94, duration: 0.1, ease: 'power2.out' });
     }
 
-    const ok = await addItem(variantId, quantity);
+    const extras = extraLines ?? [];
+    let ok = await addItems(
+      [{ merchandiseId: variantId, quantity }, ...extras],
+      // Bundle attempt: hold the error toast — the main-only retry below decides the outcome
+      extras.length > 0 ? { suppressErrorToast: true } : undefined
+    );
+
+    // A stale paired accessory (archived/sold out since the page rendered)
+    // fails the whole atomic add — never let it block the main-product sale:
+    // retry main-only and tell the customer the accessories didn't make it.
+    let droppedExtras = false;
+    if (!ok && extras.length > 0) {
+      ok = await addItems([{ merchandiseId: variantId, quantity }]);
+      droppedExtras = ok;
+    }
+    if (droppedExtras) toast(t('pairing_add_failed'), { icon: '⚠️' });
 
     if (!prefersReducedMotion() && btnRef.current) {
       // Elastic release — slightly overshoots, then settles
@@ -51,6 +71,7 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
     }
 
     if (!ok) return;
+    onAdded?.();
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }
