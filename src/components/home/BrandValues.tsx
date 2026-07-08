@@ -44,7 +44,7 @@ export default function BrandValues() {
             {isAr ? 'لماذا' : 'Why'}
             <br />
             <span className="text-chako-linlin">
-              {isAr ? 'تشاكو لاب؟' : 'Chako Lab?'}
+              {isAr ? 'شاكو لاب؟' : 'Chako Lab?'}
             </span>
           </h2>
 

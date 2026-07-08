@@ -36,7 +36,7 @@ const COMMON_FAQS: { q: L; a: L }[] = [
     q: { en: 'Are the materials food-safe?', ar: 'هل المواد آمنة للطعام؟' },
     a: {
       en: 'Yes — every Chako Lab piece is made from food-grade, BPA-free materials.',
-      ar: 'نعم — كل قطعة من تشاكو لاب مصنوعة من مواد آمنة للطعام وخالية من BPA.',
+      ar: 'نعم — كل قطعة من شاكو لاب مصنوعة من مواد آمنة للطعام وخالية من BPA.',
     },
   },
   {
@@ -342,7 +342,7 @@ const SERIES: Record<string, SeriesStory> = {
         title: { en: 'Round, soft, friendly.', ar: 'مستدير وناعم وودود.' },
         body: {
           en: 'PangPang’s puffed silhouette is pure Chako — playful curves you’ll want on your desk.',
-          ar: 'قوام بانج بانج المنفوخ هو روح تشاكو — انحناءات مرحة تليق بمكتبك.',
+          ar: 'قوام بانج بانج المنفوخ هو روح شاكو — انحناءات مرحة تليق بمكتبك.',
         },
         callouts: [
           { en: 'Signature puffed shape', ar: 'شكل منفوخ مميز' },
@@ -385,10 +385,10 @@ SERIES['accessories'] = {
       title: { en: 'Mix. Match. Yours.', ar: 'نسّق وبدّل على ذوقك.' },
       body: {
         en: 'Collect handles, straps and cup sleeves in every candy color — and dress each Chako piece your way.',
-        ar: 'اجمع المقابض والأحزمة وأكمام الأكواب بكل الألوان المبهجة — وزيّن كل قطعة تشاكو على طريقتك.',
+        ar: 'اجمع المقابض والأحزمة وأكمام الأكواب بكل الألوان المبهجة — وزيّن كل قطعة شاكو على طريقتك.',
       },
       callouts: [
-        { en: 'Designed by Chako Lab', ar: 'بتصميم تشاكو لاب' },
+        { en: 'Designed by Chako Lab', ar: 'بتصميم شاكو لاب' },
         { en: 'Candy color range', ar: 'تشكيلة ألوان مبهجة' },
       ],
     },
@@ -396,10 +396,10 @@ SERIES['accessories'] = {
       title: { en: 'The details do the talking.', ar: 'التفاصيل تتحدث عنك.' },
       body: {
         en: 'Playful shapes, joyful colors and that unmistakable Chako charm — down to the smallest piece.',
-        ar: 'أشكال مرحة وألوان مبهجة وسحر تشاكو المميز — حتى في أصغر قطعة.',
+        ar: 'أشكال مرحة وألوان مبهجة وسحر شاكو المميز — حتى في أصغر قطعة.',
       },
       callouts: [
-        { en: 'Signature Chako look', ar: 'طابع تشاكو المميز' },
+        { en: 'Signature Chako look', ar: 'طابع شاكو المميز' },
         { en: 'Cheerful, giftable details', ar: 'تفاصيل مبهجة تصلح للإهداء' },
       ],
     },
@@ -407,7 +407,7 @@ SERIES['accessories'] = {
       title: { en: 'Small gifts, big smiles.', ar: 'هدايا صغيرة وابتسامات كبيرة.' },
       body: {
         en: 'The easiest way to gift Chako — or to treat your own bottle to something new.',
-        ar: 'أسهل طريقة لإهداء تشاكو — أو لتدليل قارورتك بشيء جديد.',
+        ar: 'أسهل طريقة لإهداء شاكو — أو لتدليل قارورتك بشيء جديد.',
       },
       callouts: [
         { en: 'Gift-friendly price', ar: 'سعر مثالي للهدايا' },
@@ -416,12 +416,12 @@ SERIES['accessories'] = {
     },
   ],
   // Single item only — packaging varies per accessory, so we claim nothing else
-  inBox: [{ en: 'Your Chako Lab accessory', ar: 'إكسسوار تشاكو لاب الخاص بك' }],
+  inBox: [{ en: 'Your Chako Lab accessory', ar: 'إكسسوار شاكو لاب الخاص بك' }],
   // Bespoke FAQs — the drinkware COMMON_FAQS talk about lids and food-grade
   // materials, which reads wrong on towels/straps/pads.
   faqs: [
     {
-      q: { en: 'Will it fit my Chako piece?', ar: 'هل يناسب قطعة تشاكو الخاصة بي؟' },
+      q: { en: 'Will it fit my Chako piece?', ar: 'هل يناسب قطعة شاكو الخاصة بي؟' },
       a: {
         en: 'Handles, straps and cup sleeves are made for the series in their product name (e.g. a MilkMate handle fits MilkMate tumblers). Towels and heating pads are one-size — no matching needed. Not sure? Message us before ordering.',
         ar: 'المقابض والأحزمة وأكمام الأكواب مصممة للسلسلة المذكورة في اسم المنتج (مثلاً مقبض ميلك ميت يناسب تمبلر ميلك ميت). أما المناشف ووسادة التسخين فمقاس واحد يناسب الجميع — دون حاجة للمطابقة. لست متأكدًا؟ راسلنا قبل الطلب.',
@@ -486,13 +486,13 @@ const GENERIC: SeriesStory = {
         ar: 'ألوان مبهجة ولمسات مطفية — أدوات شرب بشخصية.',
       },
       callouts: [
-        { en: 'Signature Chako colors', ar: 'ألوان تشاكو المميزة' },
+        { en: 'Signature Chako colors', ar: 'ألوان شاكو المميزة' },
         { en: 'Matte soft-touch finish', ar: 'لمسة نهائية ناعمة' },
       ],
     },
   ],
   inBox: [
-    { en: 'Your Chako Lab piece', ar: 'قطعتك من تشاكو لاب' },
+    { en: 'Your Chako Lab piece', ar: 'قطعتك من شاكو لاب' },
     LEAK_LID,
     CARE_CARD,
   ],

@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: isAr ? 'تيتانيوم' : 'Titanium',
       description: isAr
-        ? 'تسوق مجموعة التيتانيوم من تشاكو لاب — أدوات شرب فاخرة من التيتانيوم مع التوصيل في جميع أنحاء الإمارات.'
+        ? 'تسوق مجموعة التيتانيوم من شاكو لاب — أدوات شرب فاخرة من التيتانيوم مع التوصيل في جميع أنحاء الإمارات.'
         : 'Shop the Chako Lab Titanium Collection — premium titanium drinkware delivered across the UAE.',
       alternates,
     };
@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: isAr ? 'وصل حديثاً' : 'New Arrivals',
       description: isAr
-        ? 'تسوق أحدث منتجات تشاكو لاب — وصل حديثاً مع التوصيل في جميع أنحاء الإمارات.'
+        ? 'تسوق أحدث منتجات شاكو لاب — وصل حديثاً مع التوصيل في جميع أنحاء الإمارات.'
         : 'Shop the newest Chako Lab drinkware — fresh arrivals delivered across the UAE.',
       alternates,
     };
@@ -77,7 +77,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: isAr ? 'مجموعة تويست' : 'Twist Series',
       description: isAr
-        ? 'تسوق مجموعة تويست من تشاكو لاب — تمبلر تويست وإكسسواراتها مع التوصيل في جميع أنحاء الإمارات.'
+        ? 'تسوق مجموعة تويست من شاكو لاب — تمبلر تويست وإكسسواراتها مع التوصيل في جميع أنحاء الإمارات.'
         : 'Shop the Chako Lab Twist Series — Twist tumblers and their matching accessories, delivered across the UAE.',
       alternates,
     };
@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: localizedName,
       description: isAr
-        ? 'تسوق إكسسوارات تشاكو لاب — مقابض وأحزمة وأكمام أكواب والمزيد، مع التوصيل في جميع أنحاء الإمارات.'
+        ? 'تسوق إكسسوارات شاكو لاب — مقابض وأحزمة وأكمام أكواب والمزيد، مع التوصيل في جميع أنحاء الإمارات.'
         : 'Shop Chako Lab accessories — handles, straps, cup sleeves and more, delivered across the UAE.',
       alternates,
     };
@@ -99,7 +99,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: localizedName,
     description: isAr
-      ? `تسوق ${localizedName} من تشاكو لاب — أدوات شرب فاخرة مع التوصيل في جميع أنحاء الإمارات.`
+      ? `تسوق ${localizedName} من شاكو لاب — أدوات شرب فاخرة مع التوصيل في جميع أنحاء الإمارات.`
       : `Shop Chako Lab ${name} — premium drinkware delivered across the UAE.`,
     alternates,
   };

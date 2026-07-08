@@ -12,14 +12,14 @@ const IMAGES = [
   {
     src: '/lifestyle/lifestyle-08.jpg',
     altEn: 'Model carrying a purple polka-dot Chako Lab cup as a crossbody',
-    altAr: 'عارضة تحمل كوب تشاكو لاب الأرجواني المنقّط كحقيبة كتف',
+    altAr: 'عارضة تحمل كوب شاكو لاب الأرجواني المنقّط كحقيبة كتف',
     en: 'Goes where you go',
     ar: 'أينما تذهب',
   },
   {
     src: '/lifestyle/lifestyle-02.jpg',
     altEn: 'Two Chako Lab tumblers resting in a car cup holder',
-    altAr: 'كوبان من تشاكو لاب في حامل أكواب السيارة',
+    altAr: 'كوبان من شاكو لاب في حامل أكواب السيارة',
     en: 'Made for the long drive',
     ar: 'رفيق الطريق الطويل',
   },
@@ -40,14 +40,14 @@ const IMAGES = [
   {
     src: '/lifestyle/lifestyle-04.jpg',
     altEn: 'Chako Lab bottles tucked into a picnic basket on the grass',
-    altAr: 'زجاجات تشاكو لاب داخل سلة نزهة على العشب',
+    altAr: 'زجاجات شاكو لاب داخل سلة نزهة على العشب',
     en: 'Packed for the outdoors',
     ar: 'مُجهّز للخارج',
   },
   {
     src: '/lifestyle/brand-section-01.jpg',
     altEn: 'Hand holding a yellow Chako Lab tumbler by its handle',
-    altAr: 'يد تمسك بكوب تشاكو لاب الأصفر من المقبض',
+    altAr: 'يد تمسك بكوب شاكو لاب الأصفر من المقبض',
     en: 'Everyday, in your colour',
     ar: 'كل يوم، بلونك',
   },
@@ -69,14 +69,14 @@ export default function LifestyleGallery() {
       >
         {/* PLACEHOLDER COPY — edit freely */}
         <SectionLabel className="mb-3">
-          {isAr ? 'الحياة مع تشاكو' : 'Life with Chako'}
+          {isAr ? 'الحياة مع شاكو' : 'Life with Chako'}
         </SectionLabel>
         <h2 className="text-heading font-display font-bold">
           {isAr ? 'صُنع لكل لحظة' : 'Made for every moment'}
         </h2>
         <p className="text-body text-chako-ink/55 max-w-md mt-3">
           {isAr
-            ? 'من زحمة الصباح إلى نزهة العصر — منتجات تشاكو لاب ترافقك أينما ذهب يومك.'
+            ? 'من زحمة الصباح إلى نزهة العصر — منتجات شاكو لاب ترافقك أينما ذهب يومك.'
             : 'From the morning commute to the afternoon picnic — Chako Lab drinkware goes wherever your day does.'}
         </p>
       </Reveal>

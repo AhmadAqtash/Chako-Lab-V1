@@ -39,7 +39,7 @@ const SITE_META = {
       'Thoughtfully designed drinkware for your daily ritual. Shop LinLin Kettles, Kada Bottles, BoBo Tumblers, and more — delivered across the UAE.',
   },
   ar: {
-    title: { default: 'تشاكو لاب — أدوات شرب مصممة بعناية', template: '%s | تشاكو لاب' },
+    title: { default: 'شاكو لاب — أدوات شرب مصممة بعناية', template: '%s | شاكو لاب' },
     description:
       'أدوات شرب مصممة بعناية لطقوسك اليومية. تسوق أباريق لين لين وزجاجات كادا وتمبلر بوبو والمزيد — مع التوصيل في جميع أنحاء الإمارات.',
   },

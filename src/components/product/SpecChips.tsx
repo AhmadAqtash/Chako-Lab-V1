@@ -35,7 +35,7 @@ export default function SpecChips({ product, baseType, collectionHandle, isTitan
     // Accessories carry no drinkware specs — just a playful, always-true chip
     chips.push({
       icon: <Sparkles size={14} />,
-      text: isAr ? 'إكسسوار تشاكو الأصلي' : 'Original Chako accessory',
+      text: isAr ? 'إكسسوار شاكو الأصلي' : 'Original Chako accessory',
       bg: story.accentSoft,
       fg: '#1a1a1a',
     });

@@ -5,7 +5,7 @@ import { localeAlternates } from '@/lib/seo';
 
 export function generateMetadata({ params }: { params: { locale: Locale } }): Metadata {
   return {
-    title: params.locale === 'ar' ? 'عن تشاكو لاب' : 'About Chako Lab',
+    title: params.locale === 'ar' ? 'عن شاكو لاب' : 'About Chako Lab',
     alternates: localeAlternates(params.locale, '/pages/about'),
   };
 }
