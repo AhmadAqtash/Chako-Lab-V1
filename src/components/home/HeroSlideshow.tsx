@@ -103,6 +103,38 @@ const heroCss = `
   [dir='rtl'] .chakoHeroProgressFill { transform-origin: right center; }
   .chakoHeroProgressPaused { animation-play-state: paused; }
 
+  /* Playful staggered pop-in for the overlay text — retriggers per slide
+     (keyed in JSX). Base delay lets the circle bloom pass underneath first. */
+  @keyframes chakoHeroTextPop {
+    0%   { transform: translateY(24px) scale(0.95); opacity: 0; }
+    65%  { transform: translateY(-4px) scale(1.015); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .chakoHeroTextIn > * { animation: chakoHeroTextPop 650ms var(--ease-in-out-strong) 280ms both; }
+  .chakoHeroTextIn > *:nth-child(2) { animation-delay: 430ms; }
+
+  /* Bling tone — animated metallic gradient sweep (Titanium slide). The
+     glyphs are the gradient window; a drop-shadow keeps them lifted off
+     the art (text-shadow would paint through the transparent fill). */
+  @keyframes chakoHeroBlingSweep {
+    from { background-position: 200% 50%; }
+    to   { background-position: -200% 50%; }
+  }
+  .chakoHeroBling {
+    background-image: linear-gradient(
+      100deg,
+      #4c1d95 0%, #7c3aed 16%, #c4b5fd 30%,
+      #fde68a 46%, #f59e0b 54%,
+      #c4b5fd 70%, #7c3aed 86%, #4c1d95 100%
+    );
+    background-size: 260% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: chakoHeroBlingSweep 3.2s linear infinite;
+    filter: drop-shadow(0 2px 14px rgba(255, 255, 255, 0.5));
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .chakoHeroEnter,
     .chakoHeroExit,
@@ -111,6 +143,8 @@ const heroCss = `
     .chakoHeroCtaOut {
       animation: none !important; /* slides + labels swap instantly, always visible */
     }
+    .chakoHeroTextIn > * { animation: none !important; }
+    .chakoHeroBling { animation: none !important; } /* static gradient still reads */
     .chakoHeroEnter { clip-path: none !important; } /* instant swap, no mask */
     .chakoHeroRevealing { will-change: auto; }
     .chakoHeroCtaOut { opacity: 0; } /* outgoing label vanishes instead of sliding */
@@ -212,6 +246,24 @@ export default function HeroSlideshow() {
     resumeTimer.current = window.setTimeout(() => setPaused(false), 5000);
   };
 
+  // Text block positioning per slide — placement is PHYSICAL (the art is not
+  // mirrored in RTL), alignment inside the block follows the language.
+  const textWrapClass = (pos: { desktopPos: string; mobilePos: string }) =>
+    [
+      'absolute inset-0 z-[3] pointer-events-none flex px-6 md:px-16',
+      // mobile placement
+      pos.mobilePos === 'top' ? 'items-start pt-[12%]' : 'items-center pb-[24%]',
+      // desktop placement overrides
+      pos.desktopPos === 'center' && 'justify-center text-center md:items-center md:pb-[6%]',
+      pos.desktopPos === 'center-top' && 'justify-center text-center md:items-start md:pt-[7%]',
+      pos.desktopPos === 'left' &&
+        'justify-center text-center md:justify-start md:text-start md:items-center md:pb-0 md:ps-[7%]',
+      pos.desktopPos === 'right' &&
+        'justify-center text-center md:justify-end md:text-end md:items-center md:pb-0 md:pe-[7%]',
+    ]
+      .filter(Boolean)
+      .join(' ');
+
   const slide = SLIDES[current];
   const ctaLabel = isAr ? slide.ctaAr : slide.ctaEn;
   const exitingLabel =
@@ -287,6 +339,35 @@ export default function HeroSlideshow() {
                 sizes="(min-width: 768px) 100vw, 0vw"
               />
             </div>
+
+            {/* Live overlay text — part of the slide layer, so it enters and
+                exits with the circle reveal, then pops in with a stagger.
+                Rendered as <p>: the page h1 already lives in the
+                StatementOpener above the slideshow. */}
+            {s.text && (
+              <div className={textWrapClass(s.text)}>
+                <div
+                  // Re-key on activation so the pop-in replays every visit
+                  key={`text-${i}-${isActive ? navCount : 'idle'}`}
+                  className={`max-w-xl md:max-w-2xl ${isActive ? 'chakoHeroTextIn' : ''}`}
+                >
+                  <p
+                    className={`text-display font-display font-semibold text-balance ${
+                      s.text.tone === 'bling'
+                        ? 'chakoHeroBling'
+                        : 'text-chako-ink [text-shadow:0_2px_28px_rgba(255,255,255,0.55),0_1px_4px_rgba(255,255,255,0.35)]'
+                    }`}
+                  >
+                    {isAr ? s.text.headlineAr : s.text.headlineEn}
+                  </p>
+                  {(isAr ? s.text.subAr : s.text.subEn) && (
+                    <p className="mt-3 md:mt-4 text-base md:text-xl font-semibold text-chako-ink/75 [text-shadow:0_1px_18px_rgba(255,255,255,0.6)]">
+                      {isAr ? s.text.subAr : s.text.subEn}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         );
       })}
@@ -295,11 +376,19 @@ export default function HeroSlideshow() {
       <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-black/55 to-transparent z-10 md:hidden pointer-events-none" />
 
       {/* CTA pill — never unmounts. Labels swap vertically inside the mask;
-          the pill's width follows the measured label width. */}
+          the pill's width follows the measured label width. Its skin follows
+          the active slide: solid white, translucent glass (art with product
+          low in frame), or the site's titanium sheen pill. */}
       <div className="absolute bottom-20 md:bottom-16 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-20 [contain:layout_style]">
         <Link
           href={slide.ctaHref}
-          className="inline-flex items-center gap-2 bg-white text-chako-ink font-display font-bold px-7 py-4 rounded-full shadow-xl hover:bg-white/95 hover:shadow-2xl active:scale-[0.96] transition-[transform,background-color,box-shadow] duration-150 motion-reduce:transition-none text-sm md:text-base touch-manipulation whitespace-nowrap"
+          className={`inline-flex items-center gap-2 font-display font-bold px-7 py-4 rounded-full shadow-xl hover:shadow-2xl active:scale-[0.96] transition-[transform,background-color,box-shadow,backdrop-filter] duration-300 motion-reduce:transition-none text-sm md:text-base touch-manipulation whitespace-nowrap ${
+            slide.ctaStyle === 'titanium'
+              ? 'titanium-pill ps-8'
+              : slide.ctaStyle === 'glass'
+                ? 'bg-white/40 backdrop-blur-md border border-white/60 text-chako-ink hover:bg-white/55'
+                : 'bg-white text-chako-ink hover:bg-white/95'
+          }`}
         >
           <span
             className="chakoHeroCtaMask"
