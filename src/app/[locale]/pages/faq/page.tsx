@@ -24,7 +24,7 @@ const FAQS = [
   },
   {
     q: 'What is your returns policy?',
-    a: 'We offer a 14-day return policy on all unused, unopened items. If there is a manufacturing defect, we will replace or refund regardless of the timeframe. Contact us to initiate a return.',
+    a: 'We offer a 15-day return policy on all unused, unopened items. If there is a manufacturing defect, we will replace or refund regardless of the timeframe. Contact us to initiate a return.',
   },
   {
     q: 'Are the products covered by warranty?',

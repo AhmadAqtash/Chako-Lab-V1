@@ -21,7 +21,7 @@ const FAQS_EN = [
   },
   {
     q: 'What is the return policy?',
-    a: 'We accept returns within 14 days of delivery for unused, undamaged items in original packaging. Contact us via Instagram or email to initiate a return.',
+    a: 'We accept returns within 15 days of delivery for unused, undamaged items in original packaging. Contact us via Instagram or email to initiate a return.',
   },
   {
     q: 'Do the insulated bottles keep drinks hot/cold?',
@@ -48,7 +48,7 @@ const FAQS_AR = [
   },
   {
     q: 'ما هي سياسة الإرجاع؟',
-    a: 'نقبل الإرجاع خلال 14 يوماً من التسليم للمنتجات غير المستخدمة وغير التالفة في عبواتها الأصلية. تواصل معنا عبر إنستغرام أو البريد الإلكتروني.',
+    a: 'نقبل الإرجاع خلال 15 يوماً من التسليم للمنتجات غير المستخدمة وغير التالفة في عبواتها الأصلية. تواصل معنا عبر إنستغرام أو البريد الإلكتروني.',
   },
   {
     q: 'هل تحافظ الزجاجات المعزولة على درجة حرارة المشروبات؟',
