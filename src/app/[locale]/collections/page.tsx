@@ -28,7 +28,9 @@ export default async function CollectionsPage({ params }: { params: { locale: Lo
   let products: Product[] = [];
   let loadFailed = false;
   try {
-    products = await getProducts({ first: 48, language: toShopifyLanguage(params.locale) });
+    // 250 (storefront max): the catalog passed 48 products long ago — a lower
+    // cap silently hides whatever sorts last from the main browsing surface
+    products = await getProducts({ first: 250, language: toShopifyLanguage(params.locale) });
   } catch {
     loadFailed = true;
   }
