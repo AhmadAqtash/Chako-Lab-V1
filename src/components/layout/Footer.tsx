@@ -4,6 +4,7 @@ import Link from '@/components/ui/LocalizedLink';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { SOCIALS } from '@/lib/socials';
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -49,7 +50,7 @@ export default function Footer() {
             </p>
             <div className="flex gap-3 mt-6">
               <a
-                href="https://instagram.com/chakolab.ae"
+                href={SOCIALS.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 active:scale-95 transition-[transform,background-color] duration-150 touch-manipulation"
@@ -60,7 +61,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="https://tiktok.com/@chakolab.ae"
+                href={SOCIALS.tiktok}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 active:scale-95 transition-[transform,background-color] duration-150 touch-manipulation"

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
+import { SOCIALS } from '@/lib/socials';
 
 export function generateMetadata({ params }: { params: { locale: Locale } }): Metadata {
   return {
@@ -22,7 +23,8 @@ export default function ContactPage() {
         {[
           { label: 'Email', value: 'hello@chakolab.ae', href: 'mailto:hello@chakolab.ae' },
           { label: 'WhatsApp', value: '+971 56 688 1332', href: 'https://wa.me/971566881332' },
-          { label: 'Instagram', value: '@chakolab.ae', href: 'https://instagram.com/chakolab.ae' },
+          { label: 'Instagram', value: '@chakolab.ae', href: SOCIALS.instagram },
+          { label: 'TikTok', value: '@chakolabae', href: SOCIALS.tiktok },
           { label: 'Based in', value: 'Dubai, UAE', href: null },
         ].map(({ label, value, href }) => (
           <div key={label} className="bg-chako-accent rounded-2xl px-5 py-4">
