@@ -67,6 +67,22 @@ export default async function ProductPage({ params }: Props) {
     getProductReviews(product.id).catch(() => null),
   ]);
 
+  // 3D sticker packs lead the carousel on the series where they attach best
+  // (Ahmad, Jul 2026); other series keep catalog order. Twist is a handle
+  // family, not a productType. Handles are locale-stable — types are not.
+  const STICKERS_FIRST_TYPES = new Set([
+    'LinLin Kettle', 'Bawang Cup', 'Thermos Cup', 'Bobo Cup',
+    'PangPang Cup', 'Food Cup', 'Baobao Cup', 'Pot', 'Coffee Mug',
+  ]);
+  const stickersFirst =
+    STICKERS_FIRST_TYPES.has(baseType) || /twist/i.test(product.handle);
+  const orderedPairing = stickersFirst
+    ? [
+        ...pairingItems.filter((i) => /sticker/i.test(i.handle)),
+        ...pairingItems.filter((i) => !/sticker/i.test(i.handle)),
+      ]
+    : pairingItems;
+
   const siblingHandles = colorSiblings.map((p) => p.handle);
 
   const crumbs = [
@@ -94,7 +110,7 @@ export default async function ProductPage({ params }: Props) {
             collectionHandle={collectionHandle}
             baseType={baseType}
             isTitanium={isTitanium}
-            pairingItems={pairingItems}
+            pairingItems={orderedPairing}
             reviewSummary={reviews ? { rating: reviews.averageRating, count: reviews.count } : null}
           />
         </div>
