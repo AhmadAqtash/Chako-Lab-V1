@@ -35,19 +35,22 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
     }
 
     const extras = extraLines ?? [];
-    let ok = await addItems(
+    const first = await addItems(
       [{ merchandiseId: variantId, quantity }, ...extras],
       // Bundle attempt: hold the error toast — the main-only retry below decides the outcome
       extras.length > 0 ? { suppressErrorToast: true } : undefined
     );
+    let ok = first.ok;
 
-    // A stale paired accessory (archived/sold out since the page rendered)
-    // fails the whole atomic add — never let it block the main-product sale:
-    // retry main-only and tell the customer the accessories didn't make it.
+    // The server already drops stale sold-out accessories from a bundle, so a
+    // bundle failure here is either the main product itself being sold out
+    // (soldOut — a retry can never succeed, and addItems already toasted) or a
+    // transient error worth one main-only retry.
     let droppedExtras = false;
-    if (!ok && extras.length > 0) {
-      ok = await addItems([{ merchandiseId: variantId, quantity }]);
-      droppedExtras = ok;
+    if (!first.ok && !first.soldOut && extras.length > 0) {
+      const second = await addItems([{ merchandiseId: variantId, quantity }]);
+      ok = second.ok;
+      droppedExtras = second.ok;
     }
     if (droppedExtras) toast(t('pairing_add_failed'), { icon: '⚠️' });
 

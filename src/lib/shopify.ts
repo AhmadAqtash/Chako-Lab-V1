@@ -369,7 +369,10 @@ export async function getPairingAccessories(
   return all
     .map((p) => {
       // Catalog query fetches variants(first:1) without price — accessories
-      // are single-variant, so priceRange.minVariantPrice IS the variant price
+      // are single-variant, so priceRange.minVariantPrice IS the variant price.
+      // availableForSale ONLY: gating on quantityAvailable falsely hides
+      // untracked-inventory variants (they report 0, not null, while
+      // availableForSale stays true) and CONTINUE-policy items.
       const variant = p.variants.nodes.find((v) => v.availableForSale);
       if (!variant) return null;
       return {

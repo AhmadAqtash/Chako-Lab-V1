@@ -5,17 +5,24 @@ import { Cart } from '@/types/shopify';
 import toast from 'react-hot-toast';
 import { useLanguage } from '@/context/LanguageContext';
 
+// soldOut = the clicked product itself is unavailable (PRIMARY_SOLD_OUT):
+// retrying the same add can never succeed, so callers must not.
+export interface AddResult {
+  ok: boolean;
+  soldOut: boolean;
+}
+
 interface CartContextValue {
   cart: Cart | null;
   isOpen: boolean;
   isLoading: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (merchandiseId: string, quantity?: number) => Promise<boolean>;
+  addItem: (merchandiseId: string, quantity?: number) => Promise<AddResult>;
   addItems: (
     lines: { merchandiseId: string; quantity: number }[],
     opts?: { suppressErrorToast?: boolean }
-  ) => Promise<boolean>;
+  ) => Promise<AddResult>;
   updateItem: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
   totalQuantity: number;
@@ -40,17 +47,29 @@ async function apiGetCart(cartId: string, lang: string): Promise<Cart | null> {
   return res.json();
 }
 
-async function apiAddLines(cartId: string, lines: { merchandiseId: string; quantity: number }[], lang: string): Promise<Cart> {
+async function apiAddLines(
+  cartId: string,
+  lines: { merchandiseId: string; quantity: number }[],
+  lang: string
+): Promise<Cart & { rejected?: string[] }> {
   const res = await fetch(`/api/cart/${encodeURIComponent(cartId)}/lines?lang=${lang}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ lines }),
   });
-  if (!res.ok) throw new Error('Failed to add to cart');
+  if (!res.ok) {
+    // Surface the server's error code (e.g. PRIMARY_SOLD_OUT) to the caller
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error || 'Failed to add to cart');
+  }
   return res.json();
 }
 
-async function apiUpdateLines(cartId: string, lines: { id: string; quantity: number }[], lang: string): Promise<Cart> {
+async function apiUpdateLines(
+  cartId: string,
+  lines: { id: string; quantity: number }[],
+  lang: string
+): Promise<Cart & { removed?: string[] }> {
   const res = await fetch(`/api/cart/${encodeURIComponent(cartId)}/lines?lang=${lang}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -73,7 +92,7 @@ async function apiRemoveLines(cartId: string, lineIds: string[], lang: string): 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [cart, setCart] = useState<Cart | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -112,28 +131,44 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addItems = useCallback(async (
     lines: { merchandiseId: string; quantity: number }[],
     opts?: { suppressErrorToast?: boolean }
-  ): Promise<boolean> => {
-    if (lines.length === 0) return false;
+  ): Promise<AddResult> => {
+    if (lines.length === 0) return { ok: false, soldOut: false };
     setIsLoading(true);
     try {
       // If init failed at page load (or hasn't finished), retry it now
       const target = cart ?? (await initCart());
       if (!target) {
-        if (!opts?.suppressErrorToast) toast.error('Could not add to cart');
-        return false;
+        if (!opts?.suppressErrorToast) toast.error(t('cart_add_failed'));
+        return { ok: false, soldOut: false };
       }
       const updated = await apiAddLines(target.id, lines, language);
       setCart(updated);
       setIsOpen(true);
-      toast.success('Added to cart');
-      return true;
-    } catch {
-      if (!opts?.suppressErrorToast) toast.error('Could not add to cart');
-      return false;
+      // The server drops accessories that sold out since the page rendered —
+      // name them instead of pretending the whole bundle made it
+      if (updated.rejected?.length) {
+        for (const title of updated.rejected) {
+          toast(t('cart_item_sold_out').replace('{item}', title), { icon: '⚠️' });
+        }
+      }
+      toast.success(t('cart_added'));
+      return { ok: true, soldOut: false };
+    } catch (err) {
+      const soldOut = err instanceof Error && err.message === 'PRIMARY_SOLD_OUT';
+      // Sold-out always toasts, even on suppressed bundle attempts: callers
+      // skip their retry for soldOut results, so nothing else will report it.
+      // Other suppressed failures stay silent — the caller's main-only retry
+      // runs unsuppressed and reports the final outcome once.
+      if (soldOut) {
+        toast.error(t('cart_sold_out'));
+      } else if (!opts?.suppressErrorToast) {
+        toast.error(t('cart_add_failed'));
+      }
+      return { ok: false, soldOut };
     } finally {
       setIsLoading(false);
     }
-  }, [cart, initCart, language]);
+  }, [cart, initCart, language, t]);
 
   const addItem = useCallback(
     (merchandiseId: string, quantity = 1) => addItems([{ merchandiseId, quantity }]),
@@ -146,12 +181,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const updated = await apiUpdateLines(cart.id, [{ id: lineId, quantity }], language);
       setCart(updated);
+      // A line the customer tried to change hit zero stock and was removed —
+      // never let an item vanish from the drawer without a word
+      if (updated.removed?.length) {
+        for (const title of updated.removed) {
+          toast(t('cart_item_removed_oos').replace('{item}', title), { icon: '⚠️' });
+        }
+      }
     } catch {
-      toast.error('Could not update cart');
+      toast.error(t('cart_update_failed'));
     } finally {
       setIsLoading(false);
     }
-  }, [cart, language]);
+  }, [cart, language, t]);
 
   const removeItem = useCallback(async (lineId: string) => {
     if (!cart) return;
@@ -160,11 +202,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const updated = await apiRemoveLines(cart.id, [lineId], language);
       setCart(updated);
     } catch {
-      toast.error('Could not remove item');
+      toast.error(t('cart_remove_failed'));
     } finally {
       setIsLoading(false);
     }
-  }, [cart, language]);
+  }, [cart, language, t]);
 
   return (
     <CartContext.Provider value={{

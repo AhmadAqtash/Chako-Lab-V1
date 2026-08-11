@@ -17,26 +17,34 @@ function errorResponse(err: unknown, fallback: string) {
   return NextResponse.json({ error: fallback }, { status: 500 });
 }
 
-// POST /api/cart/:cartId/lines → add lines
+// POST /api/cart/:cartId/lines → add lines. Response is the cart object with
+// an optional `rejected` key (sold-out items dropped from the add) spread in,
+// so clients that only expect a Cart keep working.
 export async function POST(req: Request, { params }: Context) {
   try {
     const cartId = decodeURIComponent(params.cartId);
     const { lines } = await req.json() as { lines: { merchandiseId: string; quantity: number }[] };
-    const cart = await addToCart(cartId, lines, langFrom(req));
-    return NextResponse.json(cart);
+    // Public endpoint: addToCart indexes lines[0], so reject junk here
+    if (!Array.isArray(lines) || lines.length === 0) {
+      return NextResponse.json({ error: 'lines must be a non-empty array' }, { status: 400 });
+    }
+    const { cart, rejected } = await addToCart(cartId, lines, langFrom(req));
+    return NextResponse.json(rejected.length > 0 ? { ...cart, rejected } : cart);
   } catch (err) {
     console.error('[/api/cart/lines POST]', err);
     return errorResponse(err, 'Failed to add to cart');
   }
 }
 
-// PATCH /api/cart/:cartId/lines → update quantities
+// PATCH /api/cart/:cartId/lines → update quantities. Like POST, the response
+// is the cart with an optional `removed` key (lines that hit zero stock and
+// were pruned) spread in — additive, so Cart-shaped clients keep working.
 export async function PATCH(req: Request, { params }: Context) {
   try {
     const cartId = decodeURIComponent(params.cartId);
     const { lines } = await req.json() as { lines: { id: string; quantity: number }[] };
-    const cart = await updateCartLine(cartId, lines, langFrom(req));
-    return NextResponse.json(cart);
+    const { cart, removed } = await updateCartLine(cartId, lines, langFrom(req));
+    return NextResponse.json(removed.length > 0 ? { ...cart, removed } : cart);
   } catch (err) {
     console.error('[/api/cart/lines PATCH]', err);
     return errorResponse(err, 'Failed to update cart');
