@@ -34,6 +34,17 @@ export default function StickyATC({ title, price, variantId, available, triggerR
     return () => observer.disconnect();
   }, [triggerRef]);
 
+  // Broadcast visibility so fixed-position neighbors (FloatingContact) can
+  // duck out of the bar's way. Cleanup releases them when the PDP unmounts.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('chako:sticky-atc', { detail: { visible } }));
+    return () => {
+      if (visible) {
+        window.dispatchEvent(new CustomEvent('chako:sticky-atc', { detail: { visible: false } }));
+      }
+    };
+  }, [visible]);
+
   async function handleAdd() {
     if (!available) return;
     const { ok } = await addItem(variantId);
