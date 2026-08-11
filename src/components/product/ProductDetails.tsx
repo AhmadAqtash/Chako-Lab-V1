@@ -87,9 +87,14 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
   const discount = compareAt ? getDiscountPercent(compareAt, price) : 0;
   const maxQty = selectedVariant?.quantityAvailable ?? 99;
 
-  const hasOptions =
-    product.options.length > 1 ||
-    (product.options.length === 1 && product.options[0].values[0] !== 'Default Title');
+  // Options worth a selector row: more than one value to actually choose from.
+  // The catalog is one-color-per-product (siblings link via ColorSwatches), so a
+  // single-value Color option would just duplicate the swatches above the price
+  // (Ahmad, Aug 2026: keep the image swatches, drop the lone circle).
+  const selectableOptions = product.options.filter(
+    (o) => o.name !== 'Title' && o.values.length > 1 && o.values[0] !== 'Default Title'
+  );
+  const hasOptions = selectableOptions.length > 0;
 
   function handleShare() {
     navigator.clipboard.writeText(window.location.href).catch(() => {});
@@ -172,7 +177,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
         {/* Variant selector */}
         {hasOptions && (
           <VariantSelector
-            options={product.options.filter((o) => o.name !== 'Title')}
+            options={selectableOptions}
             variants={product.variants.nodes}
             selected={selected}
             onChange={(name, value) => setSelected((prev) => ({ ...prev, [name]: value }))}
