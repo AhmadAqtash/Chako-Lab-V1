@@ -34,6 +34,19 @@ export async function generateStaticParams() {
   return [...ALL_COLLECTION_HANDLES, 'titanium', 'new', 'twist'].map((handle) => ({ handle }));
 }
 
+// Products pinned into a collection whose productType filter would never find
+// them. The Dual-Layer Ti Tumblers are Shopify productType 'Tumbler' but sell
+// as part of the PangPang family, so they ride along here rather than being
+// retyped in Shopify (retyping would move them out of Titanium and swap their
+// PDP story). They still appear on the Titanium page too — this is additive.
+// Add new colourways to the array; the dedupe below makes that safe.
+const COLLECTION_GUEST_HANDLES: Record<string, string[]> = {
+  'pangpang-cups': [
+    'chako-lab-dual-layer-ti-tumbler-brown',
+    'chako-lab-dual-layer-ti-tumbler-pink',
+  ],
+};
+
 // Localized collection names for metadata (UI gets them via CollectionGrid)
 const HANDLE_TO_CAT_KEY: Record<string, TranslationKey> = {
   'linlin-kettles':   'cat_linlin',
@@ -236,14 +249,17 @@ export default async function CollectionPage({ params }: Props) {
   try {
     products = await getProducts({ first: 250, productType, language: lang });
 
-    // PangPang also surfaces the Dual-Layer Ti Tumbler (a Tumbler-type product),
-    // without changing the Shopify backend. It still lives on the Titanium page too.
-    // Best-effort: a failure here shouldn't take down the whole collection.
-    if (params.handle === 'pangpang-cups') {
-      const dualLayerTi = await getProduct('chako-lab-dual-layer-ti-tumbler-brown', lang).catch(() => null);
-      if (dualLayerTi && !products.some((p) => p.handle === dualLayerTi.handle)) {
-        products = [...products, dualLayerTi];
-      }
+    // Guest products pinned into a collection they don't match by productType.
+    // Best-effort: a failure here must not take down the whole collection.
+    const guests = COLLECTION_GUEST_HANDLES[params.handle];
+    if (guests) {
+      const fetched = await Promise.all(
+        guests.map((h) => getProduct(h, lang).catch(() => null))
+      );
+      const extras = fetched.filter(
+        (p): p is Product => !!p && !products.some((existing) => existing.handle === p.handle)
+      );
+      if (extras.length) products = [...products, ...extras];
     }
   } catch {
     loadFailed = true;
