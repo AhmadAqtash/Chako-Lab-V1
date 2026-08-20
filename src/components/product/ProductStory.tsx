@@ -35,7 +35,7 @@ export default function ProductStory({ product, collectionHandle, isTitanium, ba
   // retention claims for plastic bodies, capacity always resolved (extracted
   // or series fallback) — see src/lib/product-specs.ts
   const resolved = resolveSpecs(product, baseType);
-  const story = getSeriesStory(collectionHandle, isTitanium, resolved.plastic);
+  const story = getSeriesStory(collectionHandle, isTitanium, resolved.plastic, resolved.uninsulated);
   const specs = [
     ...(resolved.capacityMl
       ? [{ value: resolved.capacityMl, suffix: 'ml', label: { en: 'Capacity', ar: 'السعة' } }]

@@ -9,11 +9,11 @@ import Reveal from '@/components/ui/Reveal';
 const FAQS_EN = [
   {
     q: 'Where does Chako Lab ship to?',
-    a: 'We ship across the UAE and GCC region. Standard delivery takes 2-4 business days within the UAE.',
+    a: 'We deliver across all seven Emirates. Order before 2PM Monday to Friday and we dispatch the same day, with delivery on the next business day (one extra day for Ras Al Khaimah and Fujairah). We do not currently ship outside the UAE.',
   },
   {
     q: 'Are the products food-safe and BPA-free?',
-    a: 'Yes. All Chako Lab products are made from food-grade materials and are completely BPA-free. We use 304 stainless steel, borosilicate glass, and food-safe plastics.',
+    a: 'Yes. All Chako Lab products are made from food-grade materials and are completely BPA-free. We use SUS 316 stainless steel, borosilicate glass, and food-safe plastics.',
   },
   {
     q: 'How do I clean and care for my Chako Lab product?',
@@ -36,11 +36,11 @@ const FAQS_EN = [
 const FAQS_AR = [
   {
     q: 'إلى أين يشحن شاكو لاب؟',
-    a: 'نشحن عبر الإمارات العربية المتحدة ومنطقة الخليج العربي. يستغرق التوصيل القياسي 2-4 أيام عمل داخل الإمارات.',
+    a: 'نوصّل إلى الإمارات السبع جميعها. اطلب قبل الساعة 2 ظهراً من الاثنين إلى الجمعة ونشحن طلبك في اليوم نفسه، ليصلك في يوم العمل التالي (مع يوم إضافي لرأس الخيمة والفجيرة). ولا نشحن حالياً خارج دولة الإمارات.',
   },
   {
     q: 'هل المنتجات آمنة للطعام وخالية من BPA؟',
-    a: 'نعم. جميع منتجات شاكو لاب مصنوعة من مواد آمنة للطعام وخالية تماماً من BPA. نستخدم الفولاذ المقاوم للصدأ 304 والزجاج البوروسيليكاتي.',
+    a: 'نعم. جميع منتجات شاكو لاب مصنوعة من مواد آمنة للطعام وخالية تماماً من BPA. نستخدم الفولاذ المقاوم للصدأ SUS 316 والزجاج البوروسيليكاتي.',
   },
   {
     q: 'كيف أنظف منتج شاكو لاب وأعتني به؟',

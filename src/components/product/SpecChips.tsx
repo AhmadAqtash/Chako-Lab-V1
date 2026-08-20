@@ -27,7 +27,7 @@ export default function SpecChips({ product, baseType, collectionHandle, isTitan
   const rootRef = useRef<HTMLDivElement>(null);
 
   const resolved = resolveSpecs(product, baseType);
-  const story = getSeriesStory(collectionHandle, isTitanium, resolved.plastic);
+  const story = getSeriesStory(collectionHandle, isTitanium, resolved.plastic, resolved.uninsulated);
 
   const chips: { icon: React.ReactNode; text: string; bg: string; fg: string }[] = [];
 

@@ -49,8 +49,8 @@ const COMMON_FAQS: { q: L; a: L }[] = [
   {
     q: { en: 'Do you deliver across the UAE?', ar: 'هل توصلون لجميع أنحاء الإمارات؟' },
     a: {
-      en: 'Yes — we deliver UAE-wide. Standard and express options are shown at checkout.',
-      ar: 'نعم — نوصل لجميع أنحاء الإمارات. خيارات التوصيل العادي والسريع تظهر عند إتمام الطلب.',
+      en: 'Yes — we deliver UAE-wide. Order before 2PM Monday to Friday and we dispatch the same day, for delivery on the next business day.',
+      ar: 'نعم — نوصل لجميع أنحاء الإمارات. اطلب قبل الساعة 2 ظهراً من الاثنين إلى الجمعة ونشحن طلبك في اليوم نفسه ليصلك في يوم العمل التالي.',
     },
   },
 ];
@@ -437,8 +437,8 @@ SERIES['accessories'] = {
     {
       q: { en: 'Do you deliver across the UAE?', ar: 'هل توصلون لجميع أنحاء الإمارات؟' },
       a: {
-        en: 'Yes — we deliver UAE-wide. Standard and express options are shown at checkout.',
-        ar: 'نعم — نوصل لجميع أنحاء الإمارات. خيارات التوصيل العادي والسريع تظهر عند إتمام الطلب.',
+        en: 'Yes — we deliver UAE-wide. Order before 2PM Monday to Friday and we dispatch the same day, for delivery on the next business day.',
+        ar: 'نعم — نوصل لجميع أنحاء الإمارات. اطلب قبل الساعة 2 ظهراً من الاثنين إلى الجمعة ونشحن طلبك في اليوم نفسه ليصلك في يوم العمل التالي.',
       },
     },
   ],
@@ -523,13 +523,75 @@ const PLASTIC_FAQ: { q: L; a: L } = {
   },
 };
 
-const INSULATION_CHIP_RE = /double-wall|insulated|عزل|الساخنة والباردة|للساخن والبارد|hot & cold/i;
+const INSULATION_CHIP_RE =
+  /double-wall|insulated|steel|stainless|فولاذ|ستانلس|عزل|الساخنة والباردة|للساخن والبارد|hot & cold/i;
 const PLASTIC_CHIP: L = { en: 'Featherlight BPA-free body', ar: 'جسم خفيف خالٍ من BPA' };
+
+// A feature card whose TITLE/BODY sells steel or insulation can't be patched
+// chip-by-chip on a Tritan/PPSU product (audit: plastic BoBo Cup shipped
+// 'Double-wall steel keeps cold drinks cold' + a 'Stainless steel body' chip).
+// Swap the whole card for a plastic-true one; array length stays 3 so the
+// [01][02][03] poster layout is unchanged.
+const INSULATION_FEATURE_RE = /double-wall|insulat|steel|stainless|فولاذ|ستانلس|مزدوج الجدار|عزل/i;
+const PLASTIC_FEATURES = [
+  {
+    title: { en: 'Featherlight, all day.', ar: 'خفيف معك طوال اليوم.' },
+    body: {
+      en: 'A BPA-free Tritan body that goes easy on your bag and shrugs off the daily knocks.',
+      ar: 'جسم تريتان خالٍ من BPA لا يثقل حقيبتك ويتحمّل استخدام كل يوم.',
+    },
+    callouts: [
+      PLASTIC_CHIP,
+      { en: 'Easy-carry light build', ar: 'خفيف وسهل الحمل' },
+    ],
+  },
+  {
+    title: { en: 'Clear and simple.', ar: 'واضح وبسيط.' },
+    body: {
+      en: 'See how much is left at a glance, rinse it clean in seconds — hydration without the fuss.',
+      ar: 'اعرف كمية مشروبك بنظرة، واشطفه في ثوانٍ — ترطيب بلا تعقيد.',
+    },
+    callouts: [
+      { en: 'See-through body', ar: 'جسم شفاف' },
+      { en: 'Quick-rinse clean', ar: 'تنظيف سريع وسهل' },
+    ],
+  },
+];
+
+// For non-plastic, non-insulated bodies (glass cups, teapots, snack boxes):
+// claim-free replacement cards — no materials named, so they fit glass and
+// PP boxes alike. Same alternating trick as PLASTIC_FEATURES.
+const NEUTRAL_CHIP: L = { en: 'Everyday easy care', ar: 'عناية يومية سهلة' };
+const NEUTRAL_FEATURES = [
+  {
+    title: { en: 'Made for every day.', ar: 'مصمم لكل يوم.' },
+    body: {
+      en: 'Light in the hand, simple to use, and easy to keep clean — a piece you reach for daily.',
+      ar: 'خفيف في اليد وسهل الاستخدام والتنظيف — قطعة تعود إليها كل يوم.',
+    },
+    callouts: [
+      { en: 'Food-grade materials', ar: 'مواد آمنة للطعام' },
+      { en: 'Easy-clean design', ar: 'تصميم سهل التنظيف' },
+    ],
+  },
+  {
+    title: { en: 'Details done right.', ar: 'تفاصيل متقنة.' },
+    body: {
+      en: 'Thoughtful fits, smooth pours and parts that come apart when it’s time to clean.',
+      ar: 'تفاصيل مدروسة وسكب سلس وقطع تنفصل بسهولة عند التنظيف.',
+    },
+    callouts: [
+      { en: 'Thoughtful build', ar: 'تصميم مدروس' },
+      { en: 'Simple care', ar: 'عناية بسيطة' },
+    ],
+  },
+];
 
 export function getSeriesStory(
   collectionHandle?: string,
   isTitanium?: boolean,
-  isPlastic?: boolean
+  isPlastic?: boolean,
+  isUninsulated?: boolean
 ): SeriesStory {
   let story = (collectionHandle && SERIES[collectionHandle]) || GENERIC;
   if (isTitanium) story = { ...story, ...TITANIUM_OVERRIDE };
@@ -539,16 +601,41 @@ export function getSeriesStory(
   if (collectionHandle === 'accessories') return story;
 
   if (isPlastic) {
-    // Strip every insulation-flavored callout and swap in plastic-safe ones
+    // Replace whole feature cards that sell steel/insulation (alternating
+    // replacements so a double hit can't render twins), then strip any
+    // remaining insulation-flavored callouts on the cards that survive
+    let swapped = 0;
     story = {
       ...story,
-      features: story.features.map((f) => ({
-        ...f,
-        callouts: f.callouts.map((c) =>
-          INSULATION_CHIP_RE.test(`${c.en} ${c.ar}`) ? PLASTIC_CHIP : c
-        ),
-      })),
+      features: story.features.map((f) =>
+        INSULATION_FEATURE_RE.test(`${f.title.en} ${f.title.ar} ${f.body.en} ${f.body.ar}`)
+          ? PLASTIC_FEATURES[swapped++ % PLASTIC_FEATURES.length]
+          : {
+              ...f,
+              callouts: f.callouts.map((c) =>
+                INSULATION_CHIP_RE.test(`${c.en} ${c.ar}`) ? PLASTIC_CHIP : c
+              ),
+            }
+      ),
       faqs: [PLASTIC_FAQ, ...story.faqs],
+    };
+  } else if (isUninsulated) {
+    // Glass / boxes: strip insulation & steel claims like the plastic path,
+    // but with claim-free cards — and neither the retention FAQ (false) nor
+    // the plastic FAQ ("BPA-free plastic bottle" would misdescribe glass)
+    let swapped = 0;
+    story = {
+      ...story,
+      features: story.features.map((f) =>
+        INSULATION_FEATURE_RE.test(`${f.title.en} ${f.title.ar} ${f.body.en} ${f.body.ar}`)
+          ? NEUTRAL_FEATURES[swapped++ % NEUTRAL_FEATURES.length]
+          : {
+              ...f,
+              callouts: f.callouts.map((c) =>
+                INSULATION_CHIP_RE.test(`${c.en} ${c.ar}`) ? NEUTRAL_CHIP : c
+              ),
+            }
+      ),
     };
   } else {
     story = { ...story, faqs: [RETENTION_FAQ, ...story.faqs] };
@@ -576,8 +663,10 @@ export function extractSpecs(text: string): ExtractedSpec[] {
   const t = normalizeDigits(text);
   const specs: ExtractedSpec[] = [];
 
-  // Capacity: "1000ML", "520 ml", "1.5L", "1 liter"
-  const ml = t.match(/(\d{3,4})\s*ml\b/i);
+  // Capacity: "1000ML", "520 ml", "1.5L", "1 liter", Arabic "450 مل".
+  // JS \b doesn't work after Arabic letters, so مل uses a lookahead that
+  // rejects a following Arabic letter (keeps "450 مل" but not "ملعقة"/"ملم")
+  const ml = t.match(/(\d{3,4})\s*(?:ml\b|مل(?![ء-ي]))/i);
   const liters = t.match(/(\d(?:[.,]\d)?)\s*(?:l\b|liter|litre|لتر)/i);
   if (ml) {
     specs.push({ value: parseInt(ml[1], 10), suffix: 'ml', label: { en: 'Capacity', ar: 'السعة' } });

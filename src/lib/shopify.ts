@@ -30,6 +30,13 @@ export const PRODUCT_TYPE_TO_COLLECTION: Record<string, string> = {
   'Bobo Cup':      'bobo-cup',
   'Baobao Cup':    'baobao-cup',
   'Accessories':   'accessories',
+  // New families without their own series page yet — all land in the
+  // 'more' catch-all so their PDP breadcrumbs link somewhere real
+  'Baba Cup':      'more',
+  'Glass Cup':     'more',
+  'Teapot':        'more',
+  'Fruit Box':     'more',
+  'Lunch Box':     'more',
 };
 
 export const COLLECTION_HANDLE_TO_TYPE: Record<string, string> = {
@@ -64,6 +71,7 @@ export const COLLECTION_DISPLAY_NAMES: Record<string, string> = {
   'bobo-cup':          'BoBo Cups',
   'baobao-cup':        'Baobao Food Cups',
   'accessories':       'Accessories',
+  'more':              'More to Explore',
 };
 
 export const ALL_COLLECTION_HANDLES = Object.keys(COLLECTION_DISPLAY_NAMES);
@@ -304,11 +312,17 @@ export async function getProductBaseType(handle: string): Promise<string | null>
   }
 }
 
+// language MUST match the locale the caller's baseName came from: titles are
+// localized under @inContext, so comparing an AR-page baseName against EN
+// titles matches nothing — which silently broke AR swatch grouping AND let
+// the AR related-products slider recommend the very product being viewed
+// (empty siblings = nothing excluded).
 export async function getColorSiblings(
   productType: string,
-  baseName: string
+  baseName: string,
+  language: ShopifyLanguage = 'EN'
 ): Promise<Product[]> {
-  const all = await getProducts({ first: 50, productType });
+  const all = await getProducts({ first: 50, productType, language });
   return all.filter((p) => extractBaseName(p.title) === baseName);
 }
 
@@ -336,6 +350,17 @@ export async function getTitaniumProducts(
   // silently drops whatever sorts last, which included titanium items.
   const all = await getProducts({ first: 250, language });
   return all.filter((p) => isTitaniumHandle(p.handle));
+}
+
+// 'more' is a multi-type virtual collection: the newest product families that
+// don't have a dedicated series page yet. Types are matched via search-query
+// filters (product_type:'X' matches BASE values even under @inContext), so
+// the list works on both locales. Retire entries as families earn real pages.
+export const MORE_TYPES = ['Baba Cup', 'Glass Cup', 'Teapot', 'Fruit Box', 'Lunch Box'];
+
+export async function getMoreProducts(language: ShopifyLanguage = 'EN'): Promise<Product[]> {
+  const typeQuery = `(${MORE_TYPES.map((t) => `product_type:'${t}'`).join(' OR ')})`;
+  return getProducts({ first: 250, query: typeQuery, language });
 }
 
 // Twist is a title-family, not a productType (the Twist Tumbler shares type

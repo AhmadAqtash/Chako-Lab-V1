@@ -41,9 +41,10 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
   const displayDescHtml = product.descriptionHtml;
   const displayDesc = product.description;
 
+  // Speed + cost, NOT two service tiers — the store offers one shipping option
   const SHIPPING_INFO = [
-    { label: t('product_ship_std'), value: t('product_ship_std_time'), sub: t('product_ship_std_sub') },
-    { label: t('product_ship_express'), value: t('product_ship_express_time'), sub: t('product_ship_express_sub') },
+    { label: t('product_ship_speed'), value: t('product_ship_speed_time'), sub: t('product_ship_speed_sub') },
+    { label: t('product_ship_cost'), value: t('product_ship_cost_time'), sub: t('product_ship_cost_sub') },
   ];
 
   const TABS: { key: Tab; label: string }[] = [

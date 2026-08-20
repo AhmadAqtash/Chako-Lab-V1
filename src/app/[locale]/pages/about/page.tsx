@@ -30,7 +30,7 @@ export default function AboutPage() {
           good after a year of daily use.
         </p>
         <p>
-          Chako Lab is based in the UAE and delivers across the Emirates and the wider GCC. We are
+          Chako Lab is based in the UAE and delivers across all seven Emirates. We are
           owned and operated by Gallop Enterprises LLC.
         </p>
       </div>

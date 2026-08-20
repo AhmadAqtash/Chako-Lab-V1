@@ -19,7 +19,7 @@ import { extractSpecs } from '@/lib/pdp-story';
 
 export const RETENTION = { coldHours: 36, hotHours: 18 } as const;
 
-const PLASTIC_RE = /plastic|tritan|ppsu|بلاستيك/i;
+const PLASTIC_RE = /plastic|tritan|ppsu|بلاستيك|تريتان/i;
 
 /** Plastic-bodied (non-insulated) detection — title, handle and description all count. */
 export function isPlasticBody(p: Pick<Product, 'title' | 'handle' | 'description'>): boolean {
@@ -44,11 +44,19 @@ const CAPACITY_FALLBACK: Record<string, number | { default: number; plastic?: nu
   'Kada Bottle': 550,
 };
 
+// Not everything non-plastic is double-wall steel: single-wall borosilicate
+// glassware and non-drinkware boxes must never carry the 36h/18h canon (the
+// Aug 2026 audit caught the code default about to hand retention chips to
+// glass teapots the moment their collection went navigable).
+const NON_INSULATED_TYPES = new Set(['Glass Cup', 'Teapot', 'Fruit Box']);
+
 export interface ResolvedSpecs {
   capacityMl: number | null;
-  /** null = plastic body or accessory, no retention claims allowed */
+  /** null = plastic body, uninsulated type or accessory: no retention claims allowed */
   retention: typeof RETENTION | null;
   plastic: boolean;
+  /** true = non-plastic but not vacuum-insulated (glass, boxes): no retention, no plastic copy */
+  uninsulated: boolean;
   /** true = accessory (handles/straps/sleeves/towels/pads): no drinkware specs at all */
   accessory: boolean;
 }
@@ -67,13 +75,17 @@ export function resolveSpecs(
   // Regex (not equality) so the guard survives AR pages where a failed
   // base-type fetch falls back to the localized productType (إكسسوارات).
   if (/accessor|إكسسوار/i.test(baseType || p.productType)) {
-    return { capacityMl: null, retention: null, plastic: false, accessory: true };
+    return { capacityMl: null, retention: null, plastic: false, uninsulated: false, accessory: true };
   }
 
   const plastic = isPlasticBody(p);
+  const uninsulated = !plastic && NON_INSULATED_TYPES.has(baseType || p.productType);
 
-  // Capacity: the product's own words win; series fallback otherwise
-  const extracted = extractSpecs(`${p.handle.replace(/-/g, ' ')} ${p.title} ${p.description}`);
+  // Capacity: the product's own words win; series fallback otherwise.
+  // Title outranks description outranks handle — handles carry stale numbers
+  // (kada-bottle-500ml-ppsu is titled and sold as 550ml) and extractSpecs
+  // takes the first match in the string.
+  const extracted = extractSpecs(`${p.title} ${p.description} ${p.handle.replace(/-/g, ' ')}`);
   let capacityMl = extracted.find((s) => s.suffix === 'ml')?.value ?? null;
   if (capacityMl === null) {
     const fb = CAPACITY_FALLBACK[baseType || p.productType];
@@ -81,5 +93,11 @@ export function resolveSpecs(
     else if (fb) capacityMl = plastic && fb.plastic ? fb.plastic : fb.default;
   }
 
-  return { capacityMl, retention: plastic ? null : RETENTION, plastic, accessory: false };
+  return {
+    capacityMl,
+    retention: plastic || uninsulated ? null : RETENTION,
+    plastic,
+    uninsulated,
+    accessory: false,
+  };
 }

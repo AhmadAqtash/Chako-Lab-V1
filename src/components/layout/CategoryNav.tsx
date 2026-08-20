@@ -30,6 +30,9 @@ const SERIES: { handle: string; key: TranslationKey; type?: string; q?: string }
   { handle: 'mugs',             key: 'cat_mugs',     type: 'Coffee Mug' },
   { handle: 'square-cups',      key: 'cat_square',   type: 'Square Cup' },
   { handle: 'accessories',      key: 'cat_accessories', type: 'Accessories' },
+  // Multi-type catch-all — keep the q in sync with MORE_TYPES in lib/shopify.ts
+  { handle: 'more',             key: 'cat_more',
+    q: "vendor:'Chako Lab' AND (product_type:'Baba Cup' OR product_type:'Glass Cup' OR product_type:'Teapot' OR product_type:'Fruit Box' OR product_type:'Lunch Box')" },
 ];
 
 /* ── Category thumbnails (client-side Storefront fetch, HotCategories pattern) ──

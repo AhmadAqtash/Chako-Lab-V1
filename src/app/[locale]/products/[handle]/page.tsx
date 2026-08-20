@@ -62,7 +62,7 @@ export default async function ProductPage({ params }: Props) {
   const isAccessory = /accessor|إكسسوار/i.test(baseType || product.productType);
 
   const [colorSiblings, pairingItems, reviews] = await Promise.all([
-    getColorSiblings(baseType, baseName).catch(() => []),
+    getColorSiblings(baseType, baseName, lang).catch(() => []),
     isAccessory ? Promise.resolve([]) : getPairingAccessories(lang).catch(() => []),
     getProductReviews(product.id).catch(() => null),
   ]);
@@ -124,7 +124,10 @@ export default async function ProductPage({ params }: Props) {
 
       <RelatedProducts
         productType={baseType}
-        excludeHandles={siblingHandles}
+        // Current handle listed explicitly: sibling matching is title-based
+        // and a garbled translation can empty it — never recommend the page
+        // the customer is already on
+        excludeHandles={[product.handle, ...siblingHandles]}
         isTitanium={isTitanium}
         language={lang}
       />

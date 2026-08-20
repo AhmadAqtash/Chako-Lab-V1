@@ -7,6 +7,7 @@ import {
   getTitaniumProducts,
   getTwistProducts,
   getNewProducts,
+  getMoreProducts,
   getProduct,
 } from '@/lib/shopify';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
@@ -79,6 +80,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: isAr
         ? 'تسوق مجموعة تويست من شاكو لاب — تمبلر تويست وإكسسواراتها مع التوصيل في جميع أنحاء الإمارات.'
         : 'Shop the Chako Lab Twist Series — Twist tumblers and their matching accessories, delivered across the UAE.',
+      alternates,
+    };
+  }
+  if (params.handle === 'more') {
+    return {
+      title: isAr ? 'المزيد للاكتشاف' : 'More to Explore',
+      description: isAr
+        ? 'تسوق المزيد من شاكو لاب — أكواب بابا، الأكواب الزجاجية، إبريق الشاي، صناديق الفواكه والوجبات، مع التوصيل في جميع أنحاء الإمارات.'
+        : 'Shop more from Chako Lab — BaBa cups, glass cups, teapots, fruit and lunch boxes, delivered across the UAE.',
       alternates,
     };
   }
@@ -164,6 +174,31 @@ export default async function CollectionPage({ params }: Props) {
         {loadFailed
           ? <LoadError />
           : <CollectionGrid products={twistProducts} title={lang === 'AR' ? 'مجموعة تويست' : 'Twist Series'} />}
+      </div>
+    );
+  }
+
+  // 'more' groups the newest families that don't have a series page yet
+  if (params.handle === 'more') {
+    let moreProducts: Product[] = [];
+    let loadFailed = false;
+    try {
+      moreProducts = await getMoreProducts(lang);
+    } catch {
+      loadFailed = true;
+    }
+    return (
+      <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8">
+        <Breadcrumb
+          crumbs={[
+            { label: 'Home', href: '/' },
+            { label: 'Collections', href: '/collections' },
+            { label: lang === 'AR' ? 'المزيد للاكتشاف' : 'More to Explore' },
+          ]}
+        />
+        {loadFailed
+          ? <LoadError />
+          : <CollectionGrid products={moreProducts} title={lang === 'AR' ? 'المزيد للاكتشاف' : 'More to Explore'} />}
       </div>
     );
   }
