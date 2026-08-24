@@ -2,11 +2,16 @@
 // Canonical product specs — the single source of truth for temperature
 // retention and capacity shown anywhere on the site.
 //
-// BUSINESS RULES (set by Ahmad, 12 Jun 2026):
+// BUSINESS RULES (set by Ahmad, 12 Jun 2026; amended 20 Aug 2026):
 // - Every double-wall insulated product (stainless / ceramic-coated /
 //   titanium) keeps drinks COLD for 36 hours and HOT for up to 18 hours.
 //   This applies to ALL insulated products incl. Hanging Pot, Coffee Mug
 //   and Baobao Food Cup.
+// - EXCEPTION (Ahmad, 20 Aug 2026): the Milk Pod series does not hold
+//   temperature like the rest of the range — COLD 10h / HOT 8h, across
+//   every Milk Pod including the ceramic and titanium variants. The
+//   supplier descriptions on the steel Milk Pods independently say
+//   "up to 8 hours", which corroborates this.
 // - Plastic-bodied products (Tritan / PPSU / "Plastic" in the name) are NOT
 //   insulated — they must never show retention hours.
 // - Capacity in ml must be shown on every PDP. Extracted from the product's
@@ -17,13 +22,52 @@
 import type { Product } from '@/types/shopify';
 import { extractSpecs } from '@/lib/pdp-story';
 
-export const RETENTION = { coldHours: 36, hotHours: 18 } as const;
+export interface Retention {
+  readonly coldHours: number;
+  readonly hotHours: number;
+}
 
-const PLASTIC_RE = /plastic|tritan|ppsu|بلاستيك|تريتان/i;
+/** The canon for double-wall insulated bodies, unless overridden below. */
+export const RETENTION: Retention = { coldHours: 36, hotHours: 18 };
+
+// Per-series exceptions to that canon. Matched on the base productType with a
+// locale-proof handle fallback: under @inContext productType comes back
+// TRANSLATED, so an AR page whose base-type fetch failed would otherwise miss
+// the override and OVERSTATE the claim — the expensive direction to be wrong.
+const RETENTION_OVERRIDES: { typeKey: string; handle: RegExp; retention: Retention }[] = [
+  { typeKey: 'Milk Pod', handle: /milk-?pod/i, retention: { coldHours: 10, hotHours: 8 } },
+];
+
+function retentionFor(
+  p: Pick<Product, 'handle' | 'productType'>,
+  baseType?: string | null
+): Retention {
+  const type = baseType || p.productType;
+  const hit = RETENTION_OVERRIDES.find((o) => o.typeKey === type || o.handle.test(p.handle));
+  return hit ? hit.retention : RETENTION;
+}
+
+// Arabic descriptions transliterate "Tritan" inconsistently — تريتان, ترتان and
+// ترينتان all appear across the catalogue, so the AR spelling is matched
+// loosely. Without this, two BaBa Cups escaped plastic detection on /ar and
+// advertised 36h/18h insulation on a non-insulated Tritan body (20 Aug 2026).
+const PLASTIC_RE = /plastic|tritan|ppsu|بلاستيك|تر[يا]?ن?تان/i;
+
+// A plastic COMPONENT is not a plastic BODY. The ceramic Milk Pods are 316
+// steel with a ceramic lining and a "BPA-free plastic lid" — matching that
+// phrase classified them as plastic and stripped their retention claim
+// entirely (found 20 Aug 2026). Component mentions are removed before the
+// body test. Verified against the full 155-product catalogue: this
+// reclassifies exactly the three ceramic Milk Pods and nothing else — every
+// genuine Tritan/PPSU body (Square Cup, BaBa, PPSU Kada, Lunch Box) names the
+// material against "body", "bottle" or "cup", never against a component noun.
+const PLASTIC_COMPONENT_RE =
+  /\b(?:plastic|tritan|ppsu)\s+(?:lid|cap|straw|handle|seal|ring|base|spout|valve|parts?|components?)\b|(?:غطاء|مقبض|ماصة|شفاطة|حلقة|قاعدة|أجزاء|أختام)\s+(?:بلاستيكية?|تر[يا]?ن?تان)/gi;
 
 /** Plastic-bodied (non-insulated) detection — title, handle and description all count. */
 export function isPlasticBody(p: Pick<Product, 'title' | 'handle' | 'description'>): boolean {
-  return PLASTIC_RE.test(`${p.title} ${p.handle} ${p.description}`);
+  const text = `${p.title} ${p.handle} ${p.description}`.replace(PLASTIC_COMPONENT_RE, ' ');
+  return PLASTIC_RE.test(text);
 }
 
 /**
@@ -53,7 +97,7 @@ const NON_INSULATED_TYPES = new Set(['Glass Cup', 'Teapot', 'Fruit Box']);
 export interface ResolvedSpecs {
   capacityMl: number | null;
   /** null = plastic body, uninsulated type or accessory: no retention claims allowed */
-  retention: typeof RETENTION | null;
+  retention: Retention | null;
   plastic: boolean;
   /** true = non-plastic but not vacuum-insulated (glass, boxes): no retention, no plastic copy */
   uninsulated: boolean;
@@ -95,7 +139,7 @@ export function resolveSpecs(
 
   return {
     capacityMl,
-    retention: plastic || uninsulated ? null : RETENTION,
+    retention: plastic || uninsulated ? null : retentionFor(p, baseType),
     plastic,
     uninsulated,
     accessory: false,

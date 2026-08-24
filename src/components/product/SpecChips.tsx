@@ -16,7 +16,7 @@ interface Props {
 }
 
 /**
- * Canonical spec chips in the buy box: capacity (always), 36h cold + 18h hot
+ * Canonical spec chips in the buy box: capacity (always) + resolved retention
  * (insulated products only), featherlight chip for plastic bodies. Candy
  * colors from the series palette; GSAP stagger pop on mount, icon wiggle
  * on tap/hover.
@@ -27,7 +27,7 @@ export default function SpecChips({ product, baseType, collectionHandle, isTitan
   const rootRef = useRef<HTMLDivElement>(null);
 
   const resolved = resolveSpecs(product, baseType);
-  const story = getSeriesStory(collectionHandle, isTitanium, resolved.plastic, resolved.uninsulated);
+  const story = getSeriesStory(collectionHandle, isTitanium, resolved.plastic, resolved.uninsulated, resolved.retention);
 
   const chips: { icon: React.ReactNode; text: string; bg: string; fg: string }[] = [];
 

@@ -31,11 +31,11 @@ export default function ProductStory({ product, collectionHandle, isTitanium, ba
   const isAr = language === 'ar';
   const pick = <T extends { en: string; ar: string }>(l: T) => (isAr ? l.ar : l.en);
 
-  // Canonical specs: 36h cold / 18h hot for every insulated product, no
+  // Canonical specs per resolveSpecs (36h/18h, or 10h/8h for Milk Pod), no
   // retention claims for plastic bodies, capacity always resolved (extracted
   // or series fallback) — see src/lib/product-specs.ts
   const resolved = resolveSpecs(product, baseType);
-  const story = getSeriesStory(collectionHandle, isTitanium, resolved.plastic, resolved.uninsulated);
+  const story = getSeriesStory(collectionHandle, isTitanium, resolved.plastic, resolved.uninsulated, resolved.retention);
   const specs = [
     ...(resolved.capacityMl
       ? [{ value: resolved.capacityMl, suffix: 'ml', label: { en: 'Capacity', ar: 'السعة' } }]

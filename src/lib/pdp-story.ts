@@ -505,14 +505,16 @@ const TITANIUM_OVERRIDE: Pick<SeriesStory, 'accent' | 'accentSoft' | 'posterInk'
   posterInk: 'light',
 };
 
-// Canonical retention FAQ — insulated products only (36h cold / 18h hot)
-const RETENTION_FAQ: { q: L; a: L } = {
+// Canonical retention FAQ — insulated products only. Built from the RESOLVED
+// hours, never hardcoded: the Milk Pod series runs 10h/8h against the 36h/18h
+// canon, and a baked answer would silently contradict the spec chips beside it.
+const retentionFaq = (r: { coldHours: number; hotHours: number }): { q: L; a: L } => ({
   q: { en: 'How long does it keep drinks cold or hot?', ar: 'كم تدوم برودة أو حرارة المشروبات؟' },
   a: {
-    en: 'Double-wall insulation keeps drinks cold for up to 36 hours and hot for up to 18 hours.',
-    ar: 'العزل مزدوج الجدار يحافظ على المشروبات باردة حتى ٣٦ ساعة وساخنة حتى ١٨ ساعة.',
+    en: `Double-wall insulation keeps drinks cold for up to ${r.coldHours} hours and hot for up to ${r.hotHours} hours.`,
+    ar: `العزل مزدوج الجدار يحافظ على المشروبات باردة حتى ${r.coldHours} ساعة وساخنة حتى ${r.hotHours} ساعة.`,
   },
-};
+});
 
 // Plastic-bodied (Tritan/PPSU) products must never carry insulation claims
 const PLASTIC_FAQ: { q: L; a: L } = {
@@ -591,7 +593,9 @@ export function getSeriesStory(
   collectionHandle?: string,
   isTitanium?: boolean,
   isPlastic?: boolean,
-  isUninsulated?: boolean
+  isUninsulated?: boolean,
+  /** Resolved retention for THIS product — drives the FAQ's hour figures */
+  retention?: { coldHours: number; hotHours: number } | null
 ): SeriesStory {
   let story = (collectionHandle && SERIES[collectionHandle]) || GENERIC;
   if (isTitanium) story = { ...story, ...TITANIUM_OVERRIDE };
@@ -637,8 +641,8 @@ export function getSeriesStory(
             }
       ),
     };
-  } else {
-    story = { ...story, faqs: [RETENTION_FAQ, ...story.faqs] };
+  } else if (retention) {
+    story = { ...story, faqs: [retentionFaq(retention), ...story.faqs] };
   }
 
   return story;

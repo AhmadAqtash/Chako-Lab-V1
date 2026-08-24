@@ -25,7 +25,7 @@ const FAQS_EN = [
   },
   {
     q: 'Do the insulated bottles keep drinks hot/cold?',
-    a: 'Our double-wall vacuum-insulated drinkware keeps beverages cold for up to 36 hours and hot for up to 18 hours under normal conditions.',
+    a: 'Most of our double-wall vacuum-insulated drinkware keeps beverages cold for up to 36 hours and hot for up to 18 hours under normal conditions. The compact Milk Pod series holds cold for up to 10 hours and hot for up to 8. Each product page shows its own figures.',
   },
   {
     q: 'Can I buy Chako Lab products in-store in the UAE?',
@@ -52,7 +52,7 @@ const FAQS_AR = [
   },
   {
     q: 'هل تحافظ الزجاجات المعزولة على درجة حرارة المشروبات؟',
-    a: 'أدوات الشرب لدينا ذات الجدار المزدوج بتقنية الفراغ تحافظ على المشروبات باردة لمدة تصل إلى 36 ساعة وساخنة لمدة تصل إلى 18 ساعة.',
+    a: 'معظم أدوات الشرب لدينا ذات الجدار المزدوج بتقنية الفراغ تحافظ على المشروبات باردة لمدة تصل إلى 36 ساعة وساخنة لمدة تصل إلى 18 ساعة. أما مجموعة ميلك بود المدمجة فتحافظ على البرودة حتى 10 ساعات وعلى الحرارة حتى 8 ساعات. وتجد أرقام كل منتج في صفحته.',
   },
   {
     q: 'هل يمكنني شراء منتجات شاكو لاب في المتاجر بالإمارات؟',
