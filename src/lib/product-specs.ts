@@ -7,11 +7,11 @@
 //   titanium) keeps drinks COLD for 36 hours and HOT for up to 18 hours.
 //   This applies to ALL insulated products incl. Hanging Pot, Coffee Mug
 //   and Baobao Food Cup.
-// - EXCEPTION (Ahmad, 20 Aug 2026): the Milk Pod series does not hold
-//   temperature like the rest of the range — COLD 10h / HOT 8h, across
-//   every Milk Pod including the ceramic and titanium variants. The
+// - EXCEPTIONS (Ahmad, 20 Aug 2026): the Milk Pod and PangPang Cup series
+//   do not hold temperature like the rest of the range — COLD 10h / HOT 8h.
+//   Milk Pod covers every variant including ceramic and titanium; the
 //   supplier descriptions on the steel Milk Pods independently say
-//   "up to 8 hours", which corroborates this.
+//   "up to 8 hours", which corroborates it.
 // - Plastic-bodied products (Tritan / PPSU / "Plastic" in the name) are NOT
 //   insulated — they must never show retention hours.
 // - Capacity in ml must be shown on every PDP. Extracted from the product's
@@ -36,6 +36,7 @@ export const RETENTION: Retention = { coldHours: 36, hotHours: 18 };
 // the override and OVERSTATE the claim — the expensive direction to be wrong.
 const RETENTION_OVERRIDES: { typeKey: string; handle: RegExp; retention: Retention }[] = [
   { typeKey: 'Milk Pod', handle: /milk-?pod/i, retention: { coldHours: 10, hotHours: 8 } },
+  { typeKey: 'PangPang Cup', handle: /pangpang/i, retention: { coldHours: 10, hotHours: 8 } },
 ];
 
 function retentionFor(

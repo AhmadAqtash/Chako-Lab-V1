@@ -326,13 +326,37 @@ export async function getColorSiblings(
   return all.filter((p) => extractBaseName(p.title) === baseName);
 }
 
+const RELATED_LIMIT = 4;
+
 export async function getRelatedProducts(
   productType: string,
   excludeHandles: string[],
   language: ShopifyLanguage = 'EN'
 ): Promise<Product[]> {
-  const all = await getProducts({ first: 20, productType, language });
-  return all.filter((p) => !excludeHandles.includes(p.handle)).slice(0, 4);
+  const sameType = await getProducts({ first: 20, productType, language });
+  const picked = sameType
+    .filter((p) => !excludeHandles.includes(p.handle))
+    .slice(0, RELATED_LIMIT);
+  if (picked.length >= RELATED_LIMIT) return picked;
+
+  // Several families ARE one product in a few colourways (PangPang, BoBo,
+  // Square Cup, Coffee Mug, Teapot...). Once the caller excludes the current
+  // product and its colour siblings, nothing of the same type is left and the
+  // section used to disappear entirely. Top up from the wider catalogue —
+  // BEST_SELLING order, so the filler is genuinely worth recommending.
+  // Accessories are skipped: the pairing carousel already sells those higher
+  // up the same page. The extra fetch only happens when the type pool is thin.
+  const seen = new Set([...excludeHandles, ...picked.map((p) => p.handle)]);
+  const wider = await getProducts({ first: 24, language }).catch(() => []);
+  const eligible = wider.filter(
+    (p) => !seen.has(p.handle) && !/accessor|إكسسوار/i.test(p.productType)
+  );
+  // A same-type sibling is worth showing even when sold out (it tells you the
+  // colourway exists), but arbitrary filler is not — in-stock first, and only
+  // fall back to sold-out ones if there genuinely aren't enough.
+  const inStock = eligible.filter((p) => p.variants.nodes.some((v) => v.availableForSale));
+  const filler = [...inStock, ...eligible.filter((p) => !inStock.includes(p))];
+  return [...picked, ...filler.slice(0, RELATED_LIMIT - picked.length)];
 }
 
 // ─── Titanium (virtual cross-family collection) ───────────────────────────────
