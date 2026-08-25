@@ -29,6 +29,8 @@ const SERIES: { handle: string; key: TranslationKey; type?: string; q?: string }
   { handle: 'pots',             key: 'cat_pots',     type: 'Pot' },
   { handle: 'mugs',             key: 'cat_mugs',     type: 'Coffee Mug' },
   { handle: 'square-cups',      key: 'cat_square',   type: 'Square Cup' },
+  { handle: 'carrygo-tumblers', key: 'cat_carrygo',  type: 'CarryGo Tumbler' },
+  { handle: 'split-cups',       key: 'cat_split',    type: 'Split Cup' },
   { handle: 'accessories',      key: 'cat_accessories', type: 'Accessories' },
   // Multi-type catch-all — keep the q in sync with MORE_TYPES in lib/shopify.ts
   { handle: 'more',             key: 'cat_more',

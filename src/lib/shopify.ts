@@ -30,6 +30,8 @@ export const PRODUCT_TYPE_TO_COLLECTION: Record<string, string> = {
   'Bobo Cup':      'bobo-cup',
   'Baobao Cup':    'baobao-cup',
   'Accessories':   'accessories',
+  'CarryGo Tumbler': 'carrygo-tumblers',
+  'Split Cup':       'split-cups',
   // New families without their own series page yet — all land in the
   // 'more' catch-all so their PDP breadcrumbs link somewhere real
   'Baba Cup':      'more',
@@ -54,6 +56,8 @@ export const COLLECTION_HANDLE_TO_TYPE: Record<string, string> = {
   'bobo-cup':          'Bobo Cup',
   'baobao-cup':        'Baobao Cup',
   'accessories':       'Accessories',
+  'carrygo-tumblers':  'CarryGo Tumbler',
+  'split-cups':        'Split Cup',
 };
 
 export const COLLECTION_DISPLAY_NAMES: Record<string, string> = {
@@ -71,10 +75,18 @@ export const COLLECTION_DISPLAY_NAMES: Record<string, string> = {
   'bobo-cup':          'BoBo Cups',
   'baobao-cup':        'Baobao Food Cups',
   'accessories':       'Accessories',
+  'carrygo-tumblers':  'CarryGo Tumblers',
+  'split-cups':        'Split Cups',
   'more':              'More to Explore',
 };
 
 export const ALL_COLLECTION_HANDLES = Object.keys(COLLECTION_DISPLAY_NAMES);
+
+// Base productTypes that would otherwise absorb a longer type sharing a token.
+// Keyed by the type being queried → the types to subtract from the result.
+const TYPE_EXCLUSIONS: Record<string, string[]> = {
+  'Tumbler': ['CarryGo Tumbler'],
+};
 
 // ─── Storefront GraphQL client ────────────────────────────────────────────────
 
@@ -235,7 +247,19 @@ export async function getProducts({
   }
 
   const parts = [`vendor:'${VENDOR}'`];
-  if (productType) parts.push(`product_type:'${productType}'`);
+  if (productType) {
+    parts.push(`product_type:'${productType}'`);
+    // Shopify's product_type: filter TERM-matches, it does not compare the
+    // whole string — so a single-token type sweeps in every multi-token type
+    // containing that token. 'Tumbler' was pulling all four 'CarryGo Tumbler'
+    // products into /collections/tumbler and into the Twist related-products
+    // rail. Negate them explicitly. Only single-token types are at risk; a
+    // multi-token filter requires every token, so 'CarryGo Tumbler' does not
+    // match plain 'Tumbler' in reverse.
+    for (const excluded of TYPE_EXCLUSIONS[productType] ?? []) {
+      parts.push(`-product_type:'${excluded}'`);
+    }
+  }
   if (extraQuery) parts.push(extraQuery);
 
   try {

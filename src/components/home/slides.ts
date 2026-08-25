@@ -40,6 +40,14 @@ export interface SlideText {
    * 'bling': animated metallic gradient shimmer — for the Titanium slide.
    */
   tone?: 'ink' | 'bling';
+  /**
+   * Desktop text-block width. 'default' allows the full 2xl measure; 'narrow'
+   * caps it so a long subline cannot run under the product. Use 'narrow' when
+   * the art's clear zone is less than about half the frame — measure the art
+   * rather than guessing, and remember the SUBLINE is usually the longest run,
+   * not the headline.
+   */
+  width?: 'default' | 'narrow';
 }
 
 export interface Slide {
@@ -69,42 +77,43 @@ export interface Slide {
 
 export const SLIDES: Slide[] = [
   {
-    // Brand statement — pastel sky, products floating in from both sides
-    enDesktop: '/hero/slide-1-desktop.jpg',
-    enMobile:  '/hero/slide-1-mobile.png',
-    arDesktop: '/hero/slide-1-desktop.jpg',
-    arMobile:  '/hero/slide-1-mobile.png',
-    ctaEn: 'Shop All Products',
-    ctaAr: 'تسوق جميع المنتجات',
-    ctaHref: '/collections',
-    // NOTE: the StatementOpener directly above already says "Drinkware with
-    // personality, made for your daily ritual" — keep this headline distinct.
+    // CarryGo launch (Aug 2026) — pastel podium, four bottles right of centre,
+    // clean lilac/peach gradient across the whole left third.
+    enDesktop: '/hero/slide-carrygo-desktop.jpg',
+    enMobile:  '/hero/slide-carrygo-mobile.jpg',
+    arDesktop: '/hero/slide-carrygo-desktop.jpg',
+    arMobile:  '/hero/slide-carrygo-mobile.jpg',
+    ctaEn: 'Shop CarryGo',
+    ctaAr: 'تسوق كاري جو',
+    ctaHref: '/collections/carrygo-tumblers',
     text: {
-      headlineEn: 'Joy you can sip.',
-      headlineAr: 'بهجة تُرتشف.',
-      subEn: 'Bold color, thoughtful design — the full Chako Lab collection.',
-      subAr: 'ألوان جريئة وتصميم مدروس — تشكيلة شاكو لاب الكاملة.',
-      desktopPos: 'center',
+      headlineEn: 'Big day? Grab the handle.',
+      headlineAr: 'يوم طويل؟ أمسك المقبض.',
+      subEn: '870ml of CarryGo. One fill, one hand, done.',
+      subAr: '٨٧٠ مل من كاري جو. تعبئة واحدة تكفي يومك.',
+      desktopPos: 'left',
       mobilePos: 'top',
+      width: 'narrow', // bottles begin ~45% across — keep text clear of them
     },
   },
   {
-    // BoBo tumblers — lilac studio, cups grouped on the right
-    enDesktop: '/hero/slide-2-desktop.jpg',
-    enMobile:  '/hero/slide-2-mobile.png',
-    arDesktop: '/hero/slide-2-desktop.jpg',
-    arMobile:  '/hero/slide-2-mobile.png',
-    ctaEn: 'Shop BoBo Tumblers',
-    ctaAr: 'تسوق تمبلر بوبو',
-    ctaHref: '/collections/bobo-tumblers',
-    ctaStyle: 'glass', // cups sit low in the mobile art — keep them visible
+    // Split Cup launch (Aug 2026) — cups float centre-right over lemons and
+    // vinyl; the upper-left third of the yellow field is completely clear.
+    enDesktop: '/hero/slide-split-desktop.jpg',
+    enMobile:  '/hero/slide-split-mobile.jpg',
+    arDesktop: '/hero/slide-split-desktop.jpg',
+    arMobile:  '/hero/slide-split-mobile.jpg',
+    ctaEn: 'Shop Split Cup',
+    ctaAr: 'تسوق سبليت',
+    ctaHref: '/collections/split-cups',
     text: {
-      headlineEn: 'BoBo keeps it simple.',
-      headlineAr: 'بوبو يحب البساطة.',
-      subEn: 'Your everyday tumbler, done joyfully right.',
-      subAr: 'تمبلر يومك المفضل — مصنوع بمرح، كما يجب.',
+      headlineEn: 'The straw comes apart.',
+      headlineAr: 'الشفاطة تنفصل بالكامل.',
+      subEn: 'Finally, a straw cup you can actually clean. 570ml, two straws in the box.',
+      subAr: 'أخيراً كوب شفاطة يمكنك تنظيفه فعلاً. ٥٧٠ مل، وشفاطتان في العلبة.',
       desktopPos: 'left',
       mobilePos: 'top',
+      width: 'narrow', // the floating cups start ~52% across
     },
   },
   {

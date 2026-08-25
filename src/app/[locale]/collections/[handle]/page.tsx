@@ -63,6 +63,8 @@ const HANDLE_TO_CAT_KEY: Record<string, TranslationKey> = {
   'bobo-cup':         'cat_bobo_cup',
   'baobao-cup':       'cat_baobao',
   'accessories':      'cat_accessories',
+  'carrygo-tumblers': 'cat_carrygo',
+  'split-cups':       'cat_split',
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -243,7 +245,14 @@ export default async function CollectionPage({ params }: Props) {
   const productType = COLLECTION_HANDLE_TO_TYPE[params.handle];
   if (!productType) notFound();
 
-  const displayName = COLLECTION_DISPLAY_NAMES[params.handle];
+  // COLLECTION_DISPLAY_NAMES is English-only; generateMetadata already
+  // localizes via HANDLE_TO_CAT_KEY, so the AR <title> was Arabic while the
+  // page's own <h1> and breadcrumb stayed English on every collection.
+  const catKey = HANDLE_TO_CAT_KEY[params.handle];
+  const displayName =
+    lang === 'AR' && catKey
+      ? translations.ar[catKey]
+      : COLLECTION_DISPLAY_NAMES[params.handle];
   let products: Product[] = [];
   let loadFailed = false;
   try {

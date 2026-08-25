@@ -345,11 +345,21 @@ export default function HeroSlideshow() {
                 Rendered as <p>: the page h1 already lives in the
                 StatementOpener above the slideshow. */}
             {s.text && (
-              <div className={textWrapClass(s.text)}>
+              // dir="ltr" makes the placement PHYSICAL, as slides.ts documents.
+              // The wrapper positions with logical utilities (justify-start /
+              // ps-), which silently flip under the page's dir="rtl" — on /ar
+              // a 'left' slide was landing its headline on the RIGHT, straight
+              // over the product art. The banner is never mirrored, so the text
+              // must not move either. The inner block re-declares the reading
+              // direction so Arabic still shapes and aligns correctly.
+              <div className={textWrapClass(s.text)} dir="ltr">
                 <div
                   // Re-key on activation so the pop-in replays every visit
                   key={`text-${i}-${isActive ? navCount : 'idle'}`}
-                  className={`max-w-xl md:max-w-2xl ${isActive ? 'chakoHeroTextIn' : ''}`}
+                  dir={isAr ? 'rtl' : 'ltr'}
+                  className={`max-w-xl ${
+                    s.text.width === 'narrow' ? 'md:max-w-md' : 'md:max-w-2xl'
+                  } ${isActive ? 'chakoHeroTextIn' : ''}`}
                 >
                   <p
                     className={`text-display font-display font-semibold text-balance ${

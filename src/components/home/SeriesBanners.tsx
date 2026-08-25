@@ -119,6 +119,29 @@ const SERIES = [
     imageEn: '/banners/en-titanium.png',
     imageAr: '/banners/ar-titanium.png',
   },
+  // Aug 2026 launches — these two complete the grid at 12 cards (3 full rows)
+  {
+    handle: 'carrygo-tumblers',
+    shortEn: 'CarryGo',
+    shortAr: 'كاري جو',
+    labelEn: 'Carry Go Series',
+    labelAr: 'مجموعة كاري جو',
+    descEn: 'Tumblers',
+    descAr: 'تمبلر',
+    imageEn: '/banners/en-carrygo.jpg',
+    imageAr: '/banners/ar-carrygo.jpg',
+  },
+  {
+    handle: 'split-cups',
+    shortEn: 'Split Cup',
+    shortAr: 'سبليت',
+    labelEn: 'Split Cup Series',
+    labelAr: 'مجموعة سبليت',
+    descEn: 'Cups',
+    descAr: 'كوب',
+    imageEn: '/banners/en-split.jpg',
+    imageAr: '/banners/ar-split.jpg',
+  },
 ];
 
 // Per-series palette: softBg for card bg, nameColor for series name text,
@@ -136,6 +159,10 @@ const PALETTE = [
   // Accessories — sunny yellow matches the banner's silicone carrier
   { softBg: 'bg-chako-linlin-soft',   nameColor: 'text-chako-ink',        btnBg: 'bg-chako-linlin',    btnText: 'text-chako-ink'  },
   { softBg: 'bg-chako-titanium-soft', nameColor: 'text-chako-titanium',   btnBg: 'bg-chako-titanium',  btnText: 'text-white'      },
+  // CarryGo — lilac pill picks up the purple bottle and the pastel podium
+  { softBg: 'bg-chako-milkpod-soft',  nameColor: 'text-chako-milkpod',    btnBg: 'bg-chako-milkpod',   btnText: 'text-white'      },
+  // Split Cup — hot pink pill ties to the pink cup against the yellow art
+  { softBg: 'bg-chako-pangpang-soft', nameColor: 'text-chako-pangpang',   btnBg: 'bg-chako-pangpang',  btnText: 'text-white'      },
 ];
 
 export default function SeriesBanners() {
