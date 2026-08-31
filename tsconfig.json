@@ -10,6 +10,10 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    // src/lib/quiz/* import each other with explicit .ts extensions so that
+    // `node --test` (which is plain ESM) can run the engine directly, with no
+    // build step and no test-runner dependency. Safe here because noEmit is on.
+    "allowImportingTsExtensions": true,
     "jsx": "preserve",
     "incremental": true,
     "plugins": [

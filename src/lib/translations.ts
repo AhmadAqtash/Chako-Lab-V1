@@ -60,6 +60,18 @@ const translations = {
     promise_3_desc: 'We believe the objects you use every day should bring you quiet, consistent delight.',
     promise_4_title: 'Ships to UAE',
     promise_4_desc: 'Priced in AED and shipped directly to your door across the UAE.',
+    // "Find Your Chako" band. This is homepage CHROME, so it is translated
+    // normally. The quiz's own questions and result copy live in
+    // src/lib/quiz/config.ts with ar: null, awaiting a human Arabic write —
+    // that copy is idiomatic and must not be machine-translated.
+    quiz_band_label: 'The bottle fit test',
+    quiz_band_title: 'Find Your Chako',
+    quiz_band_sub: 'Eleven quick questions about how you actually drink — or four if it is for your kid. One bottle at the end, chosen properly.',
+    quiz_band_badge: '2 minutes',
+    quiz_band_who: 'Who are we finding one for?',
+    quiz_band_me: 'Me',
+    quiz_band_kid: 'My kid',
+    quiz_band_gift: 'A gift',
     faq_label: 'Help',
     faq_heading: 'Frequently Asked Questions',
     // Announcement bar
@@ -224,6 +236,14 @@ const translations = {
     promise_3_desc: 'نؤمن أن الأشياء اليومية يجب أن تجلب لك سعادة هادئة ومستمرة.',
     promise_4_title: 'توصيل للإمارات',
     promise_4_desc: 'بالدرهم الإماراتي مع توصيل مباشر لبابك في جميع أنحاء الإمارات.',
+    quiz_band_label: 'اختبار المطابقة',
+    quiz_band_title: 'اعثر على شاكو المناسب لك',
+    quiz_band_sub: 'أحد عشر سؤالاً سريعاً عن طريقة شربك — أو أربعة إن كان لطفلك. وفي النهاية زجاجة واحدة مختارة بعناية.',
+    quiz_band_badge: 'دقيقتان',
+    quiz_band_who: 'لمن نبحث عن واحدة؟',
+    quiz_band_me: 'لي',
+    quiz_band_kid: 'لطفلي',
+    quiz_band_gift: 'هدية',
     faq_label: 'مساعدة',
     faq_heading: 'الأسئلة الشائعة',
     // Announcement bar

@@ -3,6 +3,7 @@
 import { useLanguage } from '@/context/LanguageContext';
 import { Badge } from '@/components/ui/Badge';
 import Reveal from '@/components/ui/Reveal';
+import QuizBand from '@/components/home/QuizBand';
 
 const VALUE_ACCENTS = [
   'text-chako-linlin',
@@ -73,6 +74,10 @@ export default function BrandValues() {
             </div>
           ))}
         </Reveal>
+
+        {/* "Find Your Chako" — the four cards above say why the range is good;
+            this says which one is yours. It earns the interruption. */}
+        <QuizBand />
 
         {/* Material callout strip */}
         <Reveal
