@@ -4,6 +4,7 @@ import Link from '@/components/ui/LocalizedLink';
 import ShopifyImage from '@/components/ui/ShopifyImage';
 import { Product } from '@/types/shopify';
 import { formatPrice, getDiscountPercent, cn } from '@/lib/utils';
+import { isInStock } from '@/lib/inventory';
 import { ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -32,8 +33,12 @@ export default function ProductCard({ product }: Props) {
   const isAr = language === 'ar';
   const [pressing, setPressing] = useState(false);
 
-  const variant = product.variants?.nodes?.[0];
-  const inStock = variant?.availableForSale ?? true;
+  // Pick a SELLABLE variant, not just the first one: today every product is
+  // single-variant so these are the same, but the day one gains size options
+  // the card would otherwise offer Add to Cart for a sold-out variant.
+  const nodes = product.variants?.nodes;
+  const variant = nodes?.find((v) => v.availableForSale) ?? nodes?.[0];
+  const inStock = isInStock(product);
   const price = product.priceRange.minVariantPrice;
   const compareAt = product.compareAtPriceRange?.minVariantPrice;
   const discount = compareAt ? getDiscountPercent(compareAt, price) : 0;

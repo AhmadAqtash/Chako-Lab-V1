@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Product } from '@/types/shopify';
 import ProductCard from '@/components/product/ProductCard';
+import { isInStock, inStockFirst } from '@/lib/inventory';
 import { SlidersHorizontal, X, ChevronDown, LayoutGrid, Grid2x2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
@@ -37,7 +38,7 @@ export default function CollectionGrid({ products, title, description, showColle
     let list = [...products];
 
     if (inStockOnly) {
-      list = list.filter((p) => p.variants.nodes.some((v) => v.availableForSale));
+      list = list.filter(isInStock);
     }
 
     switch (sort) {
@@ -67,7 +68,14 @@ export default function CollectionGrid({ products, title, description, showColle
         break;
     }
 
-    return list;
+    // 'featured' is the default and has no case above — it IS the incoming
+    // BEST_SELLING order, which leads with sold-out items because best sellers
+    // empty first. Sink them here.
+    //
+    // Deliberately NOT applied to the explicit sorts: a customer who picks
+    // "Price: low to high" asked for that exact order, and quietly reordering
+    // it makes the control look broken.
+    return sort === 'featured' ? inStockFirst(list) : list;
   }, [products, sort, inStockOnly]);
 
   const activeFilterCount = (inStockOnly ? 1 : 0);

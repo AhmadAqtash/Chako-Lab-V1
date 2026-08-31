@@ -1,6 +1,7 @@
 import { Product } from '@/types/shopify';
 import { getMockProducts, getMockProduct } from './mock';
 import { extractBaseName } from './utils';
+import { inStockFirst } from './inventory';
 import { SHOPIFY_API_VERSION } from './shopify-config';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -136,6 +137,7 @@ const PRODUCT_CARD_FRAGMENT = `
     productType
     vendor
     tags
+    availableForSale
     featuredImage { ...ImageFields }
     priceRange {
       minVariantPrice { amount currencyCode }
@@ -186,6 +188,7 @@ const PRODUCT_DETAIL_QUERY = `
       productType
       vendor
       tags
+      availableForSale
       featuredImage { ...ImageFields }
       images(first: 20) { nodes { ...ImageFields } }
       priceRange {
@@ -357,10 +360,14 @@ export async function getRelatedProducts(
   excludeHandles: string[],
   language: ShopifyLanguage = 'EN'
 ): Promise<Product[]> {
-  const sameType = await getProducts({ first: 20, productType, language });
-  const picked = sameType
-    .filter((p) => !excludeHandles.includes(p.handle))
-    .slice(0, RELATED_LIMIT);
+  // Sold-out siblings still belong here (they tell you the colourway exists),
+  // but they don't belong FIRST — and with only 4 slots, an in-stock sibling
+  // outranks one you can't buy.
+  const sameType = inStockFirst(
+    (await getProducts({ first: 20, productType, language }))
+      .filter((p) => !excludeHandles.includes(p.handle))
+  );
+  const picked = sameType.slice(0, RELATED_LIMIT);
   if (picked.length >= RELATED_LIMIT) return picked;
 
   // Several families ARE one product in a few colourways (PangPang, BoBo,
@@ -378,8 +385,7 @@ export async function getRelatedProducts(
   // A same-type sibling is worth showing even when sold out (it tells you the
   // colourway exists), but arbitrary filler is not — in-stock first, and only
   // fall back to sold-out ones if there genuinely aren't enough.
-  const inStock = eligible.filter((p) => p.variants.nodes.some((v) => v.availableForSale));
-  const filler = [...inStock, ...eligible.filter((p) => !inStock.includes(p))];
+  const filler = inStockFirst(eligible);
   return [...picked, ...filler.slice(0, RELATED_LIMIT - picked.length)];
 }
 

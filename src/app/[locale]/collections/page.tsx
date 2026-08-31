@@ -1,4 +1,5 @@
 import { getProducts } from '@/lib/shopify';
+import { inStockFirst } from '@/lib/inventory';
 import type { Product } from '@/types/shopify';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
@@ -30,7 +31,11 @@ export default async function CollectionsPage({ params }: { params: { locale: Lo
   try {
     // 250 (storefront max): the catalog passed 48 products long ago — a lower
     // cap silently hides whatever sorts last from the main browsing surface
-    products = await getProducts({ first: 250, language: toShopifyLanguage(params.locale) });
+    // Sold-out items sink to the bottom of the grid. This page has no sort
+    // toolbar, so the arrival order IS the only order a customer ever sees.
+    products = inStockFirst(
+      await getProducts({ first: 250, language: toShopifyLanguage(params.locale) })
+    );
   } catch {
     loadFailed = true;
   }

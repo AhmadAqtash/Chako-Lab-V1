@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from '@/components/ui/LocalizedLink';
 import ShopifyImage from '@/components/ui/ShopifyImage';
 import { formatPrice, extractBaseName } from '@/lib/utils';
+import { isInStock, inStockFirst } from '@/lib/inventory';
 import { useLanguage } from '@/context/LanguageContext';
 import { Tag } from '@/components/ui/Tag';
 import { SHOPIFY_API_VERSION } from '@/lib/shopify-config';
@@ -19,6 +20,7 @@ interface CardProduct {
   title: string;
   productType: string;
   vendor: string;
+  availableForSale: boolean;
   featuredImage: { url: string; altText: string | null } | null;
   priceRange: { minVariantPrice: MoneyV2 };
   variants: { nodes: { id: string; availableForSale: boolean }[] };
@@ -47,7 +49,7 @@ const TYPE_IMG_BG: Record<string, string> = {
 // @inContext(language: AR) productType comes back translated, so comparing it
 // to the English constants above matched nothing and Arabic showed no products.
 const CARD_FIELDS = `
-  id handle title productType vendor
+  id handle title productType vendor availableForSale
   featuredImage { url altText }
   priceRange { minVariantPrice { amount currencyCode } }
   variants(first: 1) { nodes { id availableForSale } }
@@ -106,7 +108,12 @@ export default function HotCategories() {
   }, [isAr]);
 
   const familyProducts = families[activeTab] ?? [];
-  const tabProducts = familyProducts.slice(0, 8);
+  // Sink sold-out cards before the slice. The query fetches 24 per family and
+  // we show 8, so a sold-out item genuinely leaves the rail rather than sliding
+  // to slot 8 — Bawang was showing four unbuyable cards out of eight.
+  // familyProducts itself stays in BEST_SELLING order on purpose: the swatch
+  // dots below read from it, and those must not reshuffle as stock moves.
+  const tabProducts = inStockFirst(familyProducts).slice(0, 8);
 
   const selectTab = (idx: number) => {
     if (idx === activeTab) return;
@@ -195,7 +202,7 @@ export default function HotCategories() {
                 const siblings = familyProducts.filter(
                   (p) => extractBaseName(p.title) === extractBaseName(product.title)
                 );
-                const soldOut = !product.variants.nodes[0]?.availableForSale;
+                const soldOut = !isInStock(product);
                 const displayTitle = product.title.replace(/^Chako Lab\s+/i, '');
                 // Key on the tab's EN constant — product.productType is localized
                 const imgBg = TYPE_IMG_BG[TABS[activeTab].productType] ?? 'bg-chako-accent';

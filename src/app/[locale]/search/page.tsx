@@ -1,4 +1,5 @@
 import { searchProducts } from '@/lib/shopify';
+import { inStockFirst } from '@/lib/inventory';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
 import type { Product } from '@/types/shopify';
@@ -29,7 +30,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
   let searchFailed = false;
   if (query) {
     try {
-      products = await searchProducts(query, lang);
+      products = inStockFirst(await searchProducts(query, lang));
     } catch {
       searchFailed = true;
     }

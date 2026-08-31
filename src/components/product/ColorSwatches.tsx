@@ -2,6 +2,7 @@ import Link from '@/components/ui/LocalizedLink';
 import ShopifyImage from '@/components/ui/ShopifyImage';
 import { Product } from '@/types/shopify';
 import { cn, extractColorName } from '@/lib/utils';
+import { isInStock } from '@/lib/inventory';
 import T from '@/components/ui/T';
 
 interface Props {
@@ -27,7 +28,10 @@ export default function ColorSwatches({ siblings, currentHandle, colorName, coll
       <div className="flex flex-wrap gap-2 items-center pl-0.5 md:pl-0">
         {visible.map((sibling) => {
           const isActive = sibling.handle === currentHandle;
-          const isOOS = sibling.variants.nodes.every((v) => !v.availableForSale);
+          // Swatch ORDER is deliberately left in catalogue order (a stable row
+          // that looks the same from every colour's page); only the dimmed
+          // sold-out state is derived from stock.
+          const isOOS = !isInStock(sibling);
           const siblingColor = extractColorName(sibling.title);
 
           return (

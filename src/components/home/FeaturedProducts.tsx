@@ -1,12 +1,19 @@
 import { getProducts } from '@/lib/shopify';
+import { inStockFirst } from '@/lib/inventory';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import ProductCard from '@/components/product/ProductCard';
 import Reveal from '@/components/ui/Reveal';
 import Link from '@/components/ui/LocalizedLink';
 import T from '@/components/ui/T';
 
+const SHOWN = 8;
+
 export default async function FeaturedProducts({ locale }: { locale: Locale }) {
-  const products = await getProducts({ first: 8, language: toShopifyLanguage(locale) }).catch(() => []);
+  // Fetch WIDER than we show. BEST_SELLING leads with sold-out items (best
+  // sellers empty first), so demoting a window of exactly 8 would only move the
+  // sold-out card to slot 8 — it has to have somewhere to fall to.
+  const pool = await getProducts({ first: 24, language: toShopifyLanguage(locale) }).catch(() => []);
+  const products = inStockFirst(pool).slice(0, SHOWN);
 
   if (!products.length) return null;
 

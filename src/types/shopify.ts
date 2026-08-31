@@ -38,6 +38,9 @@ export interface Product {
   productType: string;
   vendor: string;
   tags: string[];
+  // Shopify's roll-up across every variant. Optional because the mock catalogue
+  // doesn't supply it — read it through isInStock(), never directly.
+  availableForSale?: boolean;
   featuredImage: ShopifyImage | null;
   images: { nodes: ShopifyImage[] };
   priceRange: {
