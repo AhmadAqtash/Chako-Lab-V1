@@ -14,6 +14,13 @@ import {
   type Result,
 } from '@/lib/quiz/config';
 import { runQuiz, type Answers } from '@/lib/quiz/engine';
+import {
+  fetchQuizMatch,
+  type LookPref,
+  type QuizMatchProduct,
+} from '@/lib/quiz/product-match';
+import ProductCard from '@/components/product/ProductCard';
+import type { Product } from '@/types/shopify';
 
 // The brand signature is that every product ships as a two-tone colour PAIR.
 // The background walks through a different series colourway on each question,
@@ -76,6 +83,38 @@ export default function QuizFlow({ startWith }: Props) {
   const current = flow[step];
   const pair = PAIRS[step % PAIRS.length];
 
+  const outcome = useMemo(() => (done ? runQuiz(answers as Answers) : null), [done, answers]);
+
+  // The live product for the result card: an IN-STOCK colourway fetched from
+  // Shopify at result time, with the Q9 look answer picking which one. null
+  // after settling = family sold out or fetch failed → collection CTA fallback.
+  const [match, setMatch] = useState<QuizMatchProduct | null>(null);
+  const [matchPending, setMatchPending] = useState(false);
+  const resultId = outcome?.result.id;
+  useEffect(() => {
+    if (!resultId) return;
+    let alive = true;
+    setMatchPending(true);
+    const look = (answers.q9 as LookPref | undefined) ?? null;
+    fetchQuizMatch(resultId, look, isAr)
+      .then((p) => {
+        if (!alive) return;
+        setMatch(p);
+        setMatchPending(false);
+      })
+      .catch(() => {
+        if (!alive) return;
+        setMatch(null);
+        setMatchPending(false);
+      });
+    return () => {
+      alive = false;
+    };
+    // answers.q9 is captured via resultId's lifecycle — a new result implies a
+    // fresh pass through the questions.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultId, isAr]);
+
   const choose = (question: Question, optionId: string) => {
     const next = { ...answers, [question.id]: optionId };
     // Changing an earlier answer invalidates everything after it — otherwise a
@@ -115,15 +154,19 @@ export default function QuizFlow({ startWith }: Props) {
     setAnswers({});
     setStep(0);
     setCopied(false);
+    setMatch(null);
+    setMatchPending(false);
   };
 
-  if (done) {
-    const { result, scored } = runQuiz(answers as Answers);
+  if (done && outcome) {
+    const { result, scored } = outcome;
     return (
       <ResultCard
         result={result}
         gift={scored.gift}
         pairings={scored.pairings}
+        match={match}
+        matchPending={matchPending}
         t={t}
         isAr={isAr}
         copied={copied}
@@ -148,6 +191,12 @@ export default function QuizFlow({ startWith }: Props) {
   return (
     <div dir={isAr ? 'rtl' : 'ltr'} className="max-w-xl mx-auto">
       <style>{quizCss}</style>
+      {/* The panel walks through a different series colourway on each question —
+          the brief's design signature (§7): flipping through the range rather
+          than filling in a form. */}
+      <div
+        className={`rounded-3xl border-2 border-chako-ink shadow-[6px_6px_0_0_#1a1a1a] ${pair.soft} transition-colors duration-500 p-5 md:p-8`}
+      >
       {/* Progress */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
@@ -193,7 +242,7 @@ export default function QuizFlow({ startWith }: Props) {
               <button
                 key={opt.id}
                 onClick={() => (current.multi ? toggle(current, opt.id) : choose(current, opt.id))}
-                className={`group ${CARD} ${selected ? optPair.bold : optPair.soft} px-5 py-4 text-start
+                className={`group ${CARD} ${selected ? optPair.bold : 'bg-white'} px-5 py-4 text-start
                   flex items-center gap-3 min-h-[60px] touch-manipulation
                   transition-[transform,box-shadow] duration-150
                   hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#1a1a1a]
@@ -225,6 +274,7 @@ export default function QuizFlow({ startWith }: Props) {
           </button>
         )}
       </div>
+      </div>
     </div>
   );
 }
@@ -235,6 +285,8 @@ function ResultCard({
   result,
   gift,
   pairings,
+  match,
+  matchPending,
   t,
   isAr,
   copied,
@@ -244,12 +296,27 @@ function ResultCard({
   result: Result;
   gift: boolean;
   pairings: readonly L[];
+  match: QuizMatchProduct | null;
+  matchPending: boolean;
   t: (l: L) => string;
   isAr: boolean;
   copied: boolean;
   onCopy: () => void;
   onRestart: () => void;
 }) {
+  // The site's real ProductCard wants the full Product shape; the quiz fetch is
+  // deliberately slim, so pad the fields the card never reads.
+  const cardProduct = match
+    ? ({
+        ...match,
+        description: '',
+        descriptionHtml: '',
+        images: { nodes: [] },
+        options: [],
+        tags: [],
+      } as unknown as Product)
+    : null;
+
   return (
     <div dir={isAr ? 'rtl' : 'ltr'} className="max-w-xl mx-auto chakoQuizIn">
       <style>{quizCss}</style>
@@ -260,9 +327,7 @@ function ResultCard({
           : isAr ? 'مطابقتك' : 'Your match'}
       </p>
 
-      <h2 className="text-display font-display font-bold leading-none mb-2">{t(result.persona)}</h2>
-      <p className="text-body text-chako-ink/70 mb-1">{t(result.product)}</p>
-      <p className="font-display font-bold text-xl mb-5">{t(result.price)}</p>
+      <h2 className="text-display font-display font-bold leading-none mb-4">{t(result.persona)}</h2>
 
       {/* Spec pills — mono utility face, echoing the chips on the live PDPs */}
       <div className="flex flex-wrap gap-2 mb-6">
@@ -275,6 +340,23 @@ function ResultCard({
           </span>
         ))}
       </div>
+
+      {/* THE product, live from Shopify: an in-stock colourway (Q9 picked it),
+          rendered as the site's own card — image, price, add-to-cart — and
+          clickable straight through to the PDP. */}
+      {matchPending ? (
+        <div className="max-w-[280px] mx-auto mb-6">
+          <div className="aspect-[4/5] rounded-2xl bg-black/5 animate-pulse" />
+          <div className="mt-2 h-4 bg-black/5 animate-pulse rounded-md" />
+          <div className="mt-1.5 h-4 w-1/2 bg-black/5 animate-pulse rounded-md" />
+        </div>
+      ) : cardProduct ? (
+        <div className="max-w-[280px] mx-auto mb-6 -rotate-1 hover:rotate-0 transition-transform duration-300">
+          <div className="rounded-2xl shadow-[6px_6px_0_0_#1a1a1a] border-2 border-chako-ink overflow-hidden">
+            <ProductCard product={cardProduct} />
+          </div>
+        </div>
+      ) : null}
 
       <div className={`${CARD} bg-chako-linlin-soft px-5 py-5 mb-5`}>
         <p className="font-display font-bold text-lg leading-snug">{t(result.verdict)}</p>
@@ -304,17 +386,31 @@ function ResultCard({
         ))}
       </div>
 
-      {/* CTA goes to the COLLECTION, never a product page — colourways sell out
-          constantly and a dead PDP kills the conversion. */}
-      <Link
-        href={`/collections/${result.collection}`}
-        className={`${CARD} bg-chako-ink text-chako-cream w-full py-4 font-display font-bold text-base
-          flex items-center justify-center gap-2 min-h-[56px] touch-manipulation
-          transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 mb-3`}
-      >
-        {isAr ? 'تسوّق المجموعة' : 'Shop the collection'}
-        {isAr ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
-      </Link>
+      {/* With a live in-stock card above, its PDP link is the primary action
+          and the collection demotes to a browse link. With no card (family sold
+          out, or the fetch failed) the collection CTA stays primary — it is the
+          link that cannot die, which is why the brief insisted on it. */}
+      {cardProduct ? (
+        <Link
+          href={`/products/${cardProduct.handle}`}
+          className={`${CARD} bg-chako-ink text-chako-cream w-full py-4 font-display font-bold text-base
+            flex items-center justify-center gap-2 min-h-[56px] touch-manipulation
+            transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 mb-3`}
+        >
+          {isAr ? 'اذهب إلى المنتج' : 'Take me to it'}
+          {isAr ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
+        </Link>
+      ) : (
+        <Link
+          href={`/collections/${result.collection}`}
+          className={`${CARD} bg-chako-ink text-chako-cream w-full py-4 font-display font-bold text-base
+            flex items-center justify-center gap-2 min-h-[56px] touch-manipulation
+            transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 mb-3`}
+        >
+          {isAr ? 'تسوّق المجموعة' : 'Shop the collection'}
+          {isAr ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
+        </Link>
+      )}
 
       <div className="flex gap-3">
         <button
@@ -335,6 +431,15 @@ function ResultCard({
           {isAr ? 'أعد' : 'Retake'}
         </button>
       </div>
+
+      {cardProduct && (
+        <Link
+          href={`/collections/${result.collection}`}
+          className="block text-center mt-4 text-sm font-semibold text-chako-ink/50 hover:text-chako-ink underline underline-offset-4 transition-colors"
+        >
+          {isAr ? 'أو تصفح المجموعة كاملة' : 'Or browse the whole collection'}
+        </Link>
+      )}
 
       <p className="mt-4 text-xs text-chako-ink/40 italic leading-relaxed">
         &ldquo;{t(result.shareLine)}&rdquo;

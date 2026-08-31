@@ -65,13 +65,10 @@ const translations = {
     // src/lib/quiz/config.ts with ar: null, awaiting a human Arabic write —
     // that copy is idiomatic and must not be machine-translated.
     quiz_band_label: 'The bottle fit test',
-    quiz_band_title: 'Find Your Chako',
-    quiz_band_sub: 'Eleven quick questions about how you actually drink — or four if it is for your kid. One bottle at the end, chosen properly.',
+    quiz_band_title: 'Too many options?',
+    quiz_band_sub: 'Nine series, dozens of colourways — one of them is yours. Two minutes of honest questions and we point straight at it.',
     quiz_band_badge: '2 minutes',
-    quiz_band_who: 'Who are we finding one for?',
-    quiz_band_me: 'Me',
-    quiz_band_kid: 'My kid',
-    quiz_band_gift: 'A gift',
+    quiz_band_cta: 'Find your Chako',
     faq_label: 'Help',
     faq_heading: 'Frequently Asked Questions',
     // Announcement bar
@@ -237,13 +234,10 @@ const translations = {
     promise_4_title: 'توصيل للإمارات',
     promise_4_desc: 'بالدرهم الإماراتي مع توصيل مباشر لبابك في جميع أنحاء الإمارات.',
     quiz_band_label: 'اختبار المطابقة',
-    quiz_band_title: 'اعثر على شاكو المناسب لك',
-    quiz_band_sub: 'أحد عشر سؤالاً سريعاً عن طريقة شربك — أو أربعة إن كان لطفلك. وفي النهاية زجاجة واحدة مختارة بعناية.',
+    quiz_band_title: 'خيارات كثيرة؟',
+    quiz_band_sub: 'تسع سلاسل وعشرات الألوان — واحدة منها لك. دقيقتان من الأسئلة الصادقة وسنشير إليها مباشرة.',
     quiz_band_badge: 'دقيقتان',
-    quiz_band_who: 'لمن نبحث عن واحدة؟',
-    quiz_band_me: 'لي',
-    quiz_band_kid: 'لطفلي',
-    quiz_band_gift: 'هدية',
+    quiz_band_cta: 'اعثر على شاكو المناسب لك',
     faq_label: 'مساعدة',
     faq_heading: 'الأسئلة الشائعة',
     // Announcement bar
