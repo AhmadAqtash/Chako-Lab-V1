@@ -13,6 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/collections/new',
     '/collections/twist',
     ...ALL_COLLECTION_HANDLES.map((h) => `/collections/${h}`),
+    '/quiz',
     '/pages/faq',
     '/pages/about',
     '/pages/contact',

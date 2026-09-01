@@ -69,6 +69,13 @@ export default function FloatingContact() {
   const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(t.waText)}`;
   const mailHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(t.subject)}`;
 
+  // The quiz is a focused funnel of full-width answer cards, and this stack
+  // lands directly on top of them (start-edge in RTL, where the cards begin).
+  // Interrupting "which bottle fits me" to offer WhatsApp costs more than it
+  // gains — the contact points return on every other page. (After the hooks:
+  // an early return above them would break the rules of hooks.)
+  if (/^\/(en|ar)\/quiz(\/|$)/.test(pathname)) return null;
+
   // Wobble is a hover greeting, not a state — it ends back at neutral, so it
   // coexists with active:scale-95 press feedback. motion-safe honors
   // prefers-reduced-motion.

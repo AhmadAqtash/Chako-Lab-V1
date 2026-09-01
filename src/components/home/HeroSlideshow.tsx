@@ -296,7 +296,7 @@ export default function HeroSlideshow() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <style>{heroCss}</style>
+      <style dangerouslySetInnerHTML={{ __html: heroCss }} />
 
       {/* All slides stay mounted, stacked. The active slide blooms open over
           the outgoing one, which recedes and dims slightly beneath it. */}

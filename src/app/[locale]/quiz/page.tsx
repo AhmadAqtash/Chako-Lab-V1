@@ -1,9 +1,8 @@
-import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { localeAlternates } from '@/lib/seo';
 import type { Locale } from '@/lib/locale';
 import Breadcrumb from '@/components/ui/Breadcrumb';
-import QuizStarter from '@/components/quiz/QuizStarter';
+import QuizFlow from '@/components/quiz/QuizFlow';
 
 export const revalidate = 60;
 
@@ -31,7 +30,10 @@ export default function QuizPage({ params }: { params: { locale: Locale } }) {
     <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8 md:py-12">
       <Breadcrumb
         crumbs={[
-          { label: 'Home', href: '/' },
+          // Breadcrumb renders labels verbatim (no key lookup), so localize
+          // here. NOTE: every other page passes English 'Home' on /ar too —
+          // site-wide breadcrumb i18n is a separate, pre-existing gap.
+          { label: isAr ? 'الرئيسية' : 'Home', href: '/' },
           { label: isAr ? 'اعثر على شاكو المناسب لك' : 'Find Your Chako' },
         ]}
       />
@@ -50,11 +52,10 @@ export default function QuizPage({ params }: { params: { locale: Locale } }) {
         </p>
       </div>
 
-      {/* useSearchParams needs a Suspense boundary; without it the whole route
-          opts out of static rendering. */}
-      <Suspense fallback={<div className="h-64" />}>
-        <QuizStarter />
-      </Suspense>
+      {/* Rendered directly — no Suspense/useSearchParams wrapper, so Q1 is in
+          the prerendered HTML instead of an empty fallback box. QuizFlow reads
+          the optional ?start= deep-link itself, from window, after mount. */}
+      <QuizFlow />
     </div>
   );
 }

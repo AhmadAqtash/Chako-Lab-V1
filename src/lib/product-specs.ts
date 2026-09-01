@@ -12,6 +12,11 @@
 //   Milk Pod covers every variant including ceramic and titanium; the
 //   supplier descriptions on the steel Milk Pods independently say
 //   "up to 8 hours", which corroborates it.
+// - EXCEPTION (Ahmad, 31 Aug 2026): the Twist Tumbler holds ~8 hours, hot or
+//   cold — its own description says "up to 8 hours" and Ahmad confirmed the
+//   description over the canon. It is built around the twist lid, not the
+//   insulation. (Caught by the quiz launch audit: the quiz result said 8h
+//   while the PDP chips claimed 36h from the canon.)
 // - Plastic-bodied products (Tritan / PPSU / "Plastic" in the name) are NOT
 //   insulated — they must never show retention hours.
 // - Capacity in ml must be shown on every PDP. Extracted from the product's
@@ -37,6 +42,9 @@ export const RETENTION: Retention = { coldHours: 36, hotHours: 18 };
 const RETENTION_OVERRIDES: { typeKey: string; handle: RegExp; retention: Retention }[] = [
   { typeKey: 'Milk Pod', handle: /milk-?pod/i, retention: { coldHours: 10, hotHours: 8 } },
   { typeKey: 'PangPang Cup', handle: /pangpang/i, retention: { coldHours: 10, hotHours: 8 } },
+  // Twist shares base type 'Tumbler' with full-spec products, so only the
+  // handle can identify it ('Twist Tumbler' matches no real base type).
+  { typeKey: 'Twist Tumbler', handle: /twist/i, retention: { coldHours: 8, hotHours: 8 } },
 ];
 
 function retentionFor(

@@ -218,41 +218,63 @@ test('budget outranks the weight preference', () => {
   assert.notEqual(result.id, 'featherweight', 'AED 140–200 must not produce an AED 349 titanium result');
 });
 
-test('a stated 1L+ never resolves to a small bottle', () => {
-  // Every combination of the remaining answers, with capacity pinned to large.
-  for (const q4 of ['cupholder-desk', 'gym', 'tote', 'kitchen', 'office']) {
-    for (const q5 of ['handle', 'strap', 'bag', 'cupholder']) {
-      for (const q6 of ['straw', 'lid', 'switch']) {
-        const { result } = runQuiz({
-          q1: 'me', q2: 'water', q3: 'large', q4, q5, q6,
-          q7: 'no', q8: 'neglect', q9: 'loud', q10: 'mid',
-        });
-        assert.ok(
-          ['long-hauler', 'reservoir', 'cafe-ritualist-large'].includes(result.id),
-          `1L+ with ${q4}/${q5}/${q6} resolved to ${result.id}`
-        );
+// The capacity guards iterate q2 AND q8 as well: the launch audit proved the
+// original water-only version never exercised the ceramic branch, which had
+// its own capacity bypass — 722 of 86,400 paths shipped a wrong-size product
+// while 29 tests stayed green. Coffee + daily-rinse is the ceramic segment.
+test('a stated 1L+ never resolves to a small bottle — steel AND ceramic paths', () => {
+  for (const q2 of ['water', 'coffee', 'juice', 'all']) {
+    for (const q4 of ['cupholder-desk', 'gym', 'tote', 'kitchen', 'office']) {
+      for (const q5 of ['handle', 'strap', 'bag', 'cupholder']) {
+        for (const q6 of ['straw', 'lid', 'switch']) {
+          for (const q8 of ['rinse', 'neglect']) {
+            const { result } = runQuiz({
+              q1: 'me', q2, q3: 'large', q4, q5, q6,
+              q7: 'no', q8, q9: 'loud', q10: 'mid',
+            });
+            assert.ok(
+              ['long-hauler', 'reservoir', 'cafe-ritualist-large'].includes(result.id),
+              `1L+ with ${q2}/${q4}/${q5}/${q6}/${q8} resolved to ${result.id}`
+            );
+          }
+        }
       }
     }
   }
 });
 
-test('a stated ~500ml never resolves to an 870ml or larger bottle', () => {
-  // The guard that made CarryGo safe to add: at 870ml it must be switched away
-  // from exactly as BaWang and BaBa are.
-  for (const q4 of ['cupholder-desk', 'gym', 'tote', 'kitchen', 'office']) {
-    for (const q5 of ['handle', 'strap', 'bag', 'cupholder']) {
-      for (const q6 of ['straw', 'lid', 'switch']) {
-        const { result } = runQuiz({
-          q1: 'me', q2: 'water', q3: 'small', q4, q5, q6,
-          q7: 'no', q8: 'neglect', q9: 'loud', q10: 'mid',
-        });
-        assert.ok(
-          !['one-hander', 'long-hauler', 'reservoir'].includes(result.id),
-          `~500ml with ${q4}/${q5}/${q6} resolved to ${result.id}`
-        );
+test('a stated ~500ml never resolves to an 870ml or larger bottle — steel AND ceramic paths', () => {
+  // 1100ml cafe-ritualist-large joins the forbidden set: the original test
+  // omitted it, which is exactly where the ceramic bypass hid.
+  for (const q2 of ['water', 'coffee', 'juice', 'all']) {
+    for (const q4 of ['cupholder-desk', 'gym', 'tote', 'kitchen', 'office']) {
+      for (const q5 of ['handle', 'strap', 'bag', 'cupholder']) {
+        for (const q6 of ['straw', 'lid', 'switch']) {
+          for (const q8 of ['rinse', 'neglect']) {
+            const { result } = runQuiz({
+              q1: 'me', q2, q3: 'small', q4, q5, q6,
+              q7: 'no', q8, q9: 'loud', q10: 'mid',
+            });
+            assert.ok(
+              !['one-hander', 'long-hauler', 'reservoir', 'cafe-ritualist-large'].includes(result.id),
+              `~500ml with ${q2}/${q4}/${q5}/${q6}/${q8} resolved to ${result.id}`
+            );
+          }
+        }
       }
     }
   }
+});
+
+test('PangPang is winnable WITHOUT the matcha override (kitchen + straw route)', () => {
+  // Adding Split Cup scoring silently killed this route (Split outran
+  // PangPang's non-brew maximum on every path); Ahmad restored it on
+  // 31 Aug 2026 via kitchen pangpang +2 → +3. This pins the route open.
+  const { result } = runQuiz({
+    q1: 'me', q2: 'water', q3: 'mid', q4: 'kitchen', q5: 'strap',
+    q6: 'straw', q7: 'no', q8: 'neglect', q9: 'loud', q10: 'mid',
+  });
+  assert.equal(result.id, 'brewer');
 });
 
 test('a self-declared neglecter is never sent a ceramic lining', () => {

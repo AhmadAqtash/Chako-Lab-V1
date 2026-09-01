@@ -50,7 +50,15 @@ const LARGE_SERIES: ReadonlySet<SeriesKey> = new Set<SeriesKey>(['bawang', 'baba
 /** Series a stated "1L+" is allowed to resolve to. CarryGo (870ml) is not one. */
 const LARGE_ELIGIBLE: readonly SeriesKey[] = ['bawang', 'baba'];
 
-/** Series that actually have a ceramic variant, per the brief's §3 matrix. */
+/**
+ * Series that actually have a ceramic variant, per the brief's §3 matrix.
+ *
+ * Kada is deliberately absent even though a 'Kada Bottle 700ml Ceramic'
+ * (AED 199) launched late Aug 2026 — Ahmad ruled on 31 Aug 2026 to keep the
+ * brief's routing (ceramic-leaning Kada types fall back to MilkPod/BaWang
+ * Ceramic, which are valid in-stock products) rather than patch in a new
+ * persona mid-audit. Revisit when the ceramic Kada earns its own result.
+ */
 const CERAMIC_CAPABLE: readonly SeriesKey[] = ['bawang', 'milkpod', 'bobo', 'linlin', 'twist'];
 
 /** questionId → chosen optionId, or optionIds for the multi-select Q11. */
@@ -191,7 +199,17 @@ export function resolve(s: Scored): Result {
       (best, k) => (s.series[k] > (best ? s.series[best] : 0) ? k : best),
       null
     );
-    const target = winner && CERAMIC_CAPABLE.includes(winner) ? winner : ceramicWinner;
+    let target = winner && CERAMIC_CAPABLE.includes(winner) ? winner : ceramicWinner;
+
+    // The capacity constraint applies HERE too. Step 6 clamps `winner`, but a
+    // non-ceramic-capable winner hands the branch to ceramicWinner, computed
+    // from raw scores — which quietly resold a stated "1L+" as a 520ml MilkPod
+    // and a stated "~500ml" as the 1100ml BaWang (722 of the 86,400 possible
+    // answer paths, all through the core coffee/juice segment; caught by the
+    // launch audit's exhaustive sweep). Brief §3's fallback table is cap-aware:
+    // large ceramic is always BaWang Ceramic, and small never is.
+    if (s.cap === 'large') target = 'bawang';
+    if (s.cap === 'small' && target === 'bawang') target = 'milkpod';
 
     if (target === 'milkpod') return RESULTS['cafe-ritualist-small'];
     if (target === 'bobo') return RESULTS['desk-setter-ceramic'];

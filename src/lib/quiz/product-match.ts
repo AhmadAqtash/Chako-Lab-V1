@@ -48,6 +48,13 @@ interface MatchSpec {
   readonly exclude?: RegExp;
   /** Soft preference — outranks colour preference but never in-stock status. */
   readonly prefer?: RegExp;
+  /**
+   * Hard price ceiling in AED. Exists for the entry tier: the AED-99 700ml
+   * PPSU Kadas carry no material token in title OR handle ('kada-bottle-700ml-
+   * white-blue'), so no regex can tell them from the AED-179+ steel 700ml —
+   * price is the only signal that separates the tiers.
+   */
+  readonly maxPrice?: number;
 }
 
 const STEEL_ONLY = /ceramic|titanium|plastic|ppsu|(^|[\s-])ti([\s-]|$)/i;
@@ -68,8 +75,14 @@ export const MATCH_SPECS: Readonly<Record<string, MatchSpec>> = {
   // The Featherweight copy says to start with the MilkPod Titanium — the one
   // where the weight difference is most obvious in the hand.
   featherweight:          { type: 'Milk Pod', include: /titanium/i },
-  host:                   { type: 'LinLin Kettle', exclude: /strap/i },
-  'sensible-one':         { type: 'Kada Bottle', include: /ppsu|plastic/i },
+  // exclude plastic too: the four 'LinLin Kettle Plastic' are 1150ml Tritan,
+  // and the Host card promises STEEL / CERAMIC and 36H COLD. Today they rank
+  // last anyway, but a steel/ceramic sellout would have surfaced a Tritan card
+  // under an insulation pill — the collection CTA is the honest fallback.
+  host:                   { type: 'LinLin Kettle', exclude: /strap|plastic/i },
+  // The whole AED-99 entry tier (550/700ml PPSU + 888ml Tritan); prefer the
+  // 700ml the result copy names. See maxPrice's doc for why price, not regex.
+  'sensible-one':         { type: 'Kada Bottle', maxPrice: 120, prefer: /700ml/i },
   'one-hander':           { type: 'CarryGo Tumbler' },
   'straw-purist':         { type: 'Split Cup' },
   'little-one-ppsu':      { type: 'Kada Bottle', include: /ppsu/i },
@@ -97,6 +110,7 @@ interface Rankable {
   readonly title: string;
   readonly availableForSale?: boolean;
   readonly variants?: { nodes: { availableForSale: boolean }[] };
+  readonly priceRange?: { minVariantPrice: { amount: string } };
 }
 
 /**
@@ -119,6 +133,12 @@ export function rankMatches<T extends Rankable>(
       if (!isInStock(p)) return false;
       if (spec.include && !spec.include.test(text)) return false;
       if (spec.exclude && spec.exclude.test(text)) return false;
+      if (spec.maxPrice != null) {
+        const amount = p.priceRange?.minVariantPrice.amount;
+        // No price on the object (slim test fixtures) → cannot verify the
+        // ceiling → exclude. A price-gated spec must never guess.
+        if (!amount || parseFloat(amount) > spec.maxPrice) return false;
+      }
       return true;
     })
     .map((x) => ({

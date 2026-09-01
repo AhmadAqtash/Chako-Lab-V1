@@ -213,9 +213,15 @@ export const QUESTIONS: readonly Question[] = [
       },
       { id: 'tote', label: { en: 'In my tote, around the city', ar: null }, series: { milkpod: 2, kada: 1 } },
       {
+        // pangpang +3 (brief said +2): adding Split Cup scoring had silently
+        // made PangPang unwinnable outside the matcha override — Split's Q3-mid
+        // +2 and Q6-straw +4 always outran PangPang's non-brew maximum of 5.
+        // One point here restores the brief-intended kitchen+straw route
+        // (PangPang also outranks Split on ties). Authorized by Ahmad
+        // 31 Aug 2026; full 86,400-path sweep re-run after the change.
         id: 'kitchen',
         label: { en: 'On the kitchen counter at home', ar: null },
-        series: { linlin: 3, pangpang: 2, bobo: 1 },
+        series: { linlin: 3, pangpang: 3, bobo: 1 },
       },
       { id: 'office', label: { en: 'On my office desk, all day', ar: null }, series: { bobo: 3, twist: 2, baba: 1 } },
     ],

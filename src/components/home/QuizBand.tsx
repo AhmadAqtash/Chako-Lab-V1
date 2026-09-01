@@ -5,7 +5,9 @@ import { useLanguage } from '@/context/LanguageContext';
 import Reveal from '@/components/ui/Reveal';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 
-// One dot per series — the "too many options" made visual. Purely decorative.
+// A handful of series colours — the "too many options" made visual. Purely
+// decorative and deliberately NOT one-per-series (the range is ten series and
+// growing; a literal count would go stale with every launch).
 const SERIES_DOTS = [
   'bg-chako-linlin',
   'bg-chako-bawang',
@@ -44,7 +46,7 @@ export default function QuizBand() {
 
   return (
     <Reveal variant="up" delay={200} className="mt-12">
-      <style>{bandCss}</style>
+      <style dangerouslySetInnerHTML={{ __html: bandCss }} />
 
       {/* Cream card inside the dark section — the whole band is ONE link to the
           test page, so anywhere you tap goes there. */}

@@ -15,10 +15,11 @@ test('every quiz result has a product-match spec', () => {
   assert.deepEqual(missing, [], `results with no spec: ${missing.join(', ')}`);
 });
 
-const P = (handle: string, title: string, inStock = true) => ({
+const P = (handle: string, title: string, inStock = true, price?: number) => ({
   handle,
   title,
   availableForSale: inStock,
+  ...(price != null ? { priceRange: { minVariantPrice: { amount: String(price) } } } : {}),
 });
 
 test('rankMatches drops sold-out products entirely', () => {
@@ -89,4 +90,36 @@ test('in-stock status always outranks a preferred variant', () => {
 
 test('unknown result id ranks nothing', () => {
   assert.deepEqual(rankMatches('nonexistent', [P('x', 'X')]), []);
+});
+
+test('sensible-one selects by price ceiling and prefers the 700ml the copy names', () => {
+  // Mirrors the live tier: the AED-99 700ml PPSU carries no material token in
+  // title or handle, so only the price ceiling can admit it while keeping the
+  // AED-179+ steel 700ml out.
+  const kadas = [
+    P('kada-bottle-550ml-taro-coco', 'Kada Bottle 550ml (Taro Coco)', true, 169),
+    P('kada-bottle-500ml-ppsu-pink-green', 'Kada Bottle 500ml PPSU (Pink & Green)', true, 99),
+    P('kada-bottle-700ml-white-blue', 'Kada Bottle 700ml (White & Blue)', true, 99),
+    P('kada-bottle-700ml-pink-guava', 'Kada Bottle 700ml (Pink Guava)', true, 179),
+    P('kada-bottle-700ml-ceramic-black', 'Kada Bottle 700ml Ceramic (Black)', true, 199),
+  ];
+  const ranked = rankMatches('sensible-one', kadas);
+  assert.equal(ranked[0].handle, 'kada-bottle-700ml-white-blue', 'the AED-99 700ml leads');
+  assert.ok(!ranked.some((p) => p.handle === 'kada-bottle-700ml-pink-guava'), 'AED-179 steel excluded');
+  assert.ok(!ranked.some((p) => p.handle === 'kada-bottle-550ml-taro-coco'), 'AED-169 steel excluded');
+});
+
+test('a price-gated spec excludes products whose price is unknown', () => {
+  // maxPrice must never guess: no price on the object → out.
+  const ranked = rankMatches('sensible-one', [P('kada-mystery', 'Kada Bottle Mystery')]);
+  assert.deepEqual(ranked, []);
+});
+
+test('host excludes the Tritan plastic kettles that would sit under a 36H COLD pill', () => {
+  const ranked = rankMatches('host', [
+    P('linlin-kettle-plastic-yellow', 'LinLin Kettle Plastic (Yellow)'),
+    P('linlin-kettle-stainless-strap-orange', 'LinLin Kettle Stainless Strap (Orange)'),
+    P('linlin-kettle-green-pink', 'LinLin Kettle (Green & Pink)'),
+  ]);
+  assert.deepEqual(ranked.map((p) => p.handle), ['linlin-kettle-green-pink']);
 });

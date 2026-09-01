@@ -22,6 +22,12 @@ import {
 import ProductCard from '@/components/product/ProductCard';
 import type { Product } from '@/types/shopify';
 
+// NOTE on the <style> tags below: rendered via dangerouslySetInnerHTML, never
+// as a text child. React SSR entity-escapes ' and " inside text children, but
+// <style> is a raw-text element so the browser keeps the literal &#x27; — the
+// hydration mismatch then discards the SSR of the ENTIRE page (React #423).
+// This exact failure was live on the homepage via HeroSlideshow's style tag.
+//
 // The brand signature is that every product ships as a two-tone colour PAIR.
 // The background walks through a different series colourway on each question,
 // so the quiz feels like flipping through the range rather than filling a form.
@@ -51,22 +57,32 @@ const quizCss = `
   }
 `;
 
-interface Props {
-  /** Preselected Q1 answer, so the homepage band can start the quiz mid-stride. */
-  readonly startWith?: string;
-}
-
-export default function QuizFlow({ startWith }: Props) {
+export default function QuizFlow() {
   const { language } = useLanguage();
   const locale = language === 'ar' ? 'ar' : 'en';
   const isAr = locale === 'ar';
   const t = useCallback((l: L) => text(l, locale), [locale]);
 
-  const [answers, setAnswers] = useState<Record<string, string | string[]>>(
-    startWith ? { q1: startWith } : {}
-  );
-  const [step, setStep] = useState(startWith ? 1 : 0);
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const [step, setStep] = useState(0);
   const [copied, setCopied] = useState(false);
+
+  // ?start=me|kid|gift deep-links (campaign URLs, future Story links) skip Q1.
+  // Read from window on mount rather than useSearchParams: the hook would need
+  // a Suspense boundary that kept the ENTIRE quiz out of the prerendered HTML —
+  // the audit found the served page contained only an empty 256px fallback.
+  // This way Q1 ships in the static HTML and a deep link upgrades it after
+  // hydration. The value comes from the URL, so it is validated, never trusted.
+  const seeded = useRef(false);
+  useEffect(() => {
+    if (seeded.current) return;
+    seeded.current = true;
+    const v = new URLSearchParams(window.location.search).get('start');
+    if (v && Q1.options.some((o) => o.id === v)) {
+      setAnswers({ q1: v });
+      setStep(1);
+    }
+  }, []);
 
   // Which questions this person actually sees. Answering "13 or older" on K1
   // drops back into the main path at Q2, exactly as the brief's flow specifies.
@@ -88,25 +104,17 @@ export default function QuizFlow({ startWith }: Props) {
   // The live product for the result card: an IN-STOCK colourway fetched from
   // Shopify at result time, with the Q9 look answer picking which one. null
   // after settling = family sold out or fetch failed → collection CTA fallback.
-  const [match, setMatch] = useState<QuizMatchProduct | null>(null);
-  const [matchPending, setMatchPending] = useState(false);
+  // 'pending' from the FIRST result render (not from the effect tick) so the
+  // skeleton paints immediately instead of flashing an empty slot for a frame.
+  const [match, setMatch] = useState<QuizMatchProduct | null | 'pending'>('pending');
   const resultId = outcome?.result.id;
   useEffect(() => {
     if (!resultId) return;
     let alive = true;
-    setMatchPending(true);
     const look = (answers.q9 as LookPref | undefined) ?? null;
     fetchQuizMatch(resultId, look, isAr)
-      .then((p) => {
-        if (!alive) return;
-        setMatch(p);
-        setMatchPending(false);
-      })
-      .catch(() => {
-        if (!alive) return;
-        setMatch(null);
-        setMatchPending(false);
-      });
+      .then((p) => alive && setMatch(p))
+      .catch(() => alive && setMatch(null));
     return () => {
       alive = false;
     };
@@ -116,6 +124,15 @@ export default function QuizFlow({ startWith }: Props) {
   }, [resultId, isAr]);
 
   const choose = (question: Question, optionId: string) => {
+    // Re-selecting the SAME answer after a Back trip just advances. Without
+    // this, reviewing Q2 from Q10 wiped eight downstream answers on a no-op —
+    // clicking an option is the only way forward, so every Back trip was
+    // destructive. An unchanged answer cannot change the flow shape, so
+    // nothing downstream can be stale.
+    if (answers[question.id] === optionId) {
+      setStep(step + 1);
+      return;
+    }
     const next = { ...answers, [question.id]: optionId };
     // Changing an earlier answer invalidates everything after it — otherwise a
     // kid-path answer could survive a switch to the main path and score twice.
@@ -154,8 +171,7 @@ export default function QuizFlow({ startWith }: Props) {
     setAnswers({});
     setStep(0);
     setCopied(false);
-    setMatch(null);
-    setMatchPending(false);
+    setMatch('pending');
   };
 
   if (done && outcome) {
@@ -165,8 +181,8 @@ export default function QuizFlow({ startWith }: Props) {
         result={result}
         gift={scored.gift}
         pairings={scored.pairings}
-        match={match}
-        matchPending={matchPending}
+        match={match === 'pending' ? null : match}
+        matchPending={match === 'pending'}
         t={t}
         isAr={isAr}
         copied={copied}
@@ -190,7 +206,7 @@ export default function QuizFlow({ startWith }: Props) {
 
   return (
     <div dir={isAr ? 'rtl' : 'ltr'} className="max-w-xl mx-auto">
-      <style>{quizCss}</style>
+      <style dangerouslySetInnerHTML={{ __html: quizCss }} />
       {/* The panel walks through a different series colourway on each question —
           the brief's design signature (§7): flipping through the range rather
           than filling in a form. */}
@@ -221,13 +237,17 @@ export default function QuizFlow({ startWith }: Props) {
         </div>
       </div>
 
-      {/* Question */}
+      {/* Question. dir="auto" on every quiz-content string: the copy falls back
+          to English until the human Arabic write lands (ar: null), and English
+          rendered inside the page's dir="rtl" flips its punctuation to the
+          wrong side ("?How old are they"). auto lays each string out by its own
+          script — and needs no revisiting when the Arabic arrives. */}
       <div key={current.id} className="chakoQuizIn">
-        <h2 className="text-heading font-display font-bold leading-tight mb-2">
+        <h2 dir="auto" className="text-heading font-display font-bold leading-tight mb-2 text-start">
           {t(current.prompt)}
         </h2>
         {current.sub && (
-          <p className="text-sm text-chako-ink/55 leading-relaxed mb-6">{t(current.sub)}</p>
+          <p dir="auto" className="text-sm text-chako-ink/55 leading-relaxed mb-6 text-start">{t(current.sub)}</p>
         )}
         {!current.sub && <div className="mb-6" />}
 
@@ -242,6 +262,10 @@ export default function QuizFlow({ startWith }: Props) {
               <button
                 key={opt.id}
                 onClick={() => (current.multi ? toggle(current, opt.id) : choose(current, opt.id))}
+                // Selection state must reach assistive tech, not just the
+                // background colour — toggle-button semantics fit both the
+                // multi-select Q11 and a Back-revisited single select.
+                aria-pressed={selected}
                 className={`group ${CARD} ${selected ? optPair.bold : 'bg-white'} px-5 py-4 text-start
                   flex items-center gap-3 min-h-[60px] touch-manipulation
                   transition-[transform,box-shadow] duration-150
@@ -249,12 +273,13 @@ export default function QuizFlow({ startWith }: Props) {
                   active:translate-y-0 active:shadow-[2px_2px_0_0_#1a1a1a]`}
               >
                 <span
+                  aria-hidden="true"
                   className={`flex-none w-5 h-5 rounded-full border-2 border-chako-ink flex items-center justify-center
                     ${selected ? 'bg-chako-ink' : 'bg-white'}`}
                 >
                   {selected && <Check size={12} className="text-white" strokeWidth={4} />}
                 </span>
-                <span className="font-semibold text-[15px] leading-snug text-chako-ink">
+                <span dir="auto" className="font-semibold text-[15px] leading-snug text-chako-ink">
                   {t(opt.label)}
                 </span>
               </button>
@@ -319,7 +344,7 @@ function ResultCard({
 
   return (
     <div dir={isAr ? 'rtl' : 'ltr'} className="max-w-xl mx-auto chakoQuizIn">
-      <style>{quizCss}</style>
+      <style dangerouslySetInnerHTML={{ __html: quizCss }} />
       <p className="text-[11px] font-sans font-bold uppercase tracking-widest text-chako-ink/40 mb-2">
         {/* The gift flag changes the framing and nothing else. */}
         {gift
@@ -327,13 +352,16 @@ function ResultCard({
           : isAr ? 'مطابقتك' : 'Your match'}
       </p>
 
-      <h2 className="text-display font-display font-bold leading-none mb-4">{t(result.persona)}</h2>
+      <h2 dir="auto" className="text-display font-display font-bold leading-none mb-4 text-start">{t(result.persona)}</h2>
 
-      {/* Spec pills — mono utility face, echoing the chips on the live PDPs */}
+      {/* Spec pills — mono utility face, echoing the chips on the live PDPs.
+          Pinned LTR: they are spec tokens ("570ML", "−10°C TO 109°C") whose
+          digits and symbols must not reorder under the page's RTL direction. */}
       <div className="flex flex-wrap gap-2 mb-6">
         {result.pills.map((pill) => (
           <span
             key={pill.en}
+            dir="ltr"
             className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-full border-2 border-chako-ink bg-white"
           >
             {t(pill)}
@@ -359,16 +387,16 @@ function ResultCard({
       ) : null}
 
       <div className={`${CARD} bg-chako-linlin-soft px-5 py-5 mb-5`}>
-        <p className="font-display font-bold text-lg leading-snug">{t(result.verdict)}</p>
+        <p dir="auto" className="font-display font-bold text-lg leading-snug text-start">{t(result.verdict)}</p>
       </div>
 
       <div className="flex flex-col gap-3 mb-6">
         {result.points.map((point) => (
           <div key={point.label.en} className={`${CARD} bg-white px-5 py-4`}>
-            <p className="text-[11px] font-sans font-bold uppercase tracking-widest text-chako-ink/40 mb-1.5">
+            <p dir="auto" className="text-[11px] font-sans font-bold uppercase tracking-widest text-chako-ink/40 mb-1.5 text-start">
               {t(point.label)}
             </p>
-            <p className="text-sm leading-relaxed text-chako-ink/80">{t(point.body)}</p>
+            <p dir="auto" className="text-sm leading-relaxed text-chako-ink/80 text-start">{t(point.body)}</p>
           </div>
         ))}
       </div>
@@ -377,10 +405,10 @@ function ResultCard({
         <p className="text-[11px] font-sans font-bold uppercase tracking-widest text-chako-ink/40 mb-1.5">
           {isAr ? 'أضف إليه' : 'Pair it with'}
         </p>
-        <p className="text-sm leading-relaxed text-chako-ink/80">{t(result.pairWith)}</p>
+        <p dir="auto" className="text-sm leading-relaxed text-chako-ink/80 text-start">{t(result.pairWith)}</p>
         {/* Q11 appends. Pure basket-builder — never changes the main result. */}
         {pairings.map((extra) => (
-          <p key={extra.en} className="text-sm leading-relaxed text-chako-ink/80 mt-2">
+          <p key={extra.en} dir="auto" className="text-sm leading-relaxed text-chako-ink/80 mt-2 text-start">
             {t(extra)}
           </p>
         ))}
@@ -441,7 +469,7 @@ function ResultCard({
         </Link>
       )}
 
-      <p className="mt-4 text-xs text-chako-ink/40 italic leading-relaxed">
+      <p dir="auto" className="mt-4 text-xs text-chako-ink/40 italic leading-relaxed text-start">
         &ldquo;{t(result.shareLine)}&rdquo;
       </p>
     </div>

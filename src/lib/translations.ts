@@ -66,7 +66,7 @@ const translations = {
     // that copy is idiomatic and must not be machine-translated.
     quiz_band_label: 'The bottle fit test',
     quiz_band_title: 'Too many options?',
-    quiz_band_sub: 'Nine series, dozens of colourways — one of them is yours. Two minutes of honest questions and we point straight at it.',
+    quiz_band_sub: 'Ten series, dozens of colourways — one of them is yours. Two minutes of honest questions and we point straight at it.',
     quiz_band_badge: '2 minutes',
     quiz_band_cta: 'Find your Chako',
     faq_label: 'Help',
@@ -235,7 +235,7 @@ const translations = {
     promise_4_desc: 'بالدرهم الإماراتي مع توصيل مباشر لبابك في جميع أنحاء الإمارات.',
     quiz_band_label: 'اختبار المطابقة',
     quiz_band_title: 'خيارات كثيرة؟',
-    quiz_band_sub: 'تسع سلاسل وعشرات الألوان — واحدة منها لك. دقيقتان من الأسئلة الصادقة وسنشير إليها مباشرة.',
+    quiz_band_sub: 'عشر سلاسل وعشرات الألوان — واحدة منها لك. دقيقتان من الأسئلة الصادقة وسنشير إليها مباشرة.',
     quiz_band_badge: 'دقيقتان',
     quiz_band_cta: 'اعثر على شاكو المناسب لك',
     faq_label: 'مساعدة',
