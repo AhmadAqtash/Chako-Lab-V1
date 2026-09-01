@@ -1,23 +1,29 @@
 'use client';
 
+import Image from 'next/image';
 import Link from '@/components/ui/LocalizedLink';
 import { useLanguage } from '@/context/LanguageContext';
 import Reveal from '@/components/ui/Reveal';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 
-// A handful of series colours — the "too many options" made visual. Purely
-// decorative and deliberately NOT one-per-series (the range is ten series and
-// growing; a literal count would go stale with every launch).
-const SERIES_DOTS = [
-  'bg-chako-linlin',
-  'bg-chako-bawang',
-  'bg-chako-bobo',
-  'bg-chako-milkpod',
-  'bg-chako-kada',
-  'bg-chako-pangpang',
-  'bg-chako-titanium',
+// Real product shots — the "too many options" made literal. Decorative only
+// (the products rotate with the catalogue; nothing links to them), and
+// deliberately NOT one-per-series: a literal count would go stale with every
+// launch. Each carries its own resting tilt via --tilt, and the hop keyframes
+// flip that tilt mid-air so the wave reads as a wobble, not a lift.
+const PRODUCT_SHOTS = [
+  { src: '/quiz/product-1.png', tilt: -6 },
+  { src: '/quiz/product-2.png', tilt: 4 },
+  { src: '/quiz/product-3.png', tilt: -3 },
+  { src: '/quiz/product-4.png', tilt: 5 },
+  { src: '/quiz/product-5.png', tilt: -5 },
+  { src: '/quiz/product-6.png', tilt: 3 },
 ];
 
+// Rendered via dangerouslySetInnerHTML — NEVER as a <style> text child. React
+// SSR entity-escapes ' and " in text children, but <style> is a raw-text
+// element so the browser keeps the literal entity and hydration discards the
+// whole page's SSR (React #423; this was live on the homepage via the hero).
 const bandCss = `
   @keyframes chakoQuizBandFloat {
     0%, 100% { transform: rotate(-8deg) translateY(0); }
@@ -25,17 +31,19 @@ const bandCss = `
   }
   .chakoQuizBandBadge { animation: chakoQuizBandFloat 3.4s ease-in-out infinite; }
 
-  /* The dots bounce one after another on hover — a tiny "pick me" wave. */
-  @keyframes chakoQuizDotHop {
-    0%, 100% { transform: translateY(0); }
-    40%      { transform: translateY(-7px); }
+  /* The bottles hop one after another on hover — a little 'pick me' wave.
+     Base state holds each bottle's resting tilt; the hop flips it mid-air. */
+  .chakoQuizProd { transform: rotate(var(--tilt, 0deg)); }
+  @keyframes chakoQuizProdHop {
+    0%, 100% { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+    40%      { transform: translateY(-9px) rotate(calc(var(--tilt, 0deg) * -1)); }
   }
-  .chakoQuizBandCard:hover .chakoQuizDot { animation: chakoQuizDotHop 700ms ease-in-out; }
-  ${SERIES_DOTS.map((_, i) => `.chakoQuizBandCard:hover .chakoQuizDot:nth-child(${i + 1}) { animation-delay: ${i * 60}ms; }`).join('\n  ')}
+  .chakoQuizBandCard:hover .chakoQuizProd { animation: chakoQuizProdHop 750ms ease-in-out; }
+  ${PRODUCT_SHOTS.map((_, i) => `.chakoQuizBandCard:hover .chakoQuizProd:nth-child(${i + 1}) { animation-delay: ${i * 70}ms; }`).join('\n  ')}
 
   @media (prefers-reduced-motion: reduce) {
     .chakoQuizBandBadge { animation: none !important; transform: rotate(-8deg); }
-    .chakoQuizBandCard .chakoQuizDot { animation: none !important; }
+    .chakoQuizBandCard .chakoQuizProd { animation: none !important; }
   }
 `;
 
@@ -61,13 +69,22 @@ export default function QuizBand() {
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="max-w-lg">
-            {/* One dot per series — the problem, illustrated */}
-            <div className="flex gap-2 mb-4">
-              {SERIES_DOTS.map((dot) => (
+            {/* The line-up of contenders — the problem, illustrated */}
+            <div className="flex items-end gap-1.5 md:gap-2 mb-4" aria-hidden="true">
+              {PRODUCT_SHOTS.map((shot) => (
                 <span
-                  key={dot}
-                  className={`chakoQuizDot w-4 h-4 rounded-full border-2 border-chako-ink ${dot}`}
-                />
+                  key={shot.src}
+                  className="chakoQuizProd inline-block w-12 h-12 md:w-16 md:h-16"
+                  style={{ '--tilt': `${shot.tilt}deg` } as React.CSSProperties}
+                >
+                  <Image
+                    src={shot.src}
+                    alt=""
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-contain drop-shadow-md"
+                  />
+                </span>
               ))}
             </div>
 
