@@ -53,7 +53,9 @@ export default function QuizBand() {
   const Arrow = isAr ? ArrowLeft : ArrowRight;
 
   return (
-    <Reveal variant="up" delay={200} className="mt-12">
+    // mb-12 not mt-12: the band now OPENS the dark section, spacing pushes
+    // down toward the "Why Chako Lab?" heading below it.
+    <Reveal variant="up" className="mb-12">
       <style dangerouslySetInnerHTML={{ __html: bandCss }} />
 
       {/* Cream card inside the dark section — the whole band is ONE link to the

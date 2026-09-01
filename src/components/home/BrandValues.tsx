@@ -30,6 +30,10 @@ export default function BrandValues() {
     >
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
 
+        {/* "Find Your Chako" leads the section (Ahmad, 1 Sep 2026): the quiz
+            is the door in, the four value cards below are the argument. */}
+        <QuizBand />
+
         {/* Award badges + heading */}
         <Reveal variant="up">
           {/* Award stickers */}
@@ -74,10 +78,6 @@ export default function BrandValues() {
             </div>
           ))}
         </Reveal>
-
-        {/* "Find Your Chako" — the four cards above say why the range is good;
-            this says which one is yours. It earns the interruption. */}
-        <QuizBand />
 
         {/* Material callout strip */}
         <Reveal
