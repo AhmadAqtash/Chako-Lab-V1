@@ -21,7 +21,9 @@ export default function ContactPage() {
 
       <div className="grid sm:grid-cols-2 gap-4">
         {[
-          { label: 'Email', value: 'hello@chakolab.ae', href: 'mailto:hello@chakolab.ae' },
+          // One business, one inbox — the same address the WhatsApp/email
+          // floating buttons and the shipping page already use.
+          { label: 'Email', value: 'hi@sundooq.me', href: 'mailto:hi@sundooq.me' },
           { label: 'WhatsApp', value: '+971 56 688 1332', href: 'https://wa.me/971566881332' },
           { label: 'Instagram', value: '@chakolab.ae', href: SOCIALS.instagram },
           { label: 'TikTok', value: '@chakolabae', href: SOCIALS.tiktok },

@@ -31,7 +31,7 @@ export default function PrivacyPage() {
         </section>
         <section>
           <h2 className="text-base font-display font-bold text-chako-ink">Contact</h2>
-          <p>For privacy-related queries, contact us at hello@chakolab.ae. Chako Lab is operated by Gallop Enterprises LLC, Dubai, UAE.</p>
+          <p>For privacy-related queries, contact us at hi@sundooq.me. Chako Lab is operated by Gallop Enterprises LLC, Dubai, UAE.</p>
         </section>
       </div>
     </div>
