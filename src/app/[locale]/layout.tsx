@@ -24,6 +24,12 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 // (and any other) tags configured inside GTM. Change here in one place.
 const GTM_ID = 'GTM-TM95NZ84';
 
+// Google site-verification token (Search Console / Merchant Center "claim your
+// online store"). A public ownership proof, not a secret — it grants Google no
+// access. DO NOT REMOVE: Google re-checks it periodically and un-verifies the
+// property if the tag disappears.
+const GOOGLE_SITE_VERIFICATION = 'wxMDjkJqgPFzVxICjwHtHCB3LFxwH7MdmQC9WH_ei9M';
+
 // Arabic body text — kept for RTL layout
 const notoSansArabic = Noto_Sans_Arabic({
   subsets: ['arabic'],
@@ -51,6 +57,11 @@ export function generateMetadata({ params }: { params: { locale: string } }): Me
     metadataBase: new URL(SITE_URL),
     title: SITE_META[locale].title,
     description: SITE_META[locale].description,
+    // Emits <meta name="google-site-verification" …> into <head> on every page
+    // of both locales. Set here rather than as a raw tag so Next owns the head
+    // and it survives whichever URL Google actually fetches — the bare domain
+    // 307s to /en or /ar depending on Accept-Language.
+    verification: { google: GOOGLE_SITE_VERIFICATION },
     keywords: ['drinkware', 'UAE', 'kettles', 'bottles', 'tumblers', 'mugs', 'Chako Lab'],
     openGraph: {
       type: 'website',
