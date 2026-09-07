@@ -1,6 +1,6 @@
 import { Product } from '@/types/shopify';
 import { getMockProducts, getMockProduct } from './mock';
-import { extractBaseName } from './utils';
+import { familyKey } from './family';
 import { inStockFirst } from './inventory';
 import { SHOPIFY_API_VERSION } from './shopify-config';
 
@@ -93,7 +93,11 @@ const TYPE_EXCLUSIONS: Record<string, string[]> = {
 
 async function storefrontFetch<T>(
   query: string,
-  variables?: Record<string, unknown>
+  variables?: Record<string, unknown>,
+  // Most catalogue reads want the default 60s. The family index overrides it:
+  // it is one catalogue-wide sweep shared by every PDP, and product NAMES (all
+  // it reads) change far less often than price or stock.
+  revalidate = 60
 ): Promise<T> {
   const res = await fetch(ENDPOINT, {
     method: 'POST',
@@ -102,7 +106,7 @@ async function storefrontFetch<T>(
       'X-Shopify-Storefront-Access-Token': TOKEN,
     },
     body: JSON.stringify({ query, variables }),
-    next: { revalidate: 60 },
+    next: { revalidate },
   });
 
   if (!res.ok) {
@@ -339,18 +343,99 @@ export async function getProductBaseType(handle: string): Promise<string | null>
   }
 }
 
-// language MUST match the locale the caller's baseName came from: titles are
-// localized under @inContext, so comparing an AR-page baseName against EN
-// titles matches nothing — which silently broke AR swatch grouping AND let
-// the AR related-products slider recommend the very product being viewed
-// (empty siblings = nothing excluded).
+// ─── Product families ─────────────────────────────────────────────────────────
+// One catalogue-wide index, built from an UN-CONTEXTUALIZED sweep so the family
+// key is identical on /en and /ar (see lib/family.ts for why that matters).
+//
+// Deliberately NOT scoped by productType: Ahmad's finish rule puts Bawang
+// Titanium Matte (productType 'Tumbler') and Bawang Ti Frosty (productType
+// 'Bawang Cup') in one family, so a type-scoped fetch would silently lose half
+// of it. 161 products fit comfortably in one first:250 page.
+
+export interface FamilyMember {
+  readonly gid: string;
+  readonly handle: string;
+}
+
+const FAMILY_QUERY = `
+  query FamilyIndex {
+    products(first: 250, sortKey: BEST_SELLING, query: "vendor:'${VENDOR}'") {
+      nodes { id handle title }
+    }
+  }
+`;
+
+/** gid → family key, and family key → its members. Cached; catalogue changes rarely. */
+export async function getFamilyIndex(): Promise<{
+  keyByGid: Map<string, string>;
+  membersByKey: Map<string, FamilyMember[]>;
+}> {
+  const keyByGid = new Map<string, string>();
+  const membersByKey = new Map<string, FamilyMember[]>();
+
+  if (IS_DEMO) return { keyByGid, membersByKey };
+
+  try {
+    const data = await storefrontFetch<{
+      products: { nodes: { id: string; handle: string; title: string }[] };
+    }>(FAMILY_QUERY, {}, 600);
+
+    for (const p of data.products.nodes) {
+      const key = familyKey(p.id, p.title);
+      keyByGid.set(p.id, key);
+      if (!membersByKey.has(key)) membersByKey.set(key, []);
+      membersByKey.get(key)!.push({ gid: p.id, handle: p.handle });
+    }
+  } catch (err) {
+    // Best-effort: an empty index degrades every caller to "this product alone",
+    // which is exactly the pre-family behaviour — never a broken page.
+    console.error('[Shopify] getFamilyIndex failed:', err);
+  }
+  return { keyByGid, membersByKey };
+}
+
+/** Every product in this one's family, itself included. Falls back to [self]. */
+export async function getFamilyMembers(productGid: string, ownHandle: string): Promise<FamilyMember[]> {
+  const { keyByGid, membersByKey } = await getFamilyIndex();
+  const key = keyByGid.get(productGid);
+  const members = key ? membersByKey.get(key) : null;
+  return members?.length ? members : [{ gid: productGid, handle: ownHandle }];
+}
+
+const SIBLINGS_QUERY = `
+  ${PRODUCT_CARD_FRAGMENT}
+  query ColorSiblings($ids: [ID!]!, $language: LanguageCode!) @inContext(language: $language) {
+    nodes(ids: $ids) { ... on Product { ...ProductCard } }
+  }
+`;
+
+/**
+ * The product's colourway siblings, for the PDP swatch row.
+ *
+ * Membership comes from the locale-stable family index; only the DISPLAY copy is
+ * fetched in the caller's language. The previous implementation grouped on
+ * localized titles, which fragmented the Arabic swatch row on 111 of 148 PDPs
+ * because Shopify's AR titles are inconsistent per colourway (كأس vs كوب,
+ * باوانج vs باوانغ, غلاية vs إبريق).
+ */
 export async function getColorSiblings(
-  productType: string,
-  baseName: string,
+  productGid: string,
+  ownHandle: string,
   language: ShopifyLanguage = 'EN'
 ): Promise<Product[]> {
-  const all = await getProducts({ first: 50, productType, language });
-  return all.filter((p) => extractBaseName(p.title) === baseName);
+  const members = await getFamilyMembers(productGid, ownHandle);
+  if (members.length < 2) return [];
+
+  try {
+    const data = await storefrontFetch<{ nodes: (Product | null)[] }>(SIBLINGS_QUERY, {
+      ids: members.map((m) => m.gid),
+      language,
+    });
+    return data.nodes.filter((p): p is Product => !!p && p.vendor === VENDOR);
+  } catch (err) {
+    console.error('[Shopify] getColorSiblings failed:', err);
+    return [];
+  }
 }
 
 const RELATED_LIMIT = 4;

@@ -42,9 +42,14 @@ export default function ProductReviews({ data, isAr }: Props) {
             <span className="text-sm text-chako-ink/50 font-semibold pb-1">/ 5</span>
           </div>
           <ReviewStars rating={data.averageRating} size={20} className="mb-2" />
-          <p className="text-sm text-chako-ink/60 font-medium mb-5">
+          <p className="text-sm text-chako-ink/60 font-medium mb-1">
             {reviewsBasedOnLabel(data.count, isAr)}
           </p>
+          {/* Pooled counts must never read as reviews of this one colourway */}
+          {data.colourwaysPooled > 1 && (
+            <p className="text-xs text-chako-ink/45 font-medium mb-5">{t.reviews_all_colours}</p>
+          )}
+          {data.colourwaysPooled <= 1 && <div className="mb-5" />}
           <div className="space-y-1.5">
             {data.histogram.map((h) => (
               <div key={h.rating} className="flex items-center gap-2 text-xs font-semibold">
@@ -88,7 +93,19 @@ export default function ProductReviews({ data, isAr }: Props) {
                 )}
               </div>
 
-              <ReviewStars rating={r.rating} size={14} className="mb-2" />
+              <div className="flex items-center gap-2 flex-wrap mb-2">
+                <ReviewStars rating={r.rating} size={14} />
+                {/* Which colour this was actually written for. Only set on
+                    pooled lists, and never on the colourway being viewed. */}
+                {r.writtenFor && (
+                  <span
+                    dir="auto"
+                    className="text-[11px] font-semibold text-chako-ink/45 bg-black/[0.04] rounded-full px-2 py-0.5"
+                  >
+                    {t.reviews_written_for} {r.writtenFor}
+                  </span>
+                )}
+              </div>
 
               {/* dir="auto": customers write reviews in either language on either storefront */}
               {r.title && <h3 dir="auto" className="font-bold text-[15px] mb-1">{r.title}</h3>}

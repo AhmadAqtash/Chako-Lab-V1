@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
 import { getProduct, getProductBaseType, getColorSiblings, getPairingAccessories, PRODUCT_TYPE_TO_COLLECTION, COLLECTION_DISPLAY_NAMES } from '@/lib/shopify';
-import { getProductReviews } from '@/lib/judgeme';
+import { getFamilyReviews } from '@/lib/judgeme';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
-import { extractBaseName, extractColorName } from '@/lib/utils';
+import { extractColorName } from '@/lib/utils';
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductDetails from '@/components/product/ProductDetails';
 import ProductFeatures from '@/components/product/ProductFeatures';
@@ -54,18 +54,31 @@ export default async function ProductPage({ params }: Props) {
   const collectionHandle = PRODUCT_TYPE_TO_COLLECTION[baseType];
   const collectionName = collectionHandle ? COLLECTION_DISPLAY_NAMES[collectionHandle] : null;
 
-  const baseName = extractBaseName(product.title);
   const colorName = extractColorName(product.title);
 
   // Locale-proof accessory guard (same pattern as product-specs): accessories
   // don't pair with themselves, so the carousel is drinkware-only
   const isAccessory = /accessor|إكسسوار/i.test(baseType || product.productType);
 
-  const [colorSiblings, pairingItems, reviews] = await Promise.all([
-    getColorSiblings(baseType, baseName, lang).catch(() => []),
+  // Siblings and reviews now share ONE family definition (lib/family.ts), so a
+  // review pool can never disagree with the swatch row about what counts as
+  // "the same product in another colour".
+  const [colorSiblings, pairingItems] = await Promise.all([
+    getColorSiblings(product.id, product.handle, lang).catch(() => []),
     isAccessory ? Promise.resolve([]) : getPairingAccessories(lang).catch(() => []),
-    getProductReviews(product.id).catch(() => null),
   ]);
+
+  // Reviews pool across the family. Attribution uses the LOCALIZED sibling
+  // titles already fetched above, so an Arabic shopper sees the Arabic colour
+  // name — and this adds no extra request.
+  const reviewTargets =
+    colorSiblings.length > 1
+      ? colorSiblings.map((s) => ({
+          gid: s.id,
+          colourway: s.id === product.id ? null : extractColorName(s.title),
+        }))
+      : [{ gid: product.id, colourway: null }];
+  const reviews = await getFamilyReviews(reviewTargets).catch(() => null);
 
   // 3D sticker packs lead the carousel on the series where they attach best
   // (Ahmad, Jul 2026); other series keep catalog order. Twist is a handle

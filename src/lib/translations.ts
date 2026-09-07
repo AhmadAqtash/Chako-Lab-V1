@@ -113,6 +113,10 @@ const translations = {
     // Arabic plural grammar needs branching, not a flat {n} template)
     reviews_verified: 'Verified buyer',
     reviews_store_reply: 'Reply from the store',
+    // Shown when a PDP pools its whole colour family, so the count is never
+    // mistaken for reviews of this one colourway.
+    reviews_all_colours: 'Across every colour of this product',
+    reviews_written_for: 'Reviewed the',
     // Accessory pairing
     pairing_title: 'The Perfect Chako Lab Pairing',
     pairing_subtitle: 'Complete your Chako Lab with useful matching accessories.',
@@ -277,6 +281,8 @@ const translations = {
     reviews_title: 'آراء العملاء',
     reviews_verified: 'مشترٍ موثّق',
     reviews_store_reply: 'رد المتجر',
+    reviews_all_colours: 'من جميع ألوان هذا المنتج',
+    reviews_written_for: 'قيّم اللون',
     // Accessory pairing
     pairing_title: 'توليفة شاكو لاب المثالية',
     pairing_subtitle: 'أكمل شاكو لاب الخاص بك بإكسسوارات متناسقة.',
