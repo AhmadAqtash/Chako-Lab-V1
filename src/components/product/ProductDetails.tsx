@@ -22,6 +22,9 @@ interface Props {
   colorSiblings?: Product[];
   colorName?: string | null;
   collectionHandle?: string;
+  /** Overrides the productType eyebrow — set only for families pinned to
+   *  another collection (the Bawang Lite, typed 'Tumbler', shown as Bawang). */
+  collectionLabel?: string | null;
   baseType?: string;
   isTitanium?: boolean;
   /** In-stock accessories for the pairing carousel (empty/omitted → hidden) */
@@ -32,7 +35,7 @@ interface Props {
 
 type Tab = 'Description' | 'Specs' | 'Shipping';
 
-export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle, baseType, isTitanium, pairingItems, reviewSummary }: Props) {
+export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle, collectionLabel, baseType, isTitanium, pairingItems, reviewSummary }: Props) {
   const { t, language } = useLanguage();
 
   // The URL locale drives the server fetch, so product content arrives in the
@@ -117,7 +120,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
         {/* Header */}
         <div>
           <p className="text-sm font-bold text-chako-ink/55 uppercase tracking-widest mb-1.5">
-            {product.productType}
+            {collectionLabel || product.productType}
           </p>
           <div className="flex items-start justify-between gap-4 min-w-0">
             <div className="min-w-0">

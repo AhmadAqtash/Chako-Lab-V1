@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getProduct, getProductBaseType, getColorSiblings, getPairingAccessories, PRODUCT_TYPE_TO_COLLECTION, COLLECTION_DISPLAY_NAMES } from '@/lib/shopify';
+import { getProduct, getProductBaseType, getColorSiblings, getPairingAccessories, getFamilyKeyFor, collectionDisplayName, PRODUCT_TYPE_TO_COLLECTION, FAMILY_TO_COLLECTION } from '@/lib/shopify';
 import { getFamilyReviews } from '@/lib/judgeme';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
@@ -51,8 +51,20 @@ export default async function ProductPage({ params }: Props) {
       ? product.productType
       : (await getProductBaseType(params.handle)) ?? product.productType;
 
-  const collectionHandle = PRODUCT_TYPE_TO_COLLECTION[baseType];
-  const collectionName = collectionHandle ? COLLECTION_DISPLAY_NAMES[collectionHandle] : null;
+  // A family pinned onto another collection (the Bawang Lite is typed
+  // 'Tumbler' but belongs with the Bawangs) takes that collection for its
+  // breadcrumb and label, so a customer who arrived from the Bawang page gets
+  // a crumb back to it. Same map that puts it in the listing, so they agree.
+  const familyKey = await getFamilyKeyFor(product.id).catch(() => null);
+  const pinnedCollection = familyKey ? FAMILY_TO_COLLECTION[familyKey] : undefined;
+  const collectionHandle = pinnedCollection ?? PRODUCT_TYPE_TO_COLLECTION[baseType];
+  const collectionName = collectionHandle ? collectionDisplayName(collectionHandle, lang) : null;
+
+  // The eyebrow above the title normally shows the localized productType, which
+  // is the more specific label. Only a PINNED family overrides it — otherwise a
+  // Bawang Lite would announce itself as "Tumbler" on a page reached from, and
+  // breadcrumbed back to, the Bawang collection.
+  const collectionLabel = pinnedCollection ? collectionName : null;
 
   const colorName = extractColorName(product.title);
 
@@ -121,6 +133,7 @@ export default async function ProductPage({ params }: Props) {
             colorSiblings={colorSiblings}
             colorName={colorName}
             collectionHandle={collectionHandle}
+            collectionLabel={collectionLabel}
             baseType={baseType}
             isTitanium={isTitanium}
             pairingItems={orderedPairing}

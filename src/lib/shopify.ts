@@ -2,6 +2,7 @@ import { Product } from '@/types/shopify';
 import { getMockProducts, getMockProduct } from './mock';
 import { familyKey } from './family';
 import { inStockFirst } from './inventory';
+import translations, { type TranslationKey } from './translations';
 import { SHOPIFY_API_VERSION } from './shopify-config';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -88,6 +89,56 @@ export const ALL_COLLECTION_HANDLES = Object.keys(COLLECTION_DISPLAY_NAMES);
 const TYPE_EXCLUSIONS: Record<string, string[]> = {
   'Tumbler': ['CarryGo Tumbler'],
 };
+
+// ─── Families that belong on a collection their productType wouldn't reach ────
+//
+// Shopify types the Bawang Lite as a plain 'Tumbler', so it lands on
+// /collections/tumbler and never on the Bawang page — but it IS a Bawang, just
+// a different product from the steel/ceramic/titanium ones. Ahmad, 9 Sep 2026.
+//
+// Keyed on FAMILY, not on handles: a new Lite colourway appears on the Bawang
+// page automatically, with no code edit. And this one map drives BOTH the
+// collection listing and the PDP breadcrumb/label, so the two cannot drift
+// apart — a customer who arrives from the Bawang page gets a breadcrumb back
+// to it rather than being bounced to Tumblers.
+//
+// The product keeps its real productType, so it still appears on Tumblers too.
+export const FAMILY_TO_COLLECTION: Record<string, string> = {
+  'bawang-lite-tumbler-770ml': 'bawang-cups',
+};
+
+/**
+ * Collection handle → the translation key holding its localized name.
+ * COLLECTION_DISPLAY_NAMES is English-only; this is how /ar gets Arabic.
+ * Lives here rather than in a route file because both the collection page and
+ * the PDP breadcrumb need it.
+ */
+export const HANDLE_TO_CAT_KEY: Record<string, TranslationKey> = {
+  'linlin-kettles':   'cat_linlin',
+  'bawang-cups':      'cat_bawang',
+  'bobo-tumblers':    'cat_bobo',
+  'kada-bottles':     'cat_kada',
+  'pots':             'cat_pots',
+  'mugs':             'cat_mugs',
+  'milk-pods':        'cat_milkpods',
+  'baobao-food-cups': 'cat_baobao',
+  'pangpang-cups':    'cat_pangpang',
+  'square-cups':      'cat_square',
+  'tumbler':          'cat_tumbler',
+  'bobo-cup':         'cat_bobo_cup',
+  'baobao-cup':       'cat_baobao',
+  'accessories':      'cat_accessories',
+  'carrygo-tumblers': 'cat_carrygo',
+  'split-cups':       'cat_split',
+};
+
+/** Collection name in the caller's locale, falling back to the English map. */
+export function collectionDisplayName(handle: string, language: ShopifyLanguage): string | null {
+  const english = COLLECTION_DISPLAY_NAMES[handle] ?? null;
+  if (language !== 'AR') return english;
+  const key = HANDLE_TO_CAT_KEY[handle];
+  return key ? translations.ar[key] : english;
+}
 
 // ─── Storefront GraphQL client ────────────────────────────────────────────────
 
@@ -400,6 +451,42 @@ export async function getFamilyMembers(productGid: string, ownHandle: string): P
   const key = keyByGid.get(productGid);
   const members = key ? membersByKey.get(key) : null;
   return members?.length ? members : [{ gid: productGid, handle: ownHandle }];
+}
+
+/** This product's family key, or null if the index is unavailable. */
+export async function getFamilyKeyFor(productGid: string): Promise<string | null> {
+  const { keyByGid } = await getFamilyIndex();
+  return keyByGid.get(productGid) ?? null;
+}
+
+/**
+ * Guest products for a collection page: everything in the families that
+ * FAMILY_TO_COLLECTION pins here. Empty when the collection has no guests.
+ */
+export async function getCollectionGuestProducts(
+  collectionHandle: string,
+  language: ShopifyLanguage = 'EN'
+): Promise<Product[]> {
+  const keys = Object.entries(FAMILY_TO_COLLECTION)
+    .filter(([, handle]) => handle === collectionHandle)
+    .map(([key]) => key);
+  if (keys.length === 0) return [];
+
+  const { membersByKey } = await getFamilyIndex();
+  const ids = keys.flatMap((k) => (membersByKey.get(k) ?? []).map((m) => m.gid));
+  if (ids.length === 0) return [];
+
+  try {
+    const data = await storefrontFetch<{ nodes: (Product | null)[] }>(SIBLINGS_QUERY, {
+      ids,
+      language,
+    });
+    return data.nodes.filter((p): p is Product => !!p && p.vendor === VENDOR);
+  } catch (err) {
+    // Best-effort: a guest fetch must never take down the collection page.
+    console.error('[Shopify] getCollectionGuestProducts failed:', err);
+    return [];
+  }
 }
 
 const SIBLINGS_QUERY = `

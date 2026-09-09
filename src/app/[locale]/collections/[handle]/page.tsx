@@ -9,6 +9,8 @@ import {
   getNewProducts,
   getMoreProducts,
   getProduct,
+  getCollectionGuestProducts,
+  HANDLE_TO_CAT_KEY,
 } from '@/lib/shopify';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
@@ -48,24 +50,8 @@ const COLLECTION_GUEST_HANDLES: Record<string, string[]> = {
 };
 
 // Localized collection names for metadata (UI gets them via CollectionGrid)
-const HANDLE_TO_CAT_KEY: Record<string, TranslationKey> = {
-  'linlin-kettles':   'cat_linlin',
-  'bawang-cups':      'cat_bawang',
-  'bobo-tumblers':    'cat_bobo',
-  'kada-bottles':     'cat_kada',
-  'pots':             'cat_pots',
-  'mugs':             'cat_mugs',
-  'milk-pods':        'cat_milkpods',
-  'baobao-food-cups': 'cat_baobao',
-  'pangpang-cups':    'cat_pangpang',
-  'square-cups':      'cat_square',
-  'tumbler':          'cat_tumbler',
-  'bobo-cup':         'cat_bobo_cup',
-  'baobao-cup':       'cat_baobao',
-  'accessories':      'cat_accessories',
-  'carrygo-tumblers': 'cat_carrygo',
-  'split-cups':       'cat_split',
-};
+// Moved to lib/shopify.ts — the PDP breadcrumb needs the same map, and two
+// copies would drift. Re-exported name kept so the rest of this file is unchanged.
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isAr = params.locale === 'ar';
@@ -259,16 +245,26 @@ export default async function CollectionPage({ params }: Props) {
     products = await getProducts({ first: 250, productType, language: lang });
 
     // Guest products pinned into a collection they don't match by productType.
-    // Best-effort: a failure here must not take down the whole collection.
-    const guests = COLLECTION_GUEST_HANDLES[params.handle];
-    if (guests) {
-      const fetched = await Promise.all(
-        guests.map((h) => getProduct(h, lang).catch(() => null))
-      );
-      const extras = fetched.filter(
-        (p): p is Product => !!p && !products.some((existing) => existing.handle === p.handle)
-      );
-      if (extras.length) products = [...products, ...extras];
+    // Two sources, both best-effort — a failure here must not take down the
+    // whole collection:
+    //   1. COLLECTION_GUEST_HANDLES — individually curated products.
+    //   2. FAMILY_TO_COLLECTION      — a WHOLE family, so new colourways of a
+    //      guest product appear here on their own (the Bawang Lite).
+    const [handleGuests, familyGuests] = await Promise.all([
+      Promise.all(
+        (COLLECTION_GUEST_HANDLES[params.handle] ?? []).map((h) =>
+          getProduct(h, lang).catch(() => null)
+        )
+      ),
+      getCollectionGuestProducts(params.handle, lang).catch(() => []),
+    ]);
+
+    const seen = new Set(products.map((p) => p.handle));
+    for (const p of [...handleGuests, ...familyGuests]) {
+      if (p && !seen.has(p.handle)) {
+        seen.add(p.handle);
+        products.push(p);
+      }
     }
   } catch {
     loadFailed = true;
