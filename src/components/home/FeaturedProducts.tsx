@@ -1,5 +1,5 @@
-import { getProducts } from '@/lib/shopify';
-import { inStockFirst } from '@/lib/inventory';
+import { getProducts, getFamilyIndex, isAccessoryBaseType } from '@/lib/shopify';
+import { drinkwareFirst } from '@/lib/inventory';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import ProductCard from '@/components/product/ProductCard';
 import Reveal from '@/components/ui/Reveal';
@@ -9,11 +9,22 @@ import T from '@/components/ui/T';
 const SHOWN = 8;
 
 export default async function FeaturedProducts({ locale }: { locale: Locale }) {
-  // Fetch WIDER than we show. BEST_SELLING leads with sold-out items (best
-  // sellers empty first), so demoting a window of exactly 8 would only move the
-  // sold-out card to slot 8 — it has to have somewhere to fall to.
-  const pool = await getProducts({ first: 24, language: toShopifyLanguage(locale) }).catch(() => []);
-  const products = inStockFirst(pool).slice(0, SHOWN);
+  // Fetch WIDER than we show. BEST_SELLING leads with sold-out items and with
+  // AED 15 stickers (both rank high for reasons that have nothing to do with
+  // what we want this row to sell), so demoting inside a window of exactly 8
+  // would just shuffle them to slot 8 — they need somewhere to fall to.
+  //
+  // Same three-tier order as the All Products page: this is the first product
+  // row a homepage visitor sees, and it opened with the Mouth Sticker.
+  // 24 is a deep enough pool that the 8 slots fill with drinkware even when
+  // roughly half the top sellers are accessories.
+  const [pool, index] = await Promise.all([
+    getProducts({ first: 24, language: toShopifyLanguage(locale) }).catch(() => []),
+    getFamilyIndex().catch(() => null),
+  ]);
+  const products = drinkwareFirst(pool, (p) =>
+    isAccessoryBaseType(index?.baseTypeByGid.get(p.id))
+  ).slice(0, SHOWN);
 
   if (!products.length) return null;
 
