@@ -1,5 +1,5 @@
-import { getProducts } from '@/lib/shopify';
-import { inStockFirst } from '@/lib/inventory';
+import { getProducts, getFamilyIndex, isAccessoryBaseType } from '@/lib/shopify';
+import { drinkwareFirst } from '@/lib/inventory';
 import type { Product } from '@/types/shopify';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
@@ -30,12 +30,20 @@ export default async function CollectionsPage({ params }: { params: { locale: Lo
   let loadFailed = false;
   try {
     // 250 (storefront max): the catalog passed 48 products long ago — a lower
-    // cap silently hides whatever sorts last from the main browsing surface
-    // Sold-out items sink to the bottom of the grid. This page has no sort
-    // toolbar, so the arrival order IS the only order a customer ever sees.
-    products = inStockFirst(
-      await getProducts({ first: 250, language: toShopifyLanguage(params.locale) })
-    );
+    // cap silently hides whatever sorts last from the main browsing surface.
+    //
+    // This page has no sort toolbar, so the arrival order IS the only order a
+    // customer ever sees — and it is where the Meta ads land. Drinkware first,
+    // then accessories, then sold out. Classification uses the BASE productType
+    // from the family index, never the localized one: this catalogue's Arabic
+    // types are inconsistent enough that matching on them misfiles products on
+    // /ar. The index is already cached, so this costs no extra request.
+    const lang = toShopifyLanguage(params.locale);
+    const [fetched, { baseTypeByGid }] = await Promise.all([
+      getProducts({ first: 250, language: lang }),
+      getFamilyIndex(),
+    ]);
+    products = drinkwareFirst(fetched, (p) => isAccessoryBaseType(baseTypeByGid.get(p.id)));
   } catch {
     loadFailed = true;
   }

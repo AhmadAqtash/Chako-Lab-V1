@@ -411,29 +411,42 @@ export interface FamilyMember {
 const FAMILY_QUERY = `
   query FamilyIndex {
     products(first: 250, sortKey: BEST_SELLING, query: "vendor:'${VENDOR}'") {
-      nodes { id handle title }
+      nodes { id handle title productType }
     }
   }
 `;
 
-/** gid → family key, and family key → its members. Cached; catalogue changes rarely. */
+/**
+ * gid → family key, family key → its members, and gid → BASE productType.
+ *
+ * The base type matters as much as the family key: under @inContext a product's
+ * productType comes back localized, and this catalogue's Arabic is unreliable —
+ * "Accessories" is translated as إكسسوارات on most products but left as the
+ * literal string "Accessories" on at least one, while Cleaning Brush and Rope
+ * become فرشاة تنظيف and حبل. Any classification done on the localized value
+ * silently misfiles products on /ar. This index is un-contextualized, so it is
+ * the one place a caller can ask "what IS this" and get a stable answer.
+ */
 export async function getFamilyIndex(): Promise<{
   keyByGid: Map<string, string>;
   membersByKey: Map<string, FamilyMember[]>;
+  baseTypeByGid: Map<string, string>;
 }> {
   const keyByGid = new Map<string, string>();
   const membersByKey = new Map<string, FamilyMember[]>();
+  const baseTypeByGid = new Map<string, string>();
 
-  if (IS_DEMO) return { keyByGid, membersByKey };
+  if (IS_DEMO) return { keyByGid, membersByKey, baseTypeByGid };
 
   try {
     const data = await storefrontFetch<{
-      products: { nodes: { id: string; handle: string; title: string }[] };
+      products: { nodes: { id: string; handle: string; title: string; productType: string }[] };
     }>(FAMILY_QUERY, {}, 600);
 
     for (const p of data.products.nodes) {
       const key = familyKey(p.id, p.title);
       keyByGid.set(p.id, key);
+      baseTypeByGid.set(p.id, p.productType);
       if (!membersByKey.has(key)) membersByKey.set(key, []);
       membersByKey.get(key)!.push({ gid: p.id, handle: p.handle });
     }
@@ -442,7 +455,26 @@ export async function getFamilyIndex(): Promise<{
     // which is exactly the pre-family behaviour — never a broken page.
     console.error('[Shopify] getFamilyIndex failed:', err);
   }
-  return { keyByGid, membersByKey };
+  return { keyByGid, membersByKey, baseTypeByGid };
+}
+
+/**
+ * Base productTypes that are add-ons rather than the thing someone came to buy.
+ *
+ * Deliberately an ACCESSORY list, not a drinkware list: an unrecognised type
+ * therefore sorts as drinkware and lands at the top. A new bottle series going
+ * live and being buried costs far more than a new accessory type ranking too
+ * high — and this catalogue gains drinkware series regularly (CarryGo, Split
+ * Cup and Bawang Lite all launched within a fortnight).
+ */
+const ACCESSORY_BASE_TYPES: ReadonlySet<string> = new Set([
+  'Accessories',
+  'Cleaning Brush',
+  'Rope',
+]);
+
+export function isAccessoryBaseType(baseType: string | undefined): boolean {
+  return !!baseType && ACCESSORY_BASE_TYPES.has(baseType);
 }
 
 /** Every product in this one's family, itself included. Falls back to [self]. */

@@ -56,3 +56,33 @@ export function inStockFirst<T extends StockShape>(products: T[]): T[] {
   for (const p of products) (isInStock(p) ? available : soldOut).push(p);
   return [...available, ...soldOut];
 }
+
+/**
+ * Browse order for the full-catalogue page: drinkware, then accessories, then
+ * anything sold out. Order WITHIN each tier is untouched, so best-sellers still
+ * lead their own tier and a restock returns a product to its exact former rank.
+ *
+ * Why accessories sink (Ahmad, 10 Sep 2026): Meta ads land on /collections, and
+ * BEST_SELLING put four AED 15 stickers in the first twelve cards — the Mouth
+ * Sticker at position 2. Stickers sell well precisely because they are an easy
+ * add-on, so ranking by units sold promotes them over the AED 149-349 drinkware
+ * the ads are paying to sell. Anyone who reaches a product page still sees them
+ * in the pairing carousel, which is where the attach actually happens.
+ *
+ * Sold-out stays the LAST tier, so a sold-out bottle still sits below an
+ * in-stock sticker — an unbuyable product is worth less than a cheap buyable one.
+ */
+export function drinkwareFirst<T extends StockShape>(
+  products: T[],
+  isAccessory: (product: T) => boolean
+): T[] {
+  const drinkware: T[] = [];
+  const accessories: T[] = [];
+  const soldOut: T[] = [];
+  for (const p of products) {
+    if (!isInStock(p)) soldOut.push(p);
+    else if (isAccessory(p)) accessories.push(p);
+    else drinkware.push(p);
+  }
+  return [...drinkware, ...accessories, ...soldOut];
+}
