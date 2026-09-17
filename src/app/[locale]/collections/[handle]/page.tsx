@@ -8,6 +8,7 @@ import {
   getTwistProducts,
   getNewProducts,
   getMoreProducts,
+  getAccessoryProducts,
   getProduct,
   getCollectionGuestProducts,
   HANDLE_TO_CAT_KEY,
@@ -102,8 +103,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: localizedName,
       description: isAr
-        ? 'تسوق إكسسوارات شاكو لاب — مقابض وأحزمة وأكمام أكواب والمزيد، مع التوصيل في جميع أنحاء الإمارات.'
-        : 'Shop Chako Lab accessories — handles, straps, cup sleeves and more, delivered across the UAE.',
+        ? 'تسوق إكسسوارات شاكو لاب — مقابض وأحزمة وأكمام أكواب وحقائب حمل الأكواب والمزيد، مع التوصيل في جميع أنحاء الإمارات.'
+        : 'Shop Chako Lab accessories — handles, straps, cup sleeves, cup pouches and more, delivered across the UAE.',
       alternates,
     };
   }
@@ -242,7 +243,12 @@ export default async function CollectionPage({ params }: Props) {
   let products: Product[] = [];
   let loadFailed = false;
   try {
-    products = await getProducts({ first: 250, productType, language: lang });
+    // Accessories span several Shopify types (Pouch, Cleaning Brush, Rope…),
+    // so that page cannot use the single-type filter every series page uses.
+    products =
+      params.handle === 'accessories'
+        ? await getAccessoryProducts(lang)
+        : await getProducts({ first: 250, productType, language: lang });
 
     // Guest products pinned into a collection they don't match by productType.
     // Two sources, both best-effort — a failure here must not take down the

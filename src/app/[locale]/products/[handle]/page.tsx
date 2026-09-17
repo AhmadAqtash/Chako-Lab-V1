@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { getProduct, getProductBaseType, getColorSiblings, getPairingAccessories, getFamilyKeyFor, collectionDisplayName, PRODUCT_TYPE_TO_COLLECTION, FAMILY_TO_COLLECTION } from '@/lib/shopify';
 import { getFamilyReviews } from '@/lib/judgeme';
+import { looksLikeAccessory } from '@/lib/accessory-types';
+import { orderPairing, pairingPlan } from '@/lib/pairing';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
 import { extractColorName } from '@/lib/utils';
@@ -68,16 +70,16 @@ export default async function ProductPage({ params }: Props) {
 
   const colorName = extractColorName(product.title);
 
-  // Locale-proof accessory guard (same pattern as product-specs): accessories
+  // Locale-proof accessory guard (same test as product-specs): accessories
   // don't pair with themselves, so the carousel is drinkware-only
-  const isAccessory = /accessor|إكسسوار/i.test(baseType || product.productType);
+  const isAccessory = looksLikeAccessory(baseType, product.productType);
 
   // Siblings and reviews now share ONE family definition (lib/family.ts), so a
   // review pool can never disagree with the swatch row about what counts as
   // "the same product in another colour".
-  const [colorSiblings, pairingItems] = await Promise.all([
+  const [colorSiblings, pairingPool] = await Promise.all([
     getColorSiblings(product.id, product.handle, lang).catch(() => []),
-    isAccessory ? Promise.resolve([]) : getPairingAccessories(lang).catch(() => []),
+    isAccessory ? Promise.resolve(null) : getPairingAccessories(lang).catch(() => null),
   ]);
 
   // Reviews pool across the family. Attribution uses the LOCALIZED sibling
@@ -92,21 +94,15 @@ export default async function ProductPage({ params }: Props) {
       : [{ gid: product.id, colourway: null }];
   const reviews = await getFamilyReviews(reviewTargets).catch(() => null);
 
-  // 3D sticker packs lead the carousel on the series where they attach best
-  // (Ahmad, Jul 2026); other series keep catalog order. Twist is a handle
-  // family, not a productType. Handles are locale-stable — types are not.
-  const STICKERS_FIRST_TYPES = new Set([
-    'LinLin Kettle', 'Bawang Cup', 'Thermos Cup', 'Bobo Cup',
-    'PangPang Cup', 'Food Cup', 'Baobao Cup', 'Pot', 'Coffee Mug',
-  ]);
-  const stickersFirst =
-    STICKERS_FIRST_TYPES.has(baseType) || /twist/i.test(product.handle);
-  const orderedPairing = stickersFirst
-    ? [
-        ...pairingItems.filter((i) => /sticker/i.test(i.handle)),
-        ...pairingItems.filter((i) => !/sticker/i.test(i.handle)),
-      ]
-    : pairingItems;
+  // Stickers first on the series they suit; Cup Pouches right after them on
+  // the series they carry. Rules and reasons live in lib/pairing.ts.
+  const orderedPairing = pairingPool
+    ? orderPairing(
+        pairingPool.accessories,
+        pairingPool.pouches,
+        pairingPlan(baseType, product.handle)
+      )
+    : [];
 
   const siblingHandles = colorSiblings.map((p) => p.handle);
 

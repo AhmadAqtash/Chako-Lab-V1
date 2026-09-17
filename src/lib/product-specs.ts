@@ -26,6 +26,7 @@
 
 import type { Product } from '@/types/shopify';
 import { extractSpecs } from '@/lib/pdp-story';
+import { looksLikeAccessory } from '@/lib/accessory-types';
 
 export interface Retention {
   readonly coldHours: number;
@@ -125,9 +126,10 @@ export function resolveSpecs(
   // Accessories (handles, straps, sleeves, towels, heating pads) are not
   // drinkware — they must never carry capacity or temperature-retention
   // claims, so they exit before any extraction or fallback logic runs.
-  // Regex (not equality) so the guard survives AR pages where a failed
-  // base-type fetch falls back to the localized productType (إكسسوارات).
-  if (/accessor|إكسسوار/i.test(baseType || p.productType)) {
+  // Matches every accessory TYPE, not just 'Accessories' — the Cup Pouches
+  // ('Pouch') shipped claiming 36h/18h before this. Falls back to a regex on
+  // AR pages where a failed base-type fetch leaves the localized productType.
+  if (looksLikeAccessory(baseType, p.productType)) {
     return { capacityMl: null, retention: null, plastic: false, uninsulated: false, accessory: true };
   }
 

@@ -2,8 +2,12 @@ import { Product } from '@/types/shopify';
 import { getMockProducts, getMockProduct } from './mock';
 import { familyKey } from './family';
 import { inStockFirst } from './inventory';
+import { ACCESSORY_BASE_TYPES, isAccessoryBaseType, looksLikeAccessory } from './accessory-types';
 import translations, { type TranslationKey } from './translations';
 import { SHOPIFY_API_VERSION } from './shopify-config';
+
+// Re-exported: the collection and home pages import it from here.
+export { isAccessoryBaseType };
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -32,6 +36,12 @@ export const PRODUCT_TYPE_TO_COLLECTION: Record<string, string> = {
   'Bobo Cup':      'bobo-cup',
   'Baobao Cup':    'baobao-cup',
   'Accessories':   'accessories',
+  // Accessories under types of their own (lib/accessory-types.ts). Mapping
+  // them here gives their PDPs the accessory story and a breadcrumb back to
+  // the Accessories page instead of All Products.
+  'Pouch':          'accessories',
+  'Cleaning Brush': 'accessories',
+  'Rope':           'accessories',
   'CarryGo Tumbler': 'carrygo-tumblers',
   'Split Cup':       'split-cups',
   // New families without their own series page yet — all land in the
@@ -458,25 +468,6 @@ export async function getFamilyIndex(): Promise<{
   return { keyByGid, membersByKey, baseTypeByGid };
 }
 
-/**
- * Base productTypes that are add-ons rather than the thing someone came to buy.
- *
- * Deliberately an ACCESSORY list, not a drinkware list: an unrecognised type
- * therefore sorts as drinkware and lands at the top. A new bottle series going
- * live and being buried costs far more than a new accessory type ranking too
- * high — and this catalogue gains drinkware series regularly (CarryGo, Split
- * Cup and Bawang Lite all launched within a fortnight).
- */
-const ACCESSORY_BASE_TYPES: ReadonlySet<string> = new Set([
-  'Accessories',
-  'Cleaning Brush',
-  'Rope',
-]);
-
-export function isAccessoryBaseType(baseType: string | undefined): boolean {
-  return !!baseType && ACCESSORY_BASE_TYPES.has(baseType);
-}
-
 /** Every product in this one's family, itself included. Falls back to [self]. */
 export async function getFamilyMembers(productGid: string, ownHandle: string): Promise<FamilyMember[]> {
   const { keyByGid, membersByKey } = await getFamilyIndex();
@@ -581,10 +572,15 @@ export async function getRelatedProducts(
   // BEST_SELLING order, so the filler is genuinely worth recommending.
   // Accessories are skipped: the pairing carousel already sells those higher
   // up the same page. The extra fetch only happens when the type pool is thin.
+  // Accessory test on the BASE type from the family index: the localized one
+  // would let 'Pouch' (جراب on /ar) through as filler.
   const seen = new Set([...excludeHandles, ...picked.map((p) => p.handle)]);
-  const wider = await getProducts({ first: 24, language }).catch(() => []);
+  const [wider, { baseTypeByGid }] = await Promise.all([
+    getProducts({ first: 24, language }).catch(() => []),
+    getFamilyIndex(),
+  ]);
   const eligible = wider.filter(
-    (p) => !seen.has(p.handle) && !/accessor|إكسسوار/i.test(p.productType)
+    (p) => !seen.has(p.handle) && !looksLikeAccessory(baseTypeByGid.get(p.id), p.productType)
   );
   // A same-type sibling is worth showing even when sold out (it tells you the
   // colourway exists), but arbitrary filler is not — in-stock first, and only
@@ -616,9 +612,20 @@ export async function getTitaniumProducts(
 // the list works on both locales. Retire entries as families earn real pages.
 export const MORE_TYPES = ['Baba Cup', 'Glass Cup', 'Teapot', 'Fruit Box', 'Lunch Box'];
 
+const anyOfTypes = (types: readonly string[]) =>
+  `(${types.map((t) => `product_type:'${t}'`).join(' OR ')})`;
+
 export async function getMoreProducts(language: ShopifyLanguage = 'EN'): Promise<Product[]> {
-  const typeQuery = `(${MORE_TYPES.map((t) => `product_type:'${t}'`).join(' OR ')})`;
-  return getProducts({ first: 250, query: typeQuery, language });
+  return getProducts({ first: 250, query: anyOfTypes(MORE_TYPES), language });
+}
+
+// The Accessories page spans every accessory type (lib/accessory-types.ts),
+// not just 'Accessories' — the Cup Pouches, brush and phone rope were missing
+// from it. One OR'd query, so BEST_SELLING ranks them all together. The filter
+// term-matches (see TYPE_EXCLUSIONS), so a future drinkware type containing
+// the word 'Pouch' or 'Rope' would need excluding here.
+export async function getAccessoryProducts(language: ShopifyLanguage = 'EN'): Promise<Product[]> {
+  return getProducts({ first: 250, query: anyOfTypes(ACCESSORY_BASE_TYPES), language });
 }
 
 // Twist is a title-family, not a productType (the Twist Tumbler shares type
@@ -642,14 +649,32 @@ export interface PairingItem {
   variantId: string;
 }
 
-// All in-stock accessories, slimmed for the pairing carousel. Titles arrive
-// localized via @inContext. Sold-out accessories are excluded — a checkbox
-// that can't be added to cart is just friction.
+export interface PairingPool {
+  /** 'Accessories'-typed add-ons: stickers, handles, straps, towels, pads… */
+  accessories: PairingItem[];
+  /** Cup Pouches — the PDP offers these only on the series they carry. */
+  pouches: PairingItem[];
+}
+
+// In-stock carousel candidates, slimmed. Titles arrive localized via
+// @inContext. Pouches come back separately so the PDP can place them by their
+// Shopify type rather than guessing from handles. The brush and phone rope are
+// accessories too, but stay out of the carousel (Ahmad, 17 Sep 2026).
 export async function getPairingAccessories(
   language: ShopifyLanguage = 'EN'
-): Promise<PairingItem[]> {
-  const all = await getProducts({ first: 250, productType: 'Accessories', language });
-  return all
+): Promise<PairingPool> {
+  const [accessories, pouches] = await Promise.all([
+    getProducts({ first: 250, productType: 'Accessories', language }),
+    // Best-effort: a pouch fetch failure must not take the whole carousel down.
+    getProducts({ first: 50, productType: 'Pouch', language }).catch(() => []),
+  ]);
+  return { accessories: toPairingItems(accessories), pouches: toPairingItems(pouches) };
+}
+
+// Sold-out items are excluded — a checkbox that can't be added to cart is
+// just friction.
+function toPairingItems(products: Product[]): PairingItem[] {
+  return products
     .map((p) => {
       // Catalog query fetches variants(first:1) without price — accessories
       // are single-variant, so priceRange.minVariantPrice IS the variant price.
