@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Product, ProductVariant } from '@/types/shopify';
 import { formatPrice, getDiscountPercent } from '@/lib/utils';
 import { cn } from '@/lib/utils';
@@ -12,6 +12,15 @@ import ColorSwatches from './ColorSwatches';
 import SpecChips from './SpecChips';
 import PairingCarousel from './PairingCarousel';
 import ReviewStars from './ReviewStars';
+import SoldProofLine, { type SoldProofProp } from './SoldProofLine';
+import ReviewQuote from './ReviewQuote';
+import BuyNowButton from './BuyNowButton';
+import DispatchPromise from '@/components/shipping/DispatchPromise';
+import { useCart } from '@/context/CartContext';
+import { FLAGS } from '@/lib/feature-flags';
+import { looksLikeAccessory } from '@/lib/accessory-types';
+import { track, numericId } from '@/lib/track';
+import type { ReviewQuote as FeaturedQuote } from '@/lib/review-quote';
 import { Minus, Plus, Share2, Check } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { reviewCountLabel } from '@/lib/translations';
@@ -31,12 +40,17 @@ interface Props {
   pairingItems?: PairingItem[];
   /** Judge.me aggregate — stars under the title linking to #reviews */
   reviewSummary?: { rating: number; count: number } | null;
+  /** "270+ PangPang Cups sold in the UAE" — resolved server-side from the BASE type */
+  soldProof?: SoldProofProp | null;
+  /** One verified, whole 5-star review (lib/review-quote.ts), or null */
+  featuredQuote?: FeaturedQuote | null;
 }
 
 type Tab = 'Description' | 'Specs' | 'Shipping';
 
-export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle, collectionLabel, baseType, isTitanium, pairingItems, reviewSummary }: Props) {
+export default function ProductDetails({ product, colorSiblings, colorName, collectionHandle, collectionLabel, baseType, isTitanium, pairingItems, reviewSummary, soldProof, featuredQuote }: Props) {
   const { t, language } = useLanguage();
+  const { isLoading: cartBusy } = useCart();
 
   // The URL locale drives the server fetch, so product content arrives in the
   // right language — the old client-side AR re-fetch workaround is gone.
@@ -78,9 +92,9 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
     });
   }, []);
 
-  const pairedLines = (pairingItems ?? [])
-    .filter((i) => paired.has(i.variantId))
-    .map((i) => ({ merchandiseId: i.variantId, quantity: 1 }));
+  const pairedItems = (pairingItems ?? []).filter((i) => paired.has(i.variantId));
+  const pairedLines = pairedItems.map((i) => ({ merchandiseId: i.variantId, quantity: 1 }));
+  const pairedTotal = pairedItems.reduce((sum, i) => sum + parseFloat(i.price.amount), 0);
 
   const selectedVariant: ProductVariant | undefined = product.variants.nodes.find((v) =>
     v.selectedOptions.every((opt) => selected[opt.name] === opt.value)
@@ -90,6 +104,46 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
   const compareAt = selectedVariant?.compareAtPrice ?? product.compareAtPriceRange?.minVariantPrice;
   const discount = compareAt ? getDiscountPercent(compareAt, price) : 0;
   const maxQty = selectedVariant?.quantityAvailable ?? 99;
+
+  const inStock = !!selectedVariant?.availableForSale;
+  // quantityAvailable is 0 (not null) for untracked variants, so "1–5" can
+  // never fire for them — the > 0 guard is load-bearing.
+  const stockLeft = selectedVariant?.quantityAvailable ?? 0;
+  const lowStock = inStock && stockLeft > 0 && stockLeft <= 5;
+  // A named delivery day is only honest when the shelf provably covers the
+  // quantity chosen; otherwise the dispatch box shows its safe wording.
+  const stockCovers = inStock && stockLeft >= quantity;
+  const isAccessory = looksLikeAccessory(baseType, product.productType);
+
+  // view_item — once per product. Carries which proof elements this shopper
+  // actually saw, so their effect can be read later.
+  const viewed = useRef<string | null>(null);
+  useEffect(() => {
+    if (viewed.current === product.id) return;
+    viewed.current = product.id;
+    const first = product.variants.nodes[0];
+    const value = parseFloat((first?.price ?? product.priceRange.minVariantPrice).amount);
+    track('view_item', {
+      ecommerce: {
+        currency: product.priceRange.minVariantPrice.currencyCode,
+        value,
+        items: [{
+          item_id: first ? numericId(first.id) : numericId(product.id),
+          item_group_id: numericId(product.id),
+          item_name: product.title,
+          item_brand: 'Chako Lab',
+          item_category: baseType || undefined,
+          item_variant: colorName ?? undefined,
+          price: value,
+          quantity: 1,
+        }],
+      },
+      sold_proof: FLAGS.PDP_SOLD && soldProof ? soldProof.kind : 'none',
+      review_quote_shown: FLAGS.PDP_QUOTE && !!featuredQuote,
+      locale: language,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.id]);
 
   // Options worth a selector row: more than one value to actually choose from.
   // The catalog is one-color-per-product (siblings link via ColorSwatches), so a
@@ -142,6 +196,9 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
               {copied ? <Check size={18} className="text-green-600" /> : <Share2 size={18} />}
             </button>
           </div>
+          {/* Own full-width row: beside the share button the column is ~290px
+              and the brand line wraps */}
+          {FLAGS.PDP_SOLD && soldProof && <SoldProofLine proof={soldProof} />}
         </div>
 
         {/* Color swatches */}
@@ -164,7 +221,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
             <>
               <span className="text-base text-chako-ink/40 line-through">{formatPrice(compareAt)}</span>
               <span className="text-xs font-bold bg-chako-highlight text-chako-ink px-2.5 py-0.5 rounded-full">
-                Save {discount}%
+                {t('product_save_pct').replace('{discount}', String(discount))}
               </span>
             </>
           )}
@@ -193,13 +250,27 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
           <PairingCarousel items={pairingItems} selected={paired} onToggle={togglePaired} />
         )}
 
+        {/* ONE ACTION CLUSTER (gap-2.5, not the page's gap-5) so it reads as a
+            unit: scarcity ABOVE the buttons, delivery BELOW them, never adjacent,
+            and at most one live pressure signal at a time. */}
+        <div className="flex flex-col gap-2.5">
+        {/* Low stock — real inventory only. Lifted out of AddToCartButton, where
+            it sat inside the stretch-aligned row and stretched the stepper.
+            No pulse: when this shows, the dispatch box below stops ticking. */}
+        {lowStock && (
+          <p className="low-stock flex items-center gap-1.5 text-xs font-semibold text-amber-700">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden="true" />
+            {t('product_only_left').replace('{n}', String(stockLeft))}
+          </p>
+        )}
+
         {/* Quantity + ATC */}
         <div ref={atcRef} className="flex gap-3">
           <div className="flex items-center gap-1 bg-black/5 rounded-xl px-2 py-1.5">
             <button
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
               className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-black/10 active:scale-90 transition-[transform,background-color] duration-150 disabled:opacity-30 touch-manipulation"
-              disabled={quantity <= 1}
+              disabled={quantity <= 1 || cartBusy}
               aria-label="Decrease quantity"
             >
               <Minus size={16} />
@@ -208,7 +279,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
             <button
               onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
               className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-black/10 active:scale-90 transition-[transform,background-color] duration-150 disabled:opacity-30 touch-manipulation"
-              disabled={quantity >= maxQty}
+              disabled={quantity >= maxQty || cartBusy}
               aria-label="Increase quantity"
             >
               <Plus size={16} />
@@ -219,18 +290,39 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
               <AddToCartButton
                 variantId={selectedVariant.id}
                 available={selectedVariant.availableForSale}
-                quantityAvailable={selectedVariant.quantityAvailable}
                 quantity={quantity}
                 extraLines={pairedLines}
                 onAdded={() => setPaired(new Set())}
               />
             ) : (
               <button disabled className="w-full py-4 bg-black/5 text-chako-ink/40 font-semibold rounded-2xl text-sm cursor-not-allowed">
-                Select options
+                {t('product_select_options')}
               </button>
             )}
           </div>
         </div>
+
+        {/* Buy it now — secondary, drinkware only. On a AED 15 sticker page a
+            straight jump to checkout lands on "AED 15 + AED 25 shipping": the
+            worst first checkout impression this store can make. */}
+        {FLAGS.PDP_BUY_NOW && selectedVariant && inStock && !isAccessory && (
+          <BuyNowButton
+            variantId={selectedVariant.id}
+            quantity={quantity}
+            extraLines={pairedLines}
+            selectionTotal={parseFloat(price.amount) * quantity + pairedTotal}
+          />
+        )}
+
+        {/* Dispatch promise — BELOW the buttons: it answers "when will I get
+            it?" rather than pushing a button that is already far down the page */}
+        {FLAGS.PDP_DISPATCH && inStock && (
+          <DispatchPromise variant="pdp" stockOk={stockCovers} calm={lowStock} />
+        )}
+        </div>
+
+        {/* One verified customer quote — for the hesitater who scrolls past the buttons */}
+        {FLAGS.PDP_QUOTE && featuredQuote && <ReviewQuote quote={featuredQuote} />}
 
         {/* Trust badges */}
         <TrustBadges />
@@ -346,6 +438,9 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
           available={selectedVariant.availableForSale}
           triggerRef={atcRef as React.RefObject<HTMLElement>}
           featuredImage={product.featuredImage?.url}
+          quantity={quantity}
+          extraLines={pairedLines}
+          onAdded={() => setPaired(new Set())}
         />
       )}
     </>

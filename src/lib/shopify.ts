@@ -1,8 +1,9 @@
 import { Product } from '@/types/shopify';
 import { getMockProducts, getMockProduct } from './mock';
 import { familyKey } from './family';
-import { inStockFirst } from './inventory';
+import { inStockFirst, isInStock } from './inventory';
 import { ACCESSORY_BASE_TYPES, isAccessoryBaseType, looksLikeAccessory } from './accessory-types';
+import { buildUpsellPool, type UpsellItem, type FamilyMap } from './cart-upsell';
 import translations, { type TranslationKey } from './translations';
 import { SHOPIFY_API_VERSION } from './shopify-config';
 
@@ -692,6 +693,57 @@ function toPairingItems(products: Product[]): PairingItem[] {
       };
     })
     .filter((x): x is PairingItem => x !== null);
+}
+
+// ─── Cart "Make it a set" pool ────────────────────────────────────────────────
+// Selection rules and the reasons for them live in lib/cart-upsell.ts.
+export async function getCartUpsellPool(
+  language: ShopifyLanguage = 'EN'
+): Promise<{ items: UpsellItem[]; families: FamilyMap }> {
+  if (IS_DEMO) return { items: [], families: {} };
+  // first: 250 on purpose — byte-identical to the All Products query, so the
+  // two share one cached Storefront response instead of costing a second one.
+  const [products, { keyByGid, baseTypeByGid }] = await Promise.all([
+    getProducts({ first: 250, language }),
+    getFamilyIndex(),
+  ]);
+  // No index → no way to tell a tumbler from a sticker in Arabic. An empty
+  // slider is a better failure than an accessory in a drinkware-only row.
+  if (keyByGid.size === 0) return { items: [], families: {} };
+
+  const isAccessory = (p: Product) => looksLikeAccessory(baseTypeByGid.get(p.id), p.productType);
+
+  // Family of EVERY drinkware product, sold out or not: the client needs it to
+  // know which families are already in the cart, and a cart line only carries
+  // a localized title — lib/family.ts keys on the English one.
+  const families: FamilyMap = {};
+  for (const p of products) {
+    if (!isAccessory(p)) families[p.id] = keyByGid.get(p.id) ?? p.handle;
+  }
+
+  const items = buildUpsellPool(products, {
+    familyOf: (p) => keyByGid.get(p.id) ?? p.handle,
+    isAccessory,
+    inStock: isInStock,
+    toItem: (p, familyKey) => {
+      // One tap must be unambiguous. The card fragment fetches
+      // variants(first:1); a price RANGE is the proxy for "there is a real
+      // choice to make here", and such a product is sold on its own page.
+      if (p.priceRange.minVariantPrice.amount !== p.priceRange.maxVariantPrice.amount) return null;
+      const variant = p.variants.nodes.find((v) => v.availableForSale);
+      if (!variant) return null;
+      return {
+        id: p.id,
+        handle: p.handle,
+        title: p.title,
+        image: p.featuredImage?.url ?? null,
+        price: p.priceRange.minVariantPrice,
+        variantId: variant.id,
+        familyKey,
+      };
+    },
+  });
+  return { items, families };
 }
 
 export async function searchProducts(query: string, language: ShopifyLanguage = 'EN'): Promise<Product[]> {

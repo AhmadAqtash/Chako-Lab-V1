@@ -50,7 +50,7 @@ export default function ProductCard({ product }: Props) {
     e.preventDefault();
     if (!variant || !inStock) return;
     setPressing(true);
-    await addItem(variant.id);
+    await addItem(variant.id, 1, { source: 'product_card' });
     setTimeout(() => setPressing(false), 300);
   }
 

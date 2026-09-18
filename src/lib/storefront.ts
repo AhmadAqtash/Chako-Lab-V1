@@ -44,6 +44,7 @@ const CART_FIELDS = `
             title
             selectedOptions { name value }
             price { amount currencyCode }
+            quantityAvailable
             product {
               id
               handle

@@ -85,6 +85,13 @@ export interface CartLine {
       featuredImage: ShopifyImage | null;
     };
     price: MoneyV2;
+    /**
+     * Units on the shelf, or null when Shopify will not say. NOT a sellability
+     * signal (untracked / CONTINUE-policy variants are sellable at 0 — see
+     * checkAvailability). Used only to decide whether a named delivery day may
+     * be promised for this cart.
+     */
+    quantityAvailable?: number | null;
   };
   cost: {
     totalAmount: MoneyV2;

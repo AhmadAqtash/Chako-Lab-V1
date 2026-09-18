@@ -547,3 +547,55 @@ body[data-titanium] .cat-dropdown a:hover { background-color: rgba(0,0,0,0.05) !
 body[data-titanium] .sort-dropdown,
 body[data-titanium] .sort-dropdown * { color: #1a1a1a !important; }
 body[data-titanium] .sort-dropdown button:hover { background-color: rgba(0,0,0,0.05) !important; }
+
+/* ═══ Conversion widgets (18 Sep 2026) ════════════════════════════════════════
+   Cart: free-shipping bar + "Make it a set" slider. PDP: dispatch box, quote. */
+
+/* Slider card. Deliberately NOT .bg-white: on titanium pages the drawer forces
+   bold/semibold text to light (rules above) while .bg-white is pinned to #fff —
+   a bg-white card would be light-on-white on the highest-value carts. */
+.set-card { background-color: #fff; }
+
+/* The unlock moment: one pop on the milestone marker, nothing else moves. */
+@keyframes ship-pop {
+  from { transform: scale(0.6); }
+  to   { transform: scale(1); }
+}
+.animate-ship-pop { animation: ship-pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-ship-pop { animation: none; }
+}
+
+/* Android font scaling must not blow the pinned-height budget */
+.cart-drawer { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* SHORT MODE — the Instagram in-app browser on a small iPhone leaves ~550px.
+   Shrink chrome and hide DECORATION only. Hard rule: short mode never hides a
+   caveat or qualifier (RAK/Fujairah line, "after discounts", taxes note) — if a
+   caveat cannot fit, the claim it qualifies goes, never the caveat. */
+@media (max-height: 600px) {
+  .cart-drawer .cart-header { height: 44px; }
+  .cart-drawer .ship-seg--bar { height: 56px; padding-top: 6px; padding-bottom: 6px; }
+  .cart-drawer .ship-seg--bar .ship-marker { height: 20px; width: 20px; }
+  .cart-drawer .cart-footer { padding-top: 8px; }
+  .cart-drawer .cart-checkout { min-height: 48px; padding-top: 10px; padding-bottom: 10px; }
+  .cart-drawer .set-sub { display: none; }
+}
+/* LANDSCAPE — nothing can stay pinned: the drawer becomes one scroll column
+   (header stays put). One rule, not a third layout. */
+@media (max-height: 420px) {
+  .cart-drawer { overflow-y: auto; }
+  .cart-drawer > .flex-1 { flex: none; overflow: visible; }
+  .cart-drawer .cart-header { position: sticky; top: 0; z-index: 1; background: inherit; }
+}
+
+/* Titanium (dark) pages */
+body[data-titanium] .cart-drawer .set-card { background-color: rgba(255,255,255,0.07) !important; border-color: rgba(255,255,255,0.12) !important; }
+body[data-titanium] .cart-drawer .set-unlock { background-color: rgba(22,163,74,0.20) !important; color: #86EFAC !important; }
+body[data-titanium] .cart-drawer .ship-seg--unlocked { background-color: rgba(22,163,74,0.18) !important; }
+body[data-titanium] .cart-drawer .ship-track { background-color: rgba(255,255,255,0.14) !important; }
+body[data-titanium] .cart-drawer .bg-chako-highlight\/40 { background-color: rgba(212,175,55,0.22) !important; }
+body[data-titanium] .cart-drawer .text-green-700,
+body[data-titanium] .pdp-quote .text-green-700,
+body[data-titanium] .buy-now-note .text-green-700 { color: #86EFAC !important; }
+body[data-titanium] .low-stock { color: #FCD34D !important; }

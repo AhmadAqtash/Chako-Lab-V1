@@ -72,7 +72,7 @@ const translations = {
     faq_label: 'Help',
     faq_heading: 'Frequently Asked Questions',
     // Announcement bar
-    announce_1: 'Free shipping on orders over AED 250',
+    announce_1: 'Free shipping on orders of AED 250 or more',
     announce_2: 'Authentic Chako Lab — Official UAE Distributor',
     announce_3: 'Order before 2PM (Mon–Fri) — delivered the next business day',
     // Product
@@ -88,7 +88,7 @@ const translations = {
     product_shipping: 'Shipping',
     product_you_may_like: 'You may also like',
     product_free_shipping: 'Free shipping',
-    product_free_shipping_sub: 'Orders over AED 250',
+    product_free_shipping_sub: 'From AED 250 · AED 25 below',
     product_easy_returns: 'Easy returns',
     product_easy_returns_sub: '15-day policy',
     product_authentic: 'Authentic',
@@ -105,7 +105,7 @@ const translations = {
     product_ship_speed_sub: 'Order before 2PM, Mon–Fri',
     product_ship_cost: 'Shipping',
     product_ship_cost_time: 'AED 25',
-    product_ship_cost_sub: 'Free over AED 250',
+    product_ship_cost_sub: 'Free from AED 250',
     product_ship_note: 'Dispatched the same day when you order before 2PM on a business day. Ras Al Khaimah and Fujairah may take one extra day.',
     // Reviews (Judge.me)
     reviews_title: 'Customer Reviews',
@@ -139,7 +139,47 @@ const translations = {
     cart_checkout: 'Checkout',
     cart_free_shipping_note: 'Free shipping on orders over AED 250',
     cart_order_2pm: 'Order before 2PM (Mon–Fri) for next-business-day delivery',
-    cart_taxes_note: 'Taxes and shipping calculated at checkout',
+    cart_taxes_note: 'Taxes calculated at checkout',
+    // ── Cart: free-shipping bar, shipping line, "Make it a set" (18 Sep 2026)
+    // Every string here must be literally true in every state it can appear in.
+    // {amount}/{threshold}/{fee} are formatPrice output (Latin digits).
+    cart_ship_empty: 'Free UAE shipping on orders of {threshold} or more',
+    cart_ship_progress: 'Add {amount} more to unlock free shipping',
+    cart_ship_near: 'So close — add {amount} more for free shipping',
+    cart_ship_unlocked: "You've unlocked free shipping",
+    cart_ship_aria: '{current} of {threshold} towards free shipping',
+    cart_shipping_paid: '+ {fee} shipping · free from {threshold} after discounts',
+    cart_shipping_free: 'Free shipping · orders of {threshold}+ after discounts',
+    cart_set_title: 'Make it a set',
+    cart_set_sub: 'Add a best seller — one for you, one to gift.',
+    cart_set_unlocks: 'Unlocks free shipping',
+    cart_set_add: 'Add',
+    cart_set_added: 'Added',
+    cart_set_add_aria: 'Add {item} to cart — {price}',
+    cart_set_prev: 'Previous products',
+    cart_set_next: 'More products',
+    // ── Dispatch promise (PDP + cart). Wording rules live in lib/dispatch.ts:
+    // always "before" 2PM (never "by"), and the caveat rides in the same block.
+    dispatch_lead_within: 'Order within {time}',
+    dispatch_lead_today: 'Order before {cutoff} today',
+    dispatch_lead_day: 'Order before {cutoff} {cutoffDay}',
+    dispatch_promise_tomorrow: 'Delivered tomorrow, {weekday}',
+    dispatch_promise_day: 'Delivered {weekday}',
+    dispatch_cutoff: '2PM',
+    dispatch_caveat: 'Ras Al Khaimah & Fujairah may take 1 extra day. 2PM is Gulf time.',
+    dispatch_details_link: 'Shipping details',
+    dispatch_safe_lead: 'Order before 2PM on a business day',
+    dispatch_safe_promise: 'Delivered the next business day',
+    // ── PDP: sold proof, Buy it now, review quote
+    pdp_sold_series: '{count}+ {series} sold in the UAE',
+    pdp_sold_brand: '{count}+ Chako Lab pieces sold in the UAE',
+    product_buy_now: 'Buy it now',
+    product_buy_now_loading: 'Taking you to checkout…',
+    product_buy_now_cart_hint: "Includes what's already in your cart.",
+    pdp_quote_read_all: 'Read all reviews',
+    pdp_quote_aria: 'Customer review — read all reviews',
+    product_save_pct: 'Save {discount}%',
+    product_select_options: 'Select options',
     // Search
     search_placeholder: 'Search products...',
     search_no_results: 'No products found for',
@@ -245,7 +285,7 @@ const translations = {
     faq_label: 'مساعدة',
     faq_heading: 'الأسئلة الشائعة',
     // Announcement bar
-    announce_1: 'شحن مجاني للطلبات فوق ٢٥٠ درهم',
+    announce_1: 'شحن مجاني للطلبات من ٢٥٠ درهماً فأكثر',
     announce_2: 'شاكو لاب الأصلية — الموزع الرسمي في الإمارات',
     announce_3: 'اطلب قبل ٢ ظهراً (الاثنين–الجمعة) — يصلك يوم العمل التالي',
     // Product
@@ -261,7 +301,7 @@ const translations = {
     product_shipping: 'الشحن',
     product_you_may_like: 'قد يعجبك أيضاً',
     product_free_shipping: 'شحن مجاني',
-    product_free_shipping_sub: 'للطلبات فوق ٢٥٠ درهم',
+    product_free_shipping_sub: 'من ٢٥٠ درهماً · ٢٥ درهماً لما دون ذلك',
     product_easy_returns: 'إرجاع سهل',
     product_easy_returns_sub: 'سياسة ١٥ يوم',
     product_authentic: 'أصلي',
@@ -275,7 +315,7 @@ const translations = {
     product_ship_speed_sub: 'اطلب قبل ٢ ظهراً، الاثنين–الجمعة',
     product_ship_cost: 'رسوم الشحن',
     product_ship_cost_time: '٢٥ درهماً',
-    product_ship_cost_sub: 'مجاني فوق ٢٥٠ درهماً',
+    product_ship_cost_sub: 'مجاني من ٢٥٠ درهماً فأكثر',
     product_ship_note: 'نشحن طلبك في اليوم نفسه عند الطلب قبل ٢ ظهراً في يوم عمل. وقد يستغرق التوصيل إلى رأس الخيمة والفجيرة يوماً إضافياً.',
     // Reviews (Judge.me)
     reviews_title: 'آراء العملاء',
@@ -305,7 +345,45 @@ const translations = {
     cart_checkout: 'إتمام الطلب',
     cart_free_shipping_note: 'شحن مجاني للطلبات فوق ٢٥٠ درهم',
     cart_order_2pm: 'اطلب قبل ٢ ظهراً (الاثنين–الجمعة) ليصلك يوم العمل التالي',
-    cart_taxes_note: 'الضرائب والشحن تُحسب عند الدفع',
+    cart_taxes_note: 'تُحسب الضرائب عند إتمام الطلب',
+    // ── السلة: شريط الشحن المجاني وسطر الشحن و«كوّن طقمك» (١٨ سبتمبر ٢٠٢٦)
+    cart_ship_empty: 'شحن مجاني داخل الإمارات للطلبات من {threshold} فأكثر',
+    cart_ship_progress: 'تبقّى {amount} ليصبح شحن طلبك مجانياً',
+    cart_ship_near: 'اقتربت! تبقّى {amount} فقط ليصبح شحن طلبك مجانياً',
+    cart_ship_unlocked: 'رائع! أصبح شحن طلبك مجانياً',
+    cart_ship_aria: '{current} من {threshold} للوصول إلى الشحن المجاني',
+    cart_shipping_paid: '+ {fee} رسوم شحن · مجاني من {threshold} بعد الخصومات',
+    cart_shipping_free: 'شحن مجاني · للطلبات من {threshold} فأكثر بعد الخصومات',
+    cart_set_title: 'كوّن طقمك',
+    cart_set_sub: 'أضف واحداً من الأكثر مبيعاً — واحد لك وواحد هدية.',
+    cart_set_unlocks: 'يجعل شحن طلبك مجانياً',
+    cart_set_add: 'أضف',
+    cart_set_added: 'تمت الإضافة',
+    cart_set_add_aria: 'أضف {item} إلى السلة — {price}',
+    cart_set_prev: 'المنتجات السابقة',
+    cart_set_next: 'مزيد من المنتجات',
+    // ── وعد الشحن (صفحة المنتج + السلة) — أرقام لاتينية عمداً: هذه الأسطر تحمل
+    // قيماً ديناميكية بأرقام لاتينية ولا يجوز خلط نظامَي أرقام في سطر واحد.
+    dispatch_lead_within: 'اطلب خلال {time}',
+    dispatch_lead_today: 'اطلب اليوم قبل {cutoff}',
+    dispatch_lead_day: 'اطلب قبل {cutoff} يوم {cutoffDay}',
+    dispatch_promise_tomorrow: 'يصلك غداً، {weekday}',
+    dispatch_promise_day: 'يصلك يوم {weekday}',
+    dispatch_cutoff: '2 ظهراً',
+    dispatch_caveat: 'قد يستغرق التوصيل إلى رأس الخيمة والفجيرة يوماً إضافياً. الساعة 2 ظهراً بتوقيت الإمارات.',
+    dispatch_details_link: 'تفاصيل الشحن',
+    dispatch_safe_lead: 'اطلب قبل 2 ظهراً في يوم عمل',
+    dispatch_safe_promise: 'يصلك في يوم العمل التالي',
+    // ── صفحة المنتج
+    pdp_sold_series: 'بيع أكثر من {count} قطعة من {series} في الإمارات',
+    pdp_sold_brand: 'بيع أكثر من {count} قطعة من شاكو لاب في الإمارات',
+    product_buy_now: 'اشترِ الآن',
+    product_buy_now_loading: 'ننقلك إلى إتمام الطلب…',
+    product_buy_now_cart_hint: 'يشمل ما في سلتك حالياً.',
+    pdp_quote_read_all: 'اقرأ جميع التقييمات',
+    pdp_quote_aria: 'تقييم أحد العملاء — اقرأ جميع التقييمات',
+    product_save_pct: 'وفّر {discount}%',
+    product_select_options: 'حدّد الخيارات',
     // Search
     search_placeholder: 'ابحث عن منتجات...',
     search_no_results: 'لا توجد منتجات لـ',
@@ -364,4 +442,21 @@ export function reviewsBasedOnLabel(n: number, isAr: boolean): string {
   if (n === 2) return 'بناءً على تقييمين'; // dual takes the genitive after على
   if (n <= 10) return `بناءً على ${n} تقييمات`;
   return `بناءً على ${n} تقييمًا`;
+}
+
+// Time left until the dispatch cutoff ("2h 14m"). Arabic duration grammar
+// branches exactly like the review counts above — hour/dual/plural, then
+// minute/dual/plural/singular-accusative — and abbreviations read as
+// machine-made, so it is a function. Latin digits; every form is correct in the
+// genitive after «خلال». Zero minutes are omitted; under an hour, minutes only.
+export function dispatchDuration(hours: number, minutes: number, isAr: boolean): string {
+  if (!isAr) return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  const h = hours === 0 ? '' : hours === 1 ? 'ساعة' : hours === 2 ? 'ساعتين' : `${hours} ساعات`;
+  const m =
+    minutes === 0 ? '' :
+    minutes === 1 ? 'دقيقة' :
+    minutes === 2 ? 'دقيقتين' :
+    minutes <= 10 ? `${minutes} دقائق` : `${minutes} دقيقة`;
+  if (h && m) return `${h} و${m}`;
+  return h || m || 'دقيقة';
 }

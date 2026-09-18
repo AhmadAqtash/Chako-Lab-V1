@@ -16,6 +16,23 @@ export function formatPrice(money: MoneyV2): string {
   }).format(amount);
 }
 
+/**
+ * formatPrice ROUNDS to whole dirhams, which is right for catalogue prices
+ * (all whole today) but wrong next to the free-shipping bar: a AED 249.60
+ * subtotal would print "AED 250" beside a bar that still says locked. Use this
+ * for cart totals — no decimals when whole, two when not.
+ */
+export function formatPriceExact(money: MoneyV2): string {
+  const amount = parseFloat(money.amount);
+  const whole = Math.abs(amount - Math.round(amount)) < 0.005;
+  return new Intl.NumberFormat('en-AE', {
+    style: 'currency',
+    currency: money.currencyCode,
+    minimumFractionDigits: whole ? 0 : 2,
+    maximumFractionDigits: whole ? 0 : 2,
+  }).format(amount);
+}
+
 export function formatPriceRange(min: MoneyV2, max: MoneyV2): string {
   if (min.amount === max.amount) return formatPrice(min);
   return `${formatPrice(min)} – ${formatPrice(max)}`;

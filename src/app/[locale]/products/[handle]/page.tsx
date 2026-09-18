@@ -3,6 +3,8 @@ import { getProduct, getProductBaseType, getColorSiblings, getPairingAccessories
 import { getFamilyReviews } from '@/lib/judgeme';
 import { looksLikeAccessory } from '@/lib/accessory-types';
 import { orderPairing, pairingPlan } from '@/lib/pairing';
+import { soldProof as resolveSoldProof } from '@/lib/sales-proof';
+import { pickReviewQuote, PINNED_QUOTES } from '@/lib/review-quote';
 import { toShopifyLanguage, type Locale } from '@/lib/locale';
 import { localeAlternates } from '@/lib/seo';
 import { extractColorName } from '@/lib/utils';
@@ -106,6 +108,24 @@ export default async function ProductPage({ params }: Props) {
 
   const siblingHandles = colorSiblings.map((p) => p.handle);
 
+  // Sold proof — from the BASE type, never the pinned collection: a Bawang
+  // Lite (typed 'Tumbler', shown under Bawang) must not borrow Bawang's count.
+  // The series name reuses the localized collection name, so no plural is invented.
+  const proof = resolveSoldProof(baseType);
+  const seriesHandle = PRODUCT_TYPE_TO_COLLECTION[baseType];
+  const seriesName = proof?.kind === 'series' && seriesHandle ? collectionDisplayName(seriesHandle, lang) : null;
+  const soldProofProp = !proof
+    ? null
+    : proof.kind === 'series' && !seriesName
+      ? (() => { const brand = resolveSoldProof(null); return brand ? { ...brand, seriesName: null } : null; })()
+      : { ...proof, seriesName };
+
+  // One verified, whole 5-star quote from the family pool already fetched
+  // above — zero extra requests (Judge.me 429s under burst).
+  const featuredQuote = reviews
+    ? pickReviewQuote(reviews.reviews, params.locale === 'ar', familyKey ? PINNED_QUOTES[familyKey] : null)
+    : null;
+
   const crumbs = [
     { label: 'Home', href: '/' },
     ...(collectionHandle && collectionName
@@ -134,6 +154,8 @@ export default async function ProductPage({ params }: Props) {
             isTitanium={isTitanium}
             pairingItems={orderedPairing}
             reviewSummary={reviews ? { rating: reviews.averageRating, count: reviews.count } : null}
+            soldProof={soldProofProp}
+            featuredQuote={featuredQuote}
           />
         </div>
       </div>

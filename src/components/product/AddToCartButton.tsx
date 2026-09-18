@@ -7,11 +7,11 @@ import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
 import { gsap, prefersReducedMotion } from '@/lib/gsapClient';
+import { addWithPairings } from '@/lib/add-with-pairings';
 
 interface Props {
   variantId: string;
   available: boolean;
-  quantityAvailable: number;
   quantity?: number;
   /** Paired accessory lines added alongside the main product (one atomic cart call) */
   extraLines?: { merchandiseId: string; quantity: number }[];
@@ -19,7 +19,7 @@ interface Props {
   onAdded?: () => void;
 }
 
-export default function AddToCartButton({ variantId, available, quantityAvailable, quantity = 1, extraLines, onAdded }: Props) {
+export default function AddToCartButton({ variantId, available, quantity = 1, extraLines, onAdded }: Props) {
   const { addItems, isLoading } = useCart();
   const { t } = useLanguage();
   const [added, setAdded] = useState(false);
@@ -34,25 +34,14 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
       gsap.to(btnRef.current, { scale: 0.94, duration: 0.1, ease: 'power2.out' });
     }
 
-    const extras = extraLines ?? [];
-    const first = await addItems(
-      [{ merchandiseId: variantId, quantity }, ...extras],
-      // Bundle attempt: hold the error toast — the main-only retry below decides the outcome
-      extras.length > 0 ? { suppressErrorToast: true } : undefined
+    // Bundle attempt → main-only retry → say so if the accessories were lost.
+    // Shared with the sticky bar (lib/add-with-pairings.ts).
+    const { ok } = await addWithPairings(
+      addItems,
+      { merchandiseId: variantId, quantity },
+      extraLines ?? [],
+      { source: 'pdp_button', onExtrasDropped: () => toast(t('pairing_add_failed'), { icon: '⚠️' }) }
     );
-    let ok = first.ok;
-
-    // The server already drops stale sold-out accessories from a bundle, so a
-    // bundle failure here is either the main product itself being sold out
-    // (soldOut — a retry can never succeed, and addItems already toasted) or a
-    // transient error worth one main-only retry.
-    let droppedExtras = false;
-    if (!first.ok && !first.soldOut && extras.length > 0) {
-      const second = await addItems([{ merchandiseId: variantId, quantity }]);
-      ok = second.ok;
-      droppedExtras = second.ok;
-    }
-    if (droppedExtras) toast(t('pairing_add_failed'), { icon: '⚠️' });
 
     if (!prefersReducedMotion() && btnRef.current) {
       // Elastic release — slightly overshoots, then settles
@@ -91,13 +80,7 @@ export default function AddToCartButton({ variantId, available, quantityAvailabl
   }
 
   return (
-    <div className="space-y-2">
-      {quantityAvailable > 0 && quantityAvailable <= 5 && (
-        <p className="text-xs font-semibold text-amber-600 flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse inline-block" />
-          {t('product_only_left').replace('{n}', String(quantityAvailable))}
-        </p>
-      )}
+    <div>
       <button
         ref={btnRef}
         onClick={handleAdd}

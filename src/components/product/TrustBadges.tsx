@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Truck, RotateCcw, Shield, CreditCard, Clock } from 'lucide-react';
+import { Truck, RotateCcw, Shield, CreditCard } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { gsap, prefersReducedMotion } from '@/lib/gsapClient';
 import type { TranslationKey } from '@/lib/translations';
@@ -21,7 +21,10 @@ const BADGE_DEFS: { Icon: React.ElementType; labelKey: TranslationKey; subKey: T
   { Icon: RotateCcw, labelKey: 'product_easy_returns', subKey: 'product_easy_returns_sub' },
   { Icon: Shield, labelKey: 'product_authentic', subKey: 'product_authentic_sub' },
   { Icon: CreditCard, labelKey: 'product_secure', subKey: 'product_secure_sub' },
-  { Icon: Clock, labelKey: 'product_order_2pm', subKey: 'product_order_2pm_sub', wide: true, highlight: true },
+  // The wide "Order before 2PM, Mon–Fri" tile lived here until 18 Sep 2026. The
+  // live dispatch box one block above now says the same thing truthfully for
+  // THIS moment, and carries the RAK/Fujairah caveat the tile never had —
+  // saying it twice was one urgency signal too many.
 ];
 
 export default function TrustBadges() {

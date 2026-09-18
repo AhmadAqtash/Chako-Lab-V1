@@ -6,6 +6,9 @@ import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
 import { MoneyV2 } from '@/types/shopify';
 import { ShoppingBag } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { addWithPairings } from '@/lib/add-with-pairings';
+import type { CartLineInput } from '@/context/CartContext';
 
 interface Props {
   title: string;
@@ -14,10 +17,17 @@ interface Props {
   available: boolean;
   triggerRef: React.RefObject<HTMLElement>;
   featuredImage?: string | null;
+  /** The stepper quantity and ticked pairing accessories from the buy box.
+   *  This bar is the FIRST call to action most mobile shoppers see (the real
+   *  button starts below the fold), so it must add exactly what that button
+   *  would — it used to add quantity 1 and silently drop every accessory. */
+  quantity?: number;
+  extraLines?: CartLineInput[];
+  onAdded?: () => void;
 }
 
-export default function StickyATC({ title, price, variantId, available, triggerRef, featuredImage }: Props) {
-  const { addItem, isLoading } = useCart();
+export default function StickyATC({ title, price, variantId, available, triggerRef, featuredImage, quantity = 1, extraLines, onAdded }: Props) {
+  const { addItems, isLoading } = useCart();
   const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
   const [added, setAdded] = useState(false);
@@ -47,8 +57,14 @@ export default function StickyATC({ title, price, variantId, available, triggerR
 
   async function handleAdd() {
     if (!available) return;
-    const { ok } = await addItem(variantId);
+    const { ok } = await addWithPairings(
+      addItems,
+      { merchandiseId: variantId, quantity },
+      extraLines ?? [],
+      { source: 'pdp_sticky', onExtrasDropped: () => toast(t('pairing_add_failed'), { icon: '⚠️' }) }
+    );
     if (!ok) return;
+    onAdded?.();
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }

@@ -1,0 +1,90 @@
+'use client';
+
+import { useState } from 'react';
+import { Loader2, Check } from 'lucide-react';
+import { useCart, type CartLineInput } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { fill } from '@/components/ui/fill';
+import { formatPrice, cn } from '@/lib/utils';
+import {
+  shippingBasis, unlocksWith, FREE_SHIPPING_THRESHOLD, FLAT_SHIPPING_FEE, SHOP_CURRENCY,
+} from '@/lib/shipping-config';
+
+interface Props {
+  variantId: string;
+  quantity: number;
+  /** Ticked pairing accessories — they ride along exactly as with Add to Cart */
+  extraLines: CartLineInput[];
+  /** unit price x quantity + ticked accessories, in AED */
+  selectionTotal: number;
+}
+
+const money = (amount: number) => formatPrice({ amount: String(amount), currencyCode: SHOP_CURRENCY });
+
+/**
+ * "Buy it now" — SECONDARY on purpose. Add to Cart already opens a drawer with
+ * a pinned Checkout button, so this saves exactly one tap, and it skips the
+ * free-shipping bar and the set slider. It must never out-shout the primary.
+ *
+ * Because this path skips the cart, what the cart would have disclosed is
+ * disclosed HERE, under the button, in the same two strings the cart uses:
+ *   line 1 — the shipping outcome for (cart + this selection), so nobody meets
+ *            AED 25 for the first time at checkout;
+ *   line 2 — that what is already in the cart goes along.
+ * Two lines are always reserved, so nothing below shifts when the cart loads.
+ */
+export default function BuyNowButton({ variantId, quantity, extraLines, selectionTotal }: Props) {
+  const { buyNow, cart, cartReady, isLoading } = useCart();
+  const { t } = useLanguage();
+  const [going, setGoing] = useState(false);
+
+  async function handleClick() {
+    if (going || isLoading) return;
+    setGoing(true);
+    const { ok } = await buyNow([{ merchandiseId: variantId, quantity }, ...extraLines]);
+    // On success the page is unloading (or the drawer opened instead) — only a
+    // failure returns the button to idle.
+    if (!ok) setGoing(false);
+    else setTimeout(() => setGoing(false), 8000); // drawer-fallback path / aborted navigation
+  }
+
+  const basis = cart ? shippingBasis(cart.cost) : 0;
+  const free = unlocksWith(basis, selectionTotal);
+  const threshold = <bdi>{money(FREE_SHIPPING_THRESHOLD)}</bdi>;
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={going || isLoading}
+        className={cn(
+          'flex w-full min-h-[52px] items-center justify-center gap-2 rounded-2xl border-2 border-chako-ink bg-transparent px-4 text-sm font-semibold text-chako-ink transition-[background-color,transform] duration-150 touch-manipulation',
+          'hover:bg-chako-ink/5 active:scale-[0.98] disabled:cursor-wait disabled:opacity-70'
+        )}
+      >
+        {going ? (
+          <><Loader2 size={16} className="animate-spin" aria-hidden="true" />{t('product_buy_now_loading')}</>
+        ) : (
+          t('product_buy_now')
+        )}
+      </button>
+
+      <div className="buy-now-note mt-1.5 min-h-[32px] text-center text-[11px] leading-4 text-chako-ink/55">
+        {cartReady && (
+          <>
+            <p className={cn('inline-flex items-center justify-center gap-1', free && 'font-semibold text-green-700')}>
+              {free && <Check size={11} strokeWidth={3} className="flex-shrink-0" aria-hidden="true" />}
+              <span>
+                {free
+                  ? fill(t('cart_shipping_free'), { threshold })
+                  : fill(t('cart_shipping_paid'), { fee: <bdi>{money(FLAT_SHIPPING_FEE)}</bdi>, threshold })}
+              </span>
+            </p>
+            {(cart?.totalQuantity ?? 0) > 0 && <p>{t('product_buy_now_cart_hint')}</p>}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
