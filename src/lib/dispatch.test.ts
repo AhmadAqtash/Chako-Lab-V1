@@ -160,3 +160,41 @@ test('"today"/"tomorrow" only when the device is on the UAE date', () => {
   assert.equal(deviceOnUaeDate(sameDate, w), true);
   assert.equal(deviceOnUaeDate(new Date(2026, 8, 20, 23, 0, 0), w), false);
 });
+
+// ── the ticking text ────────────────────────────────────────────────────────
+
+import { dispatchDuration } from './translations.ts';
+
+test('English duration: hours and minutes, minutes only under the hour', () => {
+  assert.equal(dispatchDuration(2, 14, false), '2h 14m');
+  assert.equal(dispatchDuration(0, 42, false), '42m');
+  assert.equal(dispatchDuration(6, 0, false), '6h 0m');
+});
+
+test('Arabic duration follows the count grammar — singular, dual, plural, then singular again', () => {
+  assert.equal(dispatchDuration(1, 0, true), 'ساعة');
+  assert.equal(dispatchDuration(2, 14, true), 'ساعتين و14 دقيقة');
+  assert.equal(dispatchDuration(3, 1, true), '3 ساعات ودقيقة');
+  assert.equal(dispatchDuration(5, 2, true), '5 ساعات ودقيقتين');
+  assert.equal(dispatchDuration(1, 7, true), 'ساعة و7 دقائق');
+  assert.equal(dispatchDuration(0, 10, true), '10 دقائق');
+  assert.equal(dispatchDuration(0, 11, true), '11 دقيقة');
+  assert.equal(dispatchDuration(0, 42, true), '42 دقيقة');
+  // Latin digits only — these lines must never mix digit systems
+  for (let h = 0; h <= 6; h++) for (let m = 0; m < 60; m++) {
+    assert.doesNotMatch(dispatchDuration(h, m, true), /[٠-٩]/);
+  }
+});
+
+test('the live window only ever produces durations between 21 minutes and 6 hours', () => {
+  for (let min = 8 * 60; min < 14 * 60; min++) {
+    const hh = String(Math.floor(min / 60)).padStart(2, '0');
+    const mm = String(min % 60).padStart(2, '0');
+    const now = uae('2026-09-21', `${hh}:${mm}:00`);
+    const w = dispatchWindow(now, NONE);
+    if (state(now) !== 'live') continue;
+    const { hours, minutes } = hoursMinutes(w.msLeft);
+    const total = hours * 60 + minutes;
+    assert.ok(total >= 20 && total <= 360, `${hh}:${mm} → ${total}m`);
+  }
+});
