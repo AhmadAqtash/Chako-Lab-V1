@@ -189,10 +189,15 @@ test('"today"/"tomorrow" only when the device is on the UAE date', () => {
 
 import { dispatchDuration } from './translations.ts';
 
-test('English duration: hours and minutes, minutes only under the hour', () => {
-  assert.equal(dispatchDuration(2, 14, false), '2h 14m');
-  assert.equal(dispatchDuration(0, 42, false), '42m');
-  assert.equal(dispatchDuration(6, 0, false), '6h 0m');
+test('English SPOKEN duration is words — a speech engine reads "36m" as "36 metres"', () => {
+  assert.equal(dispatchDuration(2, 14, false), '2 hours 14 minutes');
+  assert.equal(dispatchDuration(1, 1, false), '1 hour 1 minute');
+  assert.equal(dispatchDuration(0, 42, false), '42 minutes');
+  assert.equal(dispatchDuration(6, 0, false), '6 hours');
+  assert.equal(dispatchDuration(0, 0, false), '0 minutes');
+  for (let h = 0; h < 24; h++) for (let m = 0; m < 60; m++) {
+    assert.doesNotMatch(dispatchDuration(h, m, false, 1), /\d[dhm]\b/, 'no abbreviations');
+  }
 });
 
 test('Arabic duration follows the count grammar — singular, dual, plural, then singular again', () => {
@@ -208,8 +213,8 @@ test('Arabic duration follows the count grammar — singular, dual, plural, then
   assert.equal(dispatchDuration(11, 0, true), '11 ساعة');
   assert.equal(dispatchDuration(22, 50, true), '22 ساعة و50 دقيقة');
   // days: only on evenings and weekends, never more than three
-  assert.equal(dispatchDuration(22, 50, false, 1), '1d 22h 50m');
-  assert.equal(dispatchDuration(0, 5, false, 2), '2d 0h 5m');
+  assert.equal(dispatchDuration(22, 50, false, 1), '1 day 22 hours 50 minutes');
+  assert.equal(dispatchDuration(0, 5, false, 2), '2 days 5 minutes');
   assert.equal(dispatchDuration(22, 50, true, 1), 'يوم و22 ساعة و50 دقيقة');
   assert.equal(dispatchDuration(2, 0, true, 2), 'يومين وساعتين');
   assert.equal(dispatchDuration(0, 0, true, 3), '3 أيام');

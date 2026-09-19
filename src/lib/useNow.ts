@@ -21,14 +21,26 @@ export function useNow(intervalMs = 30_000): Date | null {
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
-    let id: ReturnType<typeof setInterval> | undefined;
+    let id: ReturnType<typeof setTimeout> | undefined;
     const tick = () => setNow(serverNow());
+    // Chained timeouts ALIGNED to the interval boundary of the corrected clock,
+    // not setInterval: an unaligned interval drifts against the wall clock, so
+    // a seconds display skips (…09, …07) or repeats a value every so often.
+    // Aligned, every mounted countdown also flips on the same instant.
+    const schedule = () => {
+      const base = (serverNow() ?? new Date()).getTime();
+      const delay = intervalMs - (base % intervalMs) + 8;
+      id = setTimeout(() => {
+        tick();
+        schedule();
+      }, delay);
+    };
     const start = () => {
       tick();
-      id = setInterval(tick, intervalMs);
+      schedule();
     };
     const stop = () => {
-      if (id !== undefined) clearInterval(id);
+      if (id !== undefined) clearTimeout(id);
       id = undefined;
     };
     const resync = () => {

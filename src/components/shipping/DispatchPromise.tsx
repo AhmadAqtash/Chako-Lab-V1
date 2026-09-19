@@ -25,10 +25,17 @@ const LONG_GAP_DAYS = 6;
 const DAY_MS = 86_400_000;
 const two = (n: number) => String(n).padStart(2, '0');
 
-/** "02:14:09", or "1d 14:22:09" past a day — for the compact (cart / sticky) form. */
-export function clockText(p: CountdownParts): string {
+/**
+ * "02:14:09", or "1d 14:22:09" past a day — the compact (cart / sticky) form.
+ * Arabic gets a real word for the days ("يوم و14:22:09"): a Latin "d" is
+ * unreadable to an Arabic-only shopper, who would take ~47h for ~23h.
+ */
+export function clockText(p: CountdownParts, isAr = false): string {
   const hms = `${two(p.hours)}:${two(p.minutes)}:${two(p.seconds)}`;
-  return p.days > 0 ? `${p.days}d ${hms}` : hms;
+  if (p.days === 0) return hms;
+  if (!isAr) return `${p.days}d ${hms}`;
+  const d = p.days === 1 ? 'يوم' : p.days === 2 ? 'يومين' : `${p.days} أيام`;
+  return `${d} و${hms}`;
 }
 
 /**
@@ -50,8 +57,11 @@ export function clockText(p: CountdownParts): string {
  *  - when the promise cannot be vouched for (no trusted clock yet, kill switch,
  *    past VERIFIED_THROUGH, unproven stock) there is NO timer — only the
  *    always-true wording. A timer is never decoration.
- * The block keeps one min-height in every state, so nothing shifts when the
- * clock arrives or a digit changes (tabular figures, fixed-width cells).
+ * The block keeps ONE height in every state, so Add to Cart (directly below)
+ * never moves when the clock arrives, when the days cell appears at the 24h
+ * boundary, or at the 13:59 flip. Measured in the running build, EN and AR:
+ * 118px at 360px and wider; below 360px the row STACKS (text above the cells)
+ * and holds 158px — side by side, four cells left the text a 68px column.
  */
 export default function DispatchPromise({ variant, stockOk }: Props) {
   const { t, language } = useLanguage();
@@ -78,7 +88,7 @@ export default function DispatchPromise({ variant, stockOk }: Props) {
       // Not a live region: a countdown that announces itself every second is noise
       aria-live="off"
       data-dispatch-state={state}
-      className={cn(isPdp ? 'rounded-2xl bg-chako-highlight/30 px-3.5 py-3 min-h-[112px]' : 'min-h-[64px]')}
+      className={cn(isPdp ? 'rounded-2xl bg-chako-highlight/30 px-3.5 py-3 min-h-[118px] max-[359px]:min-h-[158px]' : 'min-h-[64px]')}
     >
       {body}
     </div>
@@ -139,7 +149,10 @@ export default function DispatchPromise({ variant, stockOk }: Props) {
           <p className="text-xs font-semibold leading-4 text-chako-ink">
             <span aria-hidden="true">
               {t('dispatch_timer_label')}{' '}
-              <bdi className={cn('font-extrabold tabular-nums', urgent && 'text-chako-orange')}>{clockText(parts)}</bdi>
+              {/* Digits stay INK in the last hour: brand orange on cream is
+                  1.8:1 — the timer would get LESS readable exactly when it
+                  matters. The icon carries the colour instead. */}
+              <bdi className="font-extrabold tabular-nums">{clockText(parts, isAr)}</bdi>
             </span>
             <span className="sr-only">{spoken}</span>
           </p>
@@ -160,7 +173,7 @@ export default function DispatchPromise({ variant, stockOk }: Props) {
   return shell(
     state,
     <>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 max-[359px]:flex-col max-[359px]:items-start max-[359px]:gap-2">
         <div className="min-w-0">
           <p className="flex items-center gap-1.5 text-sm font-bold leading-5 text-chako-ink">
             <Clock size={15} aria-hidden="true" className={cn('flex-shrink-0', urgent ? 'text-chako-orange' : 'text-chako-ink/60')} />

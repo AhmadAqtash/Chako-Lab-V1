@@ -59,6 +59,16 @@ export default function StickyATC({ title, price, variantId, available, triggerR
     };
   }, [visible]);
 
+  // The strip ticks once a second, so it is mounted only while the bar is on
+  // screen — but "on screen" outlives `visible` by the 300ms slide-out.
+  // Unmounting it in the same commit made the bar snap 24px shorter mid-slide.
+  const [stripMounted, setStripMounted] = useState(false);
+  useEffect(() => {
+    if (visible) { setStripMounted(true); return; }
+    const id = setTimeout(() => setStripMounted(false), 320);
+    return () => clearTimeout(id);
+  }, [visible]);
+
   async function handleAdd() {
     if (!available) return;
     const { ok } = await addWithPairings(
@@ -83,7 +93,7 @@ export default function StickyATC({ title, price, variantId, available, triggerR
       {/* The buy box starts below the fold on a phone, so THIS bar is the first
           call to action — and the only place urgency can be seen on arrival.
           Mounted only while the bar is showing: no hidden per-second ticking. */}
-      {FLAGS.STICKY_DISPATCH && FLAGS.PDP_DISPATCH && visible && available && (
+      {FLAGS.STICKY_DISPATCH && FLAGS.PDP_DISPATCH && stripMounted && available && (
         <DispatchStrip stockOk={dispatchStockOk} />
       )}
       <div className="flex items-center gap-3">

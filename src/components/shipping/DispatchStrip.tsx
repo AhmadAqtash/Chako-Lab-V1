@@ -2,7 +2,8 @@
 
 import { Clock } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { fill } from '@/components/ui/fill';
+import { fill, fillText } from '@/components/ui/fill';
+import { dispatchDuration } from '@/lib/translations';
 import { useNow } from '@/lib/useNow';
 import {
   dispatchWindow, dispatchState, countdownParts, dayLabel, deviceOnUaeDate, DISPATCH_NOTICE, URGENT_MS,
@@ -35,22 +36,22 @@ export default function DispatchStrip({ stockOk }: { stockOk: boolean }) {
   if (state === 'safe') return null;
 
   const urgent = state === 'today' && w.msLeft <= URGENT_MS;
-  const time = (
-    <bdi className={cn('font-extrabold tabular-nums', urgent ? 'text-chako-orange' : 'text-chako-ink')}>
-      {clockText(countdownParts(w.msLeft))}
-    </bdi>
-  );
+  const parts = countdownParts(w.msLeft);
+  // Digits stay ink even when urgent — brand orange on this background is under
+  // 2:1. The clock icon carries the colour.
+  const time = <bdi className="font-extrabold tabular-nums text-chako-ink">{clockText(parts, isAr)}</bdi>;
   // "today" is only true if the shopper's calendar agrees with Dubai's
   const today = state === 'today' && deviceOnUaeDate(new Date(), w);
+  const weekday = dayLabel(w.dispatchDay, isAr);
+  const template = t(today ? 'dispatch_strip_today' : 'dispatch_strip_day');
+  // Screen readers get WORDS per minute, not a clock face per second
+  const spoken = fillText(template, { weekday, time: dispatchDuration(parts.hours, parts.minutes, isAr, parts.days) });
 
   return (
     <p className="dispatch-strip flex items-center justify-center gap-1.5 pb-2 text-[11px] font-semibold leading-4 text-chako-ink/70">
       <Clock size={12} aria-hidden="true" className={cn('flex-shrink-0', urgent && 'text-chako-orange')} />
-      <span>
-        {today
-          ? fill(t('dispatch_strip_today'), { time })
-          : fill(t('dispatch_strip_day'), { weekday: dayLabel(w.dispatchDay, isAr), time })}
-      </span>
+      <span aria-hidden="true">{fill(template, { weekday, time })}</span>
+      <span className="sr-only">{spoken}</span>
     </p>
   );
 }

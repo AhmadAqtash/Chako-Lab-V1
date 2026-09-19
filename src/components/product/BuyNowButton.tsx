@@ -45,13 +45,30 @@ export default function BuyNowButton({ variantId, quantity, extraLines, selectio
   // line holds the same height, so nothing shifts when it swaps.
   const [wallet, setWallet] = useState<WalletHint>(null);
   useEffect(() => {
+    // The same capability tests Stripe's payment page runs — so a wallet is
+    // only named where the browser can actually present it (lib/wallet-hint.ts).
     let hasApplePaySession = false;
+    let hasPaymentRequest = false;
     try {
-      hasApplePaySession = typeof (window as unknown as { ApplePaySession?: unknown }).ApplePaySession !== 'undefined';
+      const AP = (window as unknown as { ApplePaySession?: { canMakePayments?: () => boolean } }).ApplePaySession;
+      // canMakePayments() is synchronous and needs no merchant id. It THROWS on
+      // insecure origins and in some webviews — hence inside the try.
+      hasApplePaySession = !!AP && (typeof AP.canMakePayments !== 'function' || AP.canMakePayments() === true);
     } catch {
-      // some in-app browsers throw on access — treat as absent
+      hasApplePaySession = false;
     }
-    setWallet(walletForDevice(navigator.userAgent, { maxTouchPoints: navigator.maxTouchPoints, hasApplePaySession }));
+    try {
+      hasPaymentRequest = typeof (window as unknown as { PaymentRequest?: unknown }).PaymentRequest === 'function';
+    } catch {
+      hasPaymentRequest = false;
+    }
+    setWallet(
+      walletForDevice(navigator.userAgent, {
+        maxTouchPoints: navigator.maxTouchPoints,
+        hasApplePaySession,
+        hasPaymentRequest,
+      })
+    );
   }, []);
   const walletText = wallet === 'apple' ? t('wallet_apple') : wallet === 'google' ? t('wallet_google') : t('wallet_generic');
   const WalletIcon = wallet ? Wallet : ShieldCheck;

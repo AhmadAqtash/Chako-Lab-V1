@@ -480,8 +480,15 @@ export function reviewsBasedOnLabel(n: number, isAr: boolean): string {
 // `days` is only ever 0–3 (Friday 2PM → Monday 2PM is the longest gap).
 export function dispatchDuration(hours: number, minutes: number, isAr: boolean, days = 0): string {
   if (!isAr) {
-    const hm = hours > 0 || days > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-    return days > 0 ? `${days}d ${hm}` : hm;
+    // WORDS, not "1d 22h 36m": this is the screen-reader form, and speech
+    // engines read "36m" as "36 metres" and "1d" as "one d".
+    const unit = (n: number, one: string) => `${n} ${one}${n === 1 ? '' : 's'}`;
+    const parts = [
+      days > 0 ? unit(days, 'day') : '',
+      hours > 0 ? unit(hours, 'hour') : '',
+      minutes > 0 || (days === 0 && hours === 0) ? unit(minutes, 'minute') : '',
+    ];
+    return parts.filter(Boolean).join(' ');
   }
   const d = days === 0 ? '' : days === 1 ? 'يوم' : days === 2 ? 'يومين' : `${days} أيام`;
   const h =

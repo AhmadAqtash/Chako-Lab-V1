@@ -40,7 +40,14 @@ export function noteServerDate(res: Response, requestStartedAt: number): void {
     // ~3s, far inside the 60-second early-flip guard in lib/dispatch.ts.
     // The LATEST plausible sample wins (not the "best"): if the device clock is
     // corrected mid-session, a pinned old offset would stay wrong for good.
-    offsetMs = server + 500 - (requestStartedAt + rtt / 2);
+    const next = server + 500 - (requestStartedAt + rtt / 2);
+    // HYSTERESIS. The Date header has 1-second resolution, so every sample is
+    // ±~1s of noise around the truth. Re-basing on each cart response made a
+    // visible SECONDS countdown step backwards after an add — and a timer that
+    // stutters looks fake. A new sample only replaces the offset when it
+    // disagrees by 2s or more, i.e. when the device clock really moved.
+    if (offsetMs !== null && Math.abs(next - offsetMs) < 2000) return;
+    offsetMs = next;
     listeners.forEach((l) => l());
   } catch {
     // no offset → surfaces stay on the safe wording
