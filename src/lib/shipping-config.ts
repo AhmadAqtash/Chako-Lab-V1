@@ -12,10 +12,10 @@ export const FLAT_SHIPPING_FEE = 25;
 export const SHOP_CURRENCY = 'AED';
 
 /**
- * Until Ahmad confirms catalogue prices are VAT-inclusive, the cart keeps its
- * "Taxes calculated at checkout" line. Flip to true and the line disappears.
+ * true = the cart shows NO "Taxes calculated at checkout" line.
+ * Ahmad, 19 Sep 2026: remove it. (false brings the line back.)
  */
-export const PRICES_INCLUDE_VAT = false;
+export const PRICES_INCLUDE_VAT = true;
 
 const THRESHOLD_FILS = FREE_SHIPPING_THRESHOLD * 100;
 const fils = (amount: number) => (Number.isFinite(amount) && amount > 0 ? Math.round(amount * 100) : 0);

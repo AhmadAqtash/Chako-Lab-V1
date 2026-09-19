@@ -251,18 +251,22 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
         )}
 
         {/* ONE ACTION CLUSTER (gap-2.5, not the page's gap-5) so it reads as a
-            unit: scarcity ABOVE the buttons, delivery BELOW them, never adjacent,
-            and at most one live pressure signal at a time. */}
+            unit: low stock, the delivery countdown, then the buttons. */}
         <div className="flex flex-col gap-2.5">
         {/* Low stock — real inventory only. Lifted out of AddToCartButton, where
-            it sat inside the stretch-aligned row and stretched the stepper.
-            No pulse: when this shows, the dispatch box below stops ticking. */}
+            it sat inside the stretch-aligned row and stretched the stepper. */}
         {lowStock && (
           <p className="low-stock flex items-center gap-1.5 text-xs font-semibold text-amber-700">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden="true" />
             {t('product_only_left').replace('{n}', String(stockLeft))}
           </p>
         )}
+
+        {/* Delivery countdown — ABOVE the buttons (Ahmad, 19 Sep 2026). It sat
+            below Buy it now at first, a full scroll past the decision, and the
+            page communicated no urgency. It is the reason to press the button,
+            so it goes before the button. */}
+        {FLAGS.PDP_DISPATCH && inStock && <DispatchPromise variant="pdp" stockOk={stockCovers} />}
 
         {/* Quantity + ATC */}
         <div ref={atcRef} className="flex gap-3">
@@ -312,12 +316,6 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
             extraLines={pairedLines}
             selectionTotal={parseFloat(price.amount) * quantity + pairedTotal}
           />
-        )}
-
-        {/* Dispatch promise — BELOW the buttons: it answers "when will I get
-            it?" rather than pushing a button that is already far down the page */}
-        {FLAGS.PDP_DISPATCH && inStock && (
-          <DispatchPromise variant="pdp" stockOk={stockCovers} calm={lowStock} />
         )}
         </div>
 
@@ -441,6 +439,7 @@ export default function ProductDetails({ product, colorSiblings, colorName, coll
           quantity={quantity}
           extraLines={pairedLines}
           onAdded={() => setPaired(new Set())}
+          dispatchStockOk={stockCovers}
         />
       )}
     </>

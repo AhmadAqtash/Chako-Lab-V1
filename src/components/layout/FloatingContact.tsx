@@ -57,7 +57,7 @@ export default function FloatingContact() {
       className: cn(
         'motion-safe:transition-transform motion-safe:duration-500',
         'motion-safe:[transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]',
-        lifted && 'max-md:-translate-y-16'
+        lifted && 'max-md:-translate-y-[88px]'
       ),
       style: { transitionDelay: `${(lifted ? indexFromBottom : 2 - indexFromBottom) * 70}ms` },
     }) as const;

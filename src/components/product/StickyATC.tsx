@@ -9,6 +9,8 @@ import { ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { addWithPairings } from '@/lib/add-with-pairings';
 import type { CartLineInput } from '@/context/CartContext';
+import DispatchStrip from '@/components/shipping/DispatchStrip';
+import { FLAGS } from '@/lib/feature-flags';
 
 interface Props {
   title: string;
@@ -24,9 +26,11 @@ interface Props {
   quantity?: number;
   extraLines?: CartLineInput[];
   onAdded?: () => void;
+  /** Shelf provably covers the chosen quantity — gates the dispatch strip */
+  dispatchStockOk?: boolean;
 }
 
-export default function StickyATC({ title, price, variantId, available, triggerRef, featuredImage, quantity = 1, extraLines, onAdded }: Props) {
+export default function StickyATC({ title, price, variantId, available, triggerRef, featuredImage, quantity = 1, extraLines, onAdded, dispatchStockOk = false }: Props) {
   const { addItems, isLoading } = useCart();
   const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
@@ -71,11 +75,18 @@ export default function StickyATC({ title, price, variantId, available, triggerR
 
   return (
     <div
-      className={`sticky-atc md:hidden fixed left-0 right-0 z-20 bg-chako-bg/95 backdrop-blur-md border-t border-black/8 px-4 py-3 flex items-center gap-3 transition-transform duration-300 ${
+      className={`sticky-atc md:hidden fixed left-0 right-0 z-20 bg-chako-bg/95 backdrop-blur-md border-t border-black/8 px-4 py-3 transition-transform duration-300 ${
         visible ? 'translate-y-0' : 'translate-y-full'
       }`}
       style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 58px)' }}
     >
+      {/* The buy box starts below the fold on a phone, so THIS bar is the first
+          call to action — and the only place urgency can be seen on arrival.
+          Mounted only while the bar is showing: no hidden per-second ticking. */}
+      {FLAGS.STICKY_DISPATCH && FLAGS.PDP_DISPATCH && visible && available && (
+        <DispatchStrip stockOk={dispatchStockOk} />
+      )}
+      <div className="flex items-center gap-3">
       {featuredImage && (
         <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-chako-accent">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -100,6 +111,7 @@ export default function StickyATC({ title, price, variantId, available, triggerR
         <ShoppingBag size={16} />
         {!available ? t('product_out_of_stock') : added ? t('product_added') : t('product_add_to_cart')}
       </button>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Loader2, Check } from 'lucide-react';
+import { Loader2, Check, Wallet, ShieldCheck } from 'lucide-react';
 import { useCart, type CartLineInput } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { fill } from '@/components/ui/fill';
@@ -9,6 +9,8 @@ import { formatPrice, cn } from '@/lib/utils';
 import {
   shippingBasis, unlocksWith, canPredictShipping, FREE_SHIPPING_THRESHOLD, FLAT_SHIPPING_FEE, SHOP_CURRENCY,
 } from '@/lib/shipping-config';
+import { walletForDevice, type WalletHint } from '@/lib/wallet-hint';
+import { FLAGS } from '@/lib/feature-flags';
 
 interface Props {
   variantId: string;
@@ -37,6 +39,22 @@ export default function BuyNowButton({ variantId, quantity, extraLines, selectio
   const { buyNow, cart, cartReady, isLoading } = useCart();
   const { t } = useLanguage();
   const [going, setGoing] = useState(false);
+
+  // Device-aware wallet line (see lib/wallet-hint.ts for what it may claim).
+  // Resolved after mount: the server cannot know the device, and the generic
+  // line holds the same height, so nothing shifts when it swaps.
+  const [wallet, setWallet] = useState<WalletHint>(null);
+  useEffect(() => {
+    let hasApplePaySession = false;
+    try {
+      hasApplePaySession = typeof (window as unknown as { ApplePaySession?: unknown }).ApplePaySession !== 'undefined';
+    } catch {
+      // some in-app browsers throw on access — treat as absent
+    }
+    setWallet(walletForDevice(navigator.userAgent, { maxTouchPoints: navigator.maxTouchPoints, hasApplePaySession }));
+  }, []);
+  const walletText = wallet === 'apple' ? t('wallet_apple') : wallet === 'google' ? t('wallet_google') : t('wallet_generic');
+  const WalletIcon = wallet ? Wallet : ShieldCheck;
 
   async function handleClick() {
     if (going || isLoading) return;
@@ -67,14 +85,22 @@ export default function BuyNowButton({ variantId, quantity, extraLines, selectio
         onClick={handleClick}
         disabled={going || isLoading}
         className={cn(
-          'flex w-full min-h-[52px] items-center justify-center gap-2 rounded-2xl border-2 border-chako-ink bg-transparent px-4 text-sm font-semibold text-chako-ink transition-[background-color,transform] duration-150 touch-manipulation',
+          'flex w-full min-h-[58px] items-center justify-center gap-2 rounded-2xl border-2 border-chako-ink bg-transparent px-4 py-2 text-sm font-semibold text-chako-ink transition-[background-color,transform] duration-150 touch-manipulation',
           'hover:bg-chako-ink/5 active:scale-[0.98] disabled:cursor-wait disabled:opacity-70'
         )}
       >
         {going ? (
           <><Loader2 size={16} className="animate-spin" aria-hidden="true" />{t('product_buy_now_loading')}</>
         ) : (
-          t('product_buy_now')
+          <span className="flex flex-col items-center leading-tight">
+            <span>{t('product_buy_now')}</span>
+            {FLAGS.PDP_WALLET_HINT && (
+              <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-medium text-chako-ink/70" data-wallet={wallet ?? 'none'}>
+                <WalletIcon size={11} aria-hidden="true" className="flex-shrink-0" />
+                {walletText}
+              </span>
+            )}
+          </span>
         )}
       </button>
 

@@ -136,18 +136,20 @@ export function dispatchWindow(
 // ─── State machine ────────────────────────────────────────────────────────────
 //
 //   safe   SSR / clock unknown / kill switch / past VERIFIED_THROUGH / no stock
-//          proof → "Order before 2PM on a business day · next business day"
-//   live   cutoff is TODAY, 20min < left <= 6h → "Order within 2h 14m"
-//   today  cutoff is today but outside that window → "Order before 2PM today".
-//          At midnight "within 13h 29m" is noise; in the last 20 minutes a
-//          relative "3m" invites a checkout that cannot finish in time, while
-//          the absolute conditional stays literally true at 13:59.
-//   next   cutoff is another day → "Delivered Wednesday · Order before 2PM Tuesday"
+//          proof → "Order before 2PM on a business day · next business day".
+//          No countdown: a timer needs a clock and a promise we can vouch for.
+//   today  the cutoff is TODAY  → countdown to it, "to get it tomorrow, Tuesday"
+//   next   the cutoff is LATER  → countdown to it, "to get it Tuesday"
+//
+// The countdown ticks in BOTH live states, every hour of the week (Ahmad,
+// 19 Sep 2026: the first version only ticked 08:00–13:40 on business days, and
+// an evening or weekend shopper — most of the Instagram traffic — saw no
+// countdown at all, so the page communicated no urgency). It stays honest
+// because it is never decorative: it counts to the REAL next cutoff on a
+// server-corrected clock, the day beside it is the day THAT cutoff delivers,
+// and it flips one minute early, never late.
 
-export type DispatchState = 'live' | 'today' | 'next' | 'safe';
-
-export const LIVE_MAX_MS = 6 * HOUR_MS;
-export const LIVE_MIN_MS = 20 * 60 * 1000;
+export type DispatchState = 'today' | 'next' | 'safe';
 
 export interface DispatchStateOptions {
   mode?: 'live' | 'safe';
@@ -158,24 +160,38 @@ export interface DispatchStateOptions {
    * would then be a guess.
    */
   stockOk?: boolean;
-  /**
-   * Another pressure signal (low stock) is already showing: never tick beside
-   * it. One live signal at a time.
-   */
-  calm?: boolean;
 }
 
 export function dispatchState(w: DispatchWindow, opts: DispatchStateOptions = {}): DispatchState {
-  const { mode = DISPATCH_MODE, verifiedThrough = VERIFIED_THROUGH, stockOk = true, calm = false } = opts;
+  const { mode = DISPATCH_MODE, verifiedThrough = VERIFIED_THROUGH, stockOk = true } = opts;
   if (mode !== 'live' || !stockOk) return 'safe';
   // The promise spans today → delivery; all of it must be inside the verified range.
   if (ymd(w.deliveryDay) > verifiedThrough) return 'safe';
-  if (!w.leavesToday) return 'next';
-  if (calm) return 'today';
-  return w.msLeft <= LIVE_MAX_MS && w.msLeft > LIVE_MIN_MS ? 'live' : 'today';
+  return w.leavesToday ? 'today' : 'next';
 }
 
+/** Under an hour to a cutoff that is TODAY — the one moment the timer may change colour. */
+export const URGENT_MS = HOUR_MS;
+
 // ─── Formatting helpers ───────────────────────────────────────────────────────
+
+export interface CountdownParts {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+/** Whole seconds left, FLOORED — a countdown must never over-state the time left. */
+export function countdownParts(ms: number): CountdownParts {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  return {
+    days: Math.floor(s / 86400),
+    hours: Math.floor((s % 86400) / 3600),
+    minutes: Math.floor((s % 3600) / 60),
+    seconds: s % 60,
+  };
+}
 
 /** Hours and minutes left, minutes FLOORED — never over-state the time left. */
 export function hoursMinutes(ms: number): { hours: number; minutes: number } {

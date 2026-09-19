@@ -23,4 +23,13 @@ export const FLAGS = {
   PDP_QUOTE: true,
   /** PDP: "Buy it now" (drinkware only) */
   PDP_BUY_NOW: true,
+  /**
+   * Buy it now: "Apple Pay accepted at checkout" on iPhone, "Google Pay…" on
+   * Android. ON because Ahmad confirmed (19 Sep 2026) both wallets are enabled
+   * in his Stripe dashboard. If a wallet is ever switched off in Stripe, this
+   * must go off in the same breath — the line would be a false claim.
+   */
+  PDP_WALLET_HINT: true,
+  /** Mobile sticky bar: "Ships today — order within 02:14:09" */
+  STICKY_DISPATCH: true,
 } as const;

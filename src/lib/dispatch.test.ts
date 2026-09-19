@@ -8,7 +8,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  dispatchWindow, dispatchState, hoursMinutes, dayLabel, deviceOnUaeDate, HOLIDAYS, VERIFIED_THROUGH,
+  dispatchWindow, dispatchState, hoursMinutes, countdownParts, dayLabel, deviceOnUaeDate,
+  HOLIDAYS, VERIFIED_THROUGH, URGENT_MS,
 } from './dispatch.ts';
 
 // Build an instant from a UAE wall-clock time (UTC+4). 2026-09-21 is a Monday.
@@ -107,21 +108,44 @@ test('delivery never lands on a weekend, and msLeft is always positive', () => {
 
 // ── state machine ───────────────────────────────────────────────────────────
 
-test('digits only tick when the cutoff is today AND close: 08:00–13:40', () => {
+test('the countdown is live EVERY hour of the week: "today" before the cutoff, "next" after it', () => {
   assert.equal(state(uae('2026-09-21', '00:01:00')), 'today');
-  assert.equal(state(uae('2026-09-21', '07:59:00')), 'today');
-  assert.equal(state(uae('2026-09-21', '08:00:00')), 'live');
-  assert.equal(state(uae('2026-09-21', '13:39:00')), 'live');
-  assert.equal(state(uae('2026-09-21', '13:40:00')), 'today', 'final 20 minutes: absolute wording');
+  assert.equal(state(uae('2026-09-21', '08:00:00')), 'today');
   assert.equal(state(uae('2026-09-21', '13:58:59')), 'today');
-  assert.equal(state(uae('2026-09-21', '13:59:00')), 'next', 'guard');
+  assert.equal(state(uae('2026-09-21', '13:59:00')), 'next', 'flips one minute EARLY, never late');
   assert.equal(state(uae('2026-09-21', '14:00:00')), 'next');
+  assert.equal(state(uae('2026-09-21', '22:30:00')), 'next', 'evening: the main Instagram traffic');
   assert.equal(state(uae('2026-09-26', '12:00:00')), 'next', 'Saturday');
+  assert.equal(state(uae('2026-09-27', '23:59:00')), 'next', 'Sunday night');
 });
 
-test('one live pressure signal at a time: low stock calms the countdown', () => {
-  assert.equal(state(uae('2026-09-21', '11:00:00'), { calm: true }), 'today');
-  assert.equal(state(uae('2026-09-21', '15:00:00'), { calm: true }), 'next');
+test('what the timer shows is the real time to the real next cutoff', () => {
+  // Monday 11:45:51 → 2h 14m 09s to the 2PM cutoff (the 60s guard affects the flip, not the target)
+  assert.deepEqual(countdownParts(dispatchWindow(uae('2026-09-21', '11:45:51'), NONE).msLeft),
+    { days: 0, hours: 2, minutes: 14, seconds: 9 });
+  // Saturday noon → Monday 2PM is 2 days and 2 hours away, and it delivers Tuesday
+  const sat = dispatchWindow(uae('2026-09-26', '12:00:00'), NONE);
+  assert.deepEqual(countdownParts(sat.msLeft), { days: 2, hours: 2, minutes: 0, seconds: 0 });
+  assert.equal(dayLabel(sat.deliveryDay, false), 'Tuesday');
+  // Friday evening → Monday 2PM; delivery Tuesday, four days out: never "tomorrow"
+  const fri = dispatchWindow(uae('2026-09-25', '20:00:00'), NONE);
+  assert.deepEqual(countdownParts(fri.msLeft), { days: 2, hours: 18, minutes: 0, seconds: 0 });
+  assert.equal(fri.deliveryInDays, 4);
+  // floored, never over-stated; never negative
+  assert.deepEqual(countdownParts(1999), { days: 0, hours: 0, minutes: 0, seconds: 1 });
+  assert.deepEqual(countdownParts(-5), { days: 0, hours: 0, minutes: 0, seconds: 0 });
+});
+
+test('the timer only changes colour in the last hour before a cutoff that is TODAY', () => {
+  const urgent = (now: Date) => {
+    const w = dispatchWindow(now, NONE);
+    return state(now) === 'today' && w.msLeft <= URGENT_MS;
+  };
+  assert.equal(urgent(uae('2026-09-21', '12:59:00')), false);
+  assert.equal(urgent(uae('2026-09-21', '13:00:00')), true);
+  assert.equal(urgent(uae('2026-09-21', '13:58:00')), true);
+  assert.equal(urgent(uae('2026-09-21', '14:30:00')), false, 'after the cutoff the next one is a day away');
+  assert.equal(urgent(uae('2026-09-27', '13:30:00')), false, 'Sunday 1:30PM is NOT half an hour from a cutoff');
 });
 
 test('safe mode: kill switch, unproven stock, and past VERIFIED_THROUGH', () => {
@@ -129,7 +153,7 @@ test('safe mode: kill switch, unproven stock, and past VERIFIED_THROUGH', () => 
   assert.equal(state(noon, { mode: 'safe' }), 'safe');
   assert.equal(state(noon, { stockOk: false }), 'safe');
   assert.equal(state(noon, { verifiedThrough: '2026-09-21' }), 'safe', 'delivery day is past the verified range');
-  assert.equal(state(noon, { verifiedThrough: '2026-09-22' }), 'live');
+  assert.equal(state(noon, { verifiedThrough: '2026-09-22' }), 'today');
   // The shipped constants: live today, safe once the holiday list runs out
   assert.ok(VERIFIED_THROUGH >= '2026-12-31');
   assert.equal(dispatchState(dispatchWindow(uae('2027-03-01', '10:00:00'))), 'safe');
@@ -180,21 +204,27 @@ test('Arabic duration follows the count grammar — singular, dual, plural, then
   assert.equal(dispatchDuration(0, 10, true), '10 دقائق');
   assert.equal(dispatchDuration(0, 11, true), '11 دقيقة');
   assert.equal(dispatchDuration(0, 42, true), '42 دقيقة');
+  // hours past ten take the singular again (the old window never reached them)
+  assert.equal(dispatchDuration(11, 0, true), '11 ساعة');
+  assert.equal(dispatchDuration(22, 50, true), '22 ساعة و50 دقيقة');
+  // days: only on evenings and weekends, never more than three
+  assert.equal(dispatchDuration(22, 50, false, 1), '1d 22h 50m');
+  assert.equal(dispatchDuration(0, 5, false, 2), '2d 0h 5m');
+  assert.equal(dispatchDuration(22, 50, true, 1), 'يوم و22 ساعة و50 دقيقة');
+  assert.equal(dispatchDuration(2, 0, true, 2), 'يومين وساعتين');
+  assert.equal(dispatchDuration(0, 0, true, 3), '3 أيام');
   // Latin digits only — these lines must never mix digit systems
   for (let h = 0; h <= 6; h++) for (let m = 0; m < 60; m++) {
     assert.doesNotMatch(dispatchDuration(h, m, true), /[٠-٩]/);
   }
 });
 
-test('the live window only ever produces durations between 21 minutes and 6 hours', () => {
-  for (let min = 8 * 60; min < 14 * 60; min++) {
-    const hh = String(Math.floor(min / 60)).padStart(2, '0');
-    const mm = String(min % 60).padStart(2, '0');
-    const now = uae('2026-09-21', `${hh}:${mm}:00`);
+test('across a whole week the countdown is always positive and never longer than a long weekend', () => {
+  for (let min = 0; min < 7 * 24 * 60; min += 7) {
+    const now = new Date(Date.UTC(2026, 8, 21, 0, min, 0));
     const w = dispatchWindow(now, NONE);
-    if (state(now) !== 'live') continue;
-    const { hours, minutes } = hoursMinutes(w.msLeft);
-    const total = hours * 60 + minutes;
-    assert.ok(total >= 20 && total <= 360, `${hh}:${mm} → ${total}m`);
+    assert.ok(w.msLeft > 0, now.toISOString());
+    // Friday 2PM → Monday 2PM is the longest gap: exactly 3 days
+    assert.ok(w.msLeft <= 3 * 24 * 60 * 60 * 1000, now.toISOString());
   }
 });

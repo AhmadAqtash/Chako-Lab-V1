@@ -600,3 +600,6 @@ body[data-titanium] .cart-drawer .text-green-800,
 body[data-titanium] .pdp-quote .text-green-800,
 body[data-titanium] .buy-now-note .text-green-800 { color: #86EFAC !important; }
 body[data-titanium] .low-stock { color: #FCD34D !important; }
+/* The global titanium rule flips .text-chako-ink to light — on the orange
+   "under an hour" timer cell that would be light-on-orange. Keep it dark. */
+body[data-titanium] .dispatch-cell--urgent { color: #15171C !important; }

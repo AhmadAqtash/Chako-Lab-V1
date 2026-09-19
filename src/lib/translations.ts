@@ -164,12 +164,19 @@ const translations = {
     cart_remove_item: 'Remove {item}',
     // ── Dispatch promise (PDP + cart). Wording rules live in lib/dispatch.ts:
     // always "before" 2PM (never "by"), and the caveat rides in the same block.
-    dispatch_lead_within: 'Order within {time}',
-    dispatch_lead_today: 'Order before {cutoff} today',
-    dispatch_lead_day: 'Order before {cutoff} {cutoffDay}',
-    dispatch_promise_tomorrow: 'Delivered tomorrow, {weekday}',
-    dispatch_promise_day: 'Delivered {weekday}',
-    dispatch_cutoff: '2PM',
+    // The countdown reads as ONE sentence across three rows:
+    //   "Order within" [02 hrs][14 min][09 sec] "to get it tomorrow, Tuesday"
+    dispatch_timer_label: 'Order within',
+    dispatch_timer_get_tomorrow: 'to get it tomorrow, {weekday}',
+    dispatch_timer_get_day: 'to get it {weekday}',
+    dispatch_unit_days: 'days',
+    dispatch_unit_hours: 'hrs',
+    dispatch_unit_minutes: 'min',
+    dispatch_unit_seconds: 'sec',
+    // Sticky bar: a DISPATCH claim only (no delivery day), so it needs no
+    // emirate caveat — dispatch has no RAK/Fujairah exception, delivery does.
+    dispatch_strip_today: 'Ships today — order within {time}',
+    dispatch_strip_day: 'Ships {weekday} — order within {time}',
     dispatch_caveat: 'Ras Al Khaimah & Fujairah may take 1 extra day. 2PM is Gulf time.',
     dispatch_details_link: 'Shipping details',
     dispatch_safe_lead: 'Order before 2PM on a business day',
@@ -180,6 +187,13 @@ const translations = {
     product_buy_now: 'Buy it now',
     product_buy_now_loading: 'Taking you to checkout…',
     product_buy_now_cart_hint: "Includes what's already in your cart.",
+    // Device-aware line inside Buy it now. ACCEPTANCE statements, on purpose:
+    // Apple's and Google's rules reserve their pay BUTTONS for opening the real
+    // payment sheet, which this store's checkout (Stripe app, no Shopify
+    // Payments) cannot do from a product page. Brand names stay in Latin.
+    wallet_apple: 'Apple Pay accepted at checkout',
+    wallet_google: 'Google Pay accepted at checkout',
+    wallet_generic: 'Secure checkout',
     pdp_quote_read_all: 'Read all reviews',
     product_save_pct: 'Save {discount}%',
     product_select_options: 'Select options',
@@ -373,12 +387,15 @@ const translations = {
     cart_remove_item: 'إزالة {item}',
     // ── وعد الشحن (صفحة المنتج + السلة) — أرقام لاتينية عمداً: هذه الأسطر تحمل
     // قيماً ديناميكية بأرقام لاتينية ولا يجوز خلط نظامَي أرقام في سطر واحد.
-    dispatch_lead_within: 'اطلب خلال {time}',
-    dispatch_lead_today: 'اطلب اليوم قبل {cutoff}',
-    dispatch_lead_day: 'اطلب قبل {cutoff} يوم {cutoffDay}',
-    dispatch_promise_tomorrow: 'يصلك غداً، {weekday}',
-    dispatch_promise_day: 'يصلك يوم {weekday}',
-    dispatch_cutoff: '2 ظهراً',
+    dispatch_timer_label: 'اطلب خلال',
+    dispatch_timer_get_tomorrow: 'ليصلك غداً، {weekday}',
+    dispatch_timer_get_day: 'ليصلك يوم {weekday}',
+    dispatch_unit_days: 'يوم',
+    dispatch_unit_hours: 'ساعة',
+    dispatch_unit_minutes: 'دقيقة',
+    dispatch_unit_seconds: 'ثانية',
+    dispatch_strip_today: 'يُشحن اليوم — اطلب خلال {time}',
+    dispatch_strip_day: 'يُشحن يوم {weekday} — اطلب خلال {time}',
     dispatch_caveat: 'قد يستغرق التوصيل إلى رأس الخيمة والفجيرة يوماً إضافياً. الساعة 2 ظهراً بتوقيت الإمارات.',
     dispatch_details_link: 'تفاصيل الشحن',
     dispatch_safe_lead: 'اطلب قبل 2 ظهراً في يوم عمل',
@@ -389,6 +406,9 @@ const translations = {
     product_buy_now: 'اشترِ الآن',
     product_buy_now_loading: 'ننقلك إلى إتمام الطلب…',
     product_buy_now_cart_hint: 'يشمل ما في سلتك حالياً.',
+    wallet_apple: 'نقبل Apple Pay عند إتمام الطلب',
+    wallet_google: 'نقبل Google Pay عند إتمام الطلب',
+    wallet_generic: 'دفع آمن',
     pdp_quote_read_all: 'اقرأ جميع التقييمات',
     product_save_pct: 'وفّر {discount}%',
     product_select_options: 'حدّد الخيارات',
@@ -457,14 +477,22 @@ export function reviewsBasedOnLabel(n: number, isAr: boolean): string {
 // minute/dual/plural/singular-accusative — and abbreviations read as
 // machine-made, so it is a function. Latin digits; every form is correct in the
 // genitive after «خلال». Zero minutes are omitted; under an hour, minutes only.
-export function dispatchDuration(hours: number, minutes: number, isAr: boolean): string {
-  if (!isAr) return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-  const h = hours === 0 ? '' : hours === 1 ? 'ساعة' : hours === 2 ? 'ساعتين' : `${hours} ساعات`;
+// `days` is only ever 0–3 (Friday 2PM → Monday 2PM is the longest gap).
+export function dispatchDuration(hours: number, minutes: number, isAr: boolean, days = 0): string {
+  if (!isAr) {
+    const hm = hours > 0 || days > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    return days > 0 ? `${days}d ${hm}` : hm;
+  }
+  const d = days === 0 ? '' : days === 1 ? 'يوم' : days === 2 ? 'يومين' : `${days} أيام`;
+  const h =
+    hours === 0 ? '' :
+    hours === 1 ? 'ساعة' :
+    hours === 2 ? 'ساعتين' :
+    hours <= 10 ? `${hours} ساعات` : `${hours} ساعة`;
   const m =
     minutes === 0 ? '' :
     minutes === 1 ? 'دقيقة' :
     minutes === 2 ? 'دقيقتين' :
     minutes <= 10 ? `${minutes} دقائق` : `${minutes} دقيقة`;
-  if (h && m) return `${h} و${m}`;
-  return h || m || 'دقيقة';
+  return [d, h, m].filter(Boolean).join(' و') || 'دقيقة';
 }
