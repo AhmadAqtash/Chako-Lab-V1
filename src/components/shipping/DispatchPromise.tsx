@@ -64,16 +64,16 @@ export default function DispatchPromise({ variant, stockOk, calm = false }: Prop
       lead: t('dispatch_safe_lead'),
       promise: t('dispatch_safe_promise'),
     };
+    // The owner's notice outranks EVERYTHING, safe states included (see
+    // DISPATCH_NOTICE). Static text, so it is also correct in server HTML.
+    if (DISPATCH_NOTICE) {
+      return { state: 'safe', lead: isAr ? DISPATCH_NOTICE.ar : DISPATCH_NOTICE.en, promise: null };
+    }
     if (!now) return safe;
 
     const w = dispatchWindow(now);
     const state = dispatchState(w, { stockOk, calm });
     if (state === 'safe') return safe;
-
-    if (DISPATCH_NOTICE) {
-      const text = isAr ? DISPATCH_NOTICE.ar : DISPATCH_NOTICE.en;
-      return { state, lead: text, promise: null };
-    }
 
     const daysTo = (d: Date) => Math.round((d.getTime() - w.today.getTime()) / DAY_MS);
     const label = (d: Date) => dayLabel(d, isAr, daysTo(d) >= LONG_GAP_DAYS);
@@ -145,7 +145,7 @@ export default function DispatchPromise({ variant, stockOk, calm = false }: Prop
             {lines.promise}
           </p>
         )}
-        <p className={cn('text-[11px] leading-[14px] min-h-[28px]', isPdp ? 'text-chako-ink/60 mt-1' : 'text-chako-ink/50 mt-0.5')}>
+        <p className={cn('text-[11px] leading-[14px] min-h-[28px]', isPdp ? 'text-chako-ink/70 mt-1' : 'text-chako-ink/70 mt-0.5')}>
           {t('dispatch_caveat')}
           {isPdp && (
             <>

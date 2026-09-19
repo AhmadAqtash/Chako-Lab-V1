@@ -596,6 +596,7 @@ body[data-titanium] .cart-drawer .ship-seg--unlocked { background-color: rgba(22
 body[data-titanium] .cart-drawer .ship-track { background-color: rgba(255,255,255,0.14) !important; }
 body[data-titanium] .cart-drawer .bg-chako-highlight\/40 { background-color: rgba(212,175,55,0.22) !important; }
 body[data-titanium] .cart-drawer .text-green-700,
-body[data-titanium] .pdp-quote .text-green-700,
-body[data-titanium] .buy-now-note .text-green-700 { color: #86EFAC !important; }
+body[data-titanium] .cart-drawer .text-green-800,
+body[data-titanium] .pdp-quote .text-green-800,
+body[data-titanium] .buy-now-note .text-green-800 { color: #86EFAC !important; }
 body[data-titanium] .low-stock { color: #FCD34D !important; }

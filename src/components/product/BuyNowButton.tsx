@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2, Check } from 'lucide-react';
 import { useCart, type CartLineInput } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { fill } from '@/components/ui/fill';
 import { formatPrice, cn } from '@/lib/utils';
 import {
-  shippingBasis, unlocksWith, FREE_SHIPPING_THRESHOLD, FLAT_SHIPPING_FEE, SHOP_CURRENCY,
+  shippingBasis, unlocksWith, canPredictShipping, FREE_SHIPPING_THRESHOLD, FLAT_SHIPPING_FEE, SHOP_CURRENCY,
 } from '@/lib/shipping-config';
 
 interface Props {
@@ -41,15 +41,23 @@ export default function BuyNowButton({ variantId, quantity, extraLines, selectio
   async function handleClick() {
     if (going || isLoading) return;
     setGoing(true);
-    const { ok } = await buyNow([{ merchandiseId: variantId, quantity }, ...extraLines]);
-    // On success the page is unloading (or the drawer opened instead) — only a
-    // failure returns the button to idle.
-    if (!ok) setGoing(false);
-    else setTimeout(() => setGoing(false), 8000); // drawer-fallback path / aborted navigation
+    await buyNow([{ merchandiseId: variantId, quantity }, ...extraLines]);
   }
 
+  // The spinner FOLLOWS the cart context instead of keeping its own clock. The
+  // context holds `isLoading` while the page unloads and releases it on every
+  // path where the shopper is still here — failure, the drawer fallback, an
+  // aborted navigation, Back from checkout via the bfcache. A private timer
+  // here could not see any of those.
+  useEffect(() => {
+    if (!isLoading) setGoing(false);
+  }, [isLoading]);
+
   const basis = cart ? shippingBasis(cart.cost) : 0;
-  const free = unlocksWith(basis, selectionTotal);
+  // Under a discount, adding a CATALOGUE price predicts nothing (see
+  // canPredictShipping) — state the rule instead of guessing the outcome.
+  const predictable = canPredictShipping(cart);
+  const free = predictable && unlocksWith(basis, selectionTotal);
   const threshold = <bdi>{money(FREE_SHIPPING_THRESHOLD)}</bdi>;
 
   return (
@@ -70,13 +78,16 @@ export default function BuyNowButton({ variantId, quantity, extraLines, selectio
         )}
       </button>
 
-      <div className="buy-now-note mt-1.5 min-h-[32px] text-center text-[11px] leading-4 text-chako-ink/55">
+      {/* ink/70 + green-800: 11px text needs that much to pass AA on cream */}
+      <div className="buy-now-note mt-1.5 min-h-[32px] text-center text-[11px] leading-4 text-chako-ink/70">
         {cartReady && (
           <>
-            <p className={cn('inline-flex items-center justify-center gap-1', free && 'font-semibold text-green-700')}>
+            <p className={cn('inline-flex items-center justify-center gap-1', free && 'font-semibold text-green-800')}>
               {free && <Check size={11} strokeWidth={3} className="flex-shrink-0" aria-hidden="true" />}
               <span>
-                {free
+                {!predictable
+                  ? fill(t('cart_ship_empty'), { threshold })
+                  : free
                   ? fill(t('cart_shipping_free'), { threshold })
                   : fill(t('cart_shipping_paid'), { fee: <bdi>{money(FLAT_SHIPPING_FEE)}</bdi>, threshold })}
               </span>

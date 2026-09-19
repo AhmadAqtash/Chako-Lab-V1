@@ -29,7 +29,7 @@ export default function SoldProofLine({ proof }: { proof: SoldProofProp }) {
   );
 
   return (
-    <p className="mt-1.5 flex items-start gap-1.5 text-[13px] font-semibold leading-5 text-chako-ink/60">
+    <p className="mt-1.5 flex items-start gap-1.5 text-[13px] font-semibold leading-5 text-chako-ink/70">
       <ShoppingBag size={13} className="mt-[3px] flex-shrink-0 text-chako-ink/40" aria-hidden="true" />
       <span>
         {series

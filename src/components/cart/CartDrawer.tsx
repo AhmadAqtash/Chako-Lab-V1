@@ -67,6 +67,7 @@ export default function CartDrawer() {
   }
 
   // ── Dialog behaviour ──────────────────────────────────────────────────────
+  const drawerRef = useRef<HTMLDivElement>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -74,7 +75,24 @@ export default function CartDrawer() {
     if (isOpen) {
       returnFocus.current = document.activeElement as HTMLElement | null;
       closeBtn.current?.focus({ preventScroll: true });
-      const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeCart(); };
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') { closeCart(); return; }
+        if (e.key !== 'Tab') return;
+        // aria-modal="true" tells assistive tech the page behind is inert —
+        // so Tab must not be able to walk out into it. Wrap at both ends.
+        const root = drawerRef.current;
+        if (!root) return;
+        const focusable = Array.from(
+          root.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')
+        ).filter((el) => el.offsetParent !== null);
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+        const outside = !root.contains(active);
+        if (e.shiftKey && (active === first || outside)) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && (active === last || outside)) { e.preventDefault(); first.focus(); }
+      };
       document.addEventListener('keydown', onKey);
       return () => {
         document.removeEventListener('keydown', onKey);
@@ -113,11 +131,18 @@ export default function CartDrawer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, hasLines]);
 
+  const checkingOut = useRef(false);
   function handleCheckout(e: React.MouseEvent<HTMLAnchorElement>) {
     if (!cart) return;
     // Let modified clicks (new tab) through untouched; the href is the fallback
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
+    // trackThen waits up to 350ms before navigating: a second tap inside that
+    // window must not fire begin_checkout (and location.assign) twice. The
+    // guard releases itself, so an aborted navigation never kills the button.
+    if (checkingOut.current) return;
+    checkingOut.current = true;
+    setTimeout(() => { checkingOut.current = false; }, 3000);
     const href = checkoutHref(cart.checkoutUrl, language);
     trackThen(
       'begin_checkout',
@@ -136,6 +161,7 @@ export default function CartDrawer() {
   // After a slider add, the shopper should see WHICH line appeared, without any
   // scrolling (auto-scroll inside a fixed, transformed drawer misbehaves on iOS).
   const knownLines = useRef<Set<string> | null>(null);
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [flash, setFlash] = useState<ReadonlySet<string>>(new Set());
   useEffect(() => {
     const ids = new Set(lines.map((l) => l.id));
@@ -145,10 +171,25 @@ export default function CartDrawer() {
     const fresh = Array.from(ids).filter((id) => !known.has(id));
     if (fresh.length === 0) return;
     setFlash(new Set(fresh));
-    const timer = setTimeout(() => setFlash(new Set()), 800);
-    return () => clearTimeout(timer);
+    // Timer in a REF, not an effect cleanup: a cleanup cancels it on the next
+    // cart update (a quantity tap inside 800ms), and that run returns early
+    // above without clearing anything — the highlight stuck on for good.
+    if (flashTimer.current) clearTimeout(flashTimer.current);
+    flashTimer.current = setTimeout(() => { flashTimer.current = null; setFlash(new Set()); }, 800);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cart]);
+  useEffect(() => () => { if (flashTimer.current) clearTimeout(flashTimer.current); }, []);
+
+  // The slider and the dispatch block are mounted only while the drawer is on
+  // screen — but "on screen" outlives `isOpen` by the 300ms slide-out. Gating
+  // them on raw isOpen collapsed the footer by ~70px and blanked the slider
+  // while the drawer was still fully visible, on every close.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    if (isOpen) { setMounted(true); return; }
+    const id = setTimeout(() => setMounted(false), 320);
+    return () => clearTimeout(id);
+  }, [isOpen]);
 
   const threshold = money(FREE_SHIPPING_THRESHOLD);
 
@@ -159,6 +200,7 @@ export default function CartDrawer() {
       )}
 
       <div
+        ref={drawerRef}
         role="dialog"
         aria-modal="true"
         aria-label={t('cart_title')}
@@ -188,7 +230,7 @@ export default function CartDrawer() {
           <button
             ref={closeBtn}
             onClick={closeCart}
-            aria-label="Close"
+            aria-label={t('cart_close')}
             className="-me-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-black/5 transition-colors active:scale-95 touch-manipulation"
           >
             <X size={20} />
@@ -235,14 +277,14 @@ export default function CartDrawer() {
                         {line.merchandise.product.title}
                       </p>
                       {line.merchandise.title !== 'Default Title' && (
-                        <p className="mt-0.5 text-[11px] text-chako-ink/50">{line.merchandise.title}</p>
+                        <p className="mt-0.5 text-[11px] text-chako-ink/70">{line.merchandise.title}</p>
                       )}
                       <div className="mt-2 flex items-center gap-2">
                         <div className="flex items-center gap-1 rounded-xl bg-black/5 px-1.5 py-1">
                           <button
                             onClick={() => updateItem(line.id, line.quantity - 1)}
                             disabled={isLoading || line.quantity <= 1}
-                            aria-label="Decrease quantity"
+                            aria-label={t('cart_qty_decrease')}
                             className="relative flex h-8 w-8 items-center justify-center rounded-lg hover:bg-black/10 transition-colors disabled:opacity-40 active:scale-90 touch-manipulation before:absolute before:-inset-1.5"
                           >
                             <Minus size={13} />
@@ -251,7 +293,7 @@ export default function CartDrawer() {
                           <button
                             onClick={() => updateItem(line.id, line.quantity + 1)}
                             disabled={isLoading}
-                            aria-label="Increase quantity"
+                            aria-label={t('cart_qty_increase')}
                             className="relative flex h-8 w-8 items-center justify-center rounded-lg hover:bg-black/10 transition-colors disabled:opacity-40 active:scale-90 touch-manipulation before:absolute before:-inset-1.5"
                           >
                             <Plus size={13} />
@@ -260,7 +302,7 @@ export default function CartDrawer() {
                         <button
                           onClick={() => removeItem(line.id)}
                           disabled={isLoading}
-                          aria-label="Remove"
+                          aria-label={t('cart_remove_item').replace('{item}', line.merchandise.product.title)}
                           className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-red-50 hover:text-red-500 transition-colors disabled:opacity-40 active:scale-95 touch-manipulation before:absolute before:-inset-1"
                         >
                           <Trash2 size={14} />
@@ -276,7 +318,7 @@ export default function CartDrawer() {
 
               {/* Rendered only while open: unmounting IS its reset, and a closed
                   drawer must not keep cards, links and a fetch alive */}
-              {FLAGS.CART_SLIDER && isOpen && cart && <CartSetSlider cart={cart} basis={basis} />}
+              {FLAGS.CART_SLIDER && mounted && cart && <CartSetSlider cart={cart} basis={basis} />}
             </div>
           )}
         </div>
@@ -287,11 +329,11 @@ export default function CartDrawer() {
             className="cart-footer flex-shrink-0 space-y-2 border-t border-black/8 px-4 pt-2.5"
             style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
           >
-            {FLAGS.PDP_DISPATCH && isOpen && <DispatchPromise variant="cart" stockOk={stockOk} />}
+            {FLAGS.PDP_DISPATCH && mounted && <DispatchPromise variant="cart" stockOk={stockOk} />}
 
             <div>
               <div className="flex justify-between text-sm leading-5">
-                <span className="text-chako-ink/60">{t('cart_subtotal')}</span>
+                <span className="text-chako-ink/70">{t('cart_subtotal')}</span>
                 <bdi className="font-semibold tabular-nums">{formatPriceExact(cart.cost.subtotalAmount)}</bdi>
               </div>
 
@@ -301,7 +343,7 @@ export default function CartDrawer() {
                   checkout is invisible to this cart, and can turn an "unlocked"
                   AED 260 into AED 234 + AED 25. */}
               {FLAGS.CART_BAR && (
-                <p className={cn('flex items-center gap-1 text-[12px] leading-4', unlocked ? 'font-semibold text-green-700' : 'text-chako-ink/70')}>
+                <p className={cn('flex items-center gap-1 text-[12px] leading-4', unlocked ? 'font-semibold text-green-800' : 'text-chako-ink/70')}>
                   {unlocked && <Check size={12} strokeWidth={3} className="flex-shrink-0" aria-hidden="true" />}
                   <span>
                     {unlocked
@@ -315,7 +357,7 @@ export default function CartDrawer() {
               )}
 
               {!PRICES_INCLUDE_VAT && (
-                <p className="text-[11px] leading-[15px] text-chako-ink/40">{t('cart_taxes_note')}</p>
+                <p className="text-[11px] leading-[15px] text-chako-ink/70">{t('cart_taxes_note')}</p>
               )}
             </div>
 

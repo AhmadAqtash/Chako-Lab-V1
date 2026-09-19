@@ -9,6 +9,7 @@ import { noteServerDate } from '@/lib/server-clock';
 import { prefetchCartUpsell } from '@/lib/useCartUpsell';
 import { shippingBasis, freeShippingProgress } from '@/lib/shipping-config';
 import { track, trackThen, numericId, type AtcSource, type TrackItem } from '@/lib/track';
+import { FLAGS } from '@/lib/feature-flags';
 
 // soldOut = the clicked product itself is unavailable (PRIMARY_SOLD_OUT):
 // retrying the same add can never succeed, so callers must not.
@@ -211,15 +212,42 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Back from Shopify checkout via the bfcache: this page is restored with its
   // old state — a Buy-it-now spinner still spinning and a header count that no
   // longer matches. Reset and re-read.
+  //
+  // Buy it now also HOLDS `isLoading` while the page unloads (see buyNow). But
+  // a navigation can fail to commit — Stop button, Back during the wait, a
+  // blocked redirect — and then nothing would ever release it: every add button
+  // on the site dead until a reload. Three releases, all safe:
+  //   - a timer, kept in a ref and CLEARED — a bare timeout is suspended in the
+  //     bfcache and would fire half-way through some later, unrelated add;
+  //   - popstate — a same-document Back/Forward can only be observed by this
+  //     document if the checkout navigation was cancelled;
+  //   - the bfcache restore itself.
+  // Deliberately NOT visibilitychange: an app switch while checkout is still
+  // loading would re-enable the buttons — the very double-tap being guarded.
+  const leavingTimer = useRef<number | null>(null);
+  const leaveCancelled = useRef(false);
+  const releaseLeaving = useCallback(() => {
+    if (leavingTimer.current === null) return;
+    window.clearTimeout(leavingTimer.current);
+    leavingTimer.current = null;
+    leaveCancelled.current = true;
+    setIsLoading(false);
+  }, []);
+
   useEffect(() => {
     const onPageShow = (e: PageTransitionEvent) => {
       if (!e.persisted) return;
+      releaseLeaving();
       setIsLoading(false);
       initCart();
     };
     window.addEventListener('pageshow', onPageShow);
-    return () => window.removeEventListener('pageshow', onPageShow);
-  }, [initCart]);
+    window.addEventListener('popstate', releaseLeaving);
+    return () => {
+      window.removeEventListener('pageshow', onPageShow);
+      window.removeEventListener('popstate', releaseLeaving);
+    };
+  }, [initCart, releaseLeaving]);
 
   // All lines land in ONE cartLinesAdd call — a bundle add (product +
   // paired accessories) is atomic: no partial carts.
@@ -229,8 +257,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (lines.length === 0) return { ok: false, soldOut: false };
     setIsLoading(true);
     // Warm the "Make it a set" pool now, so its cards are ready by the time
-    // this add opens the drawer
-    prefetchCartUpsell(language);
+    // this add opens the drawer. Behind the flag: a kill switch that leaves the
+    // traffic running is not a kill switch.
+    if (FLAGS.CART_SLIDER) prefetchCartUpsell(language);
     try {
       // If init failed at page load (or hasn't finished), retry it now
       const target = cart ?? (await initCart());
@@ -305,8 +334,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return { ok: true, soldOut: false };
       }
 
-      leaving = true;
-      const items = itemsFor(updated, new Set(updated.lines.nodes.map((l) => l.merchandise.id)));
+      // Analytics must never be able to block the checkout navigation
+      let items: TrackItem[] = [];
+      try {
+        items = itemsFor(updated, new Set(updated.lines.nodes.map((l) => l.merchandise.id)));
+      } catch {
+        // navigate regardless
+      }
+      leaveCancelled.current = false;
       trackThen(
         'begin_checkout',
         {
@@ -316,8 +351,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           units: updated.totalQuantity,
           locale: language,
         },
-        () => window.location.assign(checkoutHref(updated.checkoutUrl, language))
+        () => {
+          // Back pressed inside trackThen's short wait: do not fire the
+          // navigation from a page the shopper has already left
+          if (leaveCancelled.current) return;
+          window.location.assign(checkoutHref(updated.checkoutUrl, language));
+        }
       );
+      // LAST statements of the success path, so a throw above still reaches
+      // the finally and releases the lock
+      leaving = true;
+      leavingTimer.current = window.setTimeout(releaseLeaving, 8000);
       return { ok: true, soldOut: false };
     } catch (err) {
       const soldOut = err instanceof Error && err.message === 'PRIMARY_SOLD_OUT';
@@ -326,7 +370,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } finally {
       if (!leaving) setIsLoading(false);
     }
-  }, [cart, initCart, language, t]);
+  }, [cart, initCart, language, t, releaseLeaving]);
 
   const trackRemove = useCallback(
     (before: Cart, after: Cart, source: 'cart_trash' | 'qty_decrease' | 'oos_auto') => {

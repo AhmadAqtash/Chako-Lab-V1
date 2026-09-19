@@ -61,3 +61,44 @@ export function freeShippingProgress(basis: number): FreeShippingProgress {
 export function unlocksWith(basis: number, price: number): boolean {
   return fils(basis) + fils(price) >= THRESHOLD_FILS;
 }
+
+// ─── Predictions and discounts ────────────────────────────────────────────────
+// unlocksWith PREDICTS a future cart by adding a CATALOGUE price. That is only
+// true while nothing is discounted. With a 10% automatic discount live, a
+// AED 152.10 cart + a AED 99 card "unlocks" on paper (251.10) — but the real
+// cart lands at 241.20 and Shopify charges AED 25. A promise that breaks the
+// moment it is acted on is the worst kind, and it would happen exactly during
+// sale traffic. So predictions are SUPPRESSED, never scaled: a ratio taken from
+// the current cart is a guess (the discount may be tiered, per-collection, or
+// buy-X-get-Y).
+
+/**
+ * Set to true IN THE SAME DEPLOY that creates ANY Shopify automatic discount.
+ * Covers what no cart can reveal: Buy it now from an empty cart, and min-spend
+ * or buy-2 discounts that only trigger after the add.
+ */
+export const AUTOMATIC_DISCOUNT_LIVE = false;
+
+/**
+ * Is THIS cart discounted? Compares the basis with the cart's catalogue value
+ * rather than total with subtotal, so it also catches LINE-level automatic
+ * discounts — where subtotal and total are equal to each other.
+ */
+export function cartIsDiscounted(cart: {
+  cost: Parameters<typeof shippingBasis>[0];
+  lines: { nodes: { quantity: number; merchandise: { price: { amount: string } } }[] };
+}): boolean {
+  const catalogue = cart.lines.nodes.reduce(
+    (sum, l) => sum + fils(parseFloat(l.merchandise.price.amount)) * l.quantity,
+    0
+  );
+  return fils(shippingBasis(cart.cost)) < catalogue;
+}
+
+/** May the UI predict what an add will do to shipping? */
+export function canPredictShipping(
+  cart: Parameters<typeof cartIsDiscounted>[0] | null,
+  discountLive: boolean = AUTOMATIC_DISCOUNT_LIVE
+): boolean {
+  return !discountLive && !(cart && cartIsDiscounted(cart));
+}

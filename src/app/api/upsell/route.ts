@@ -20,8 +20,14 @@ export async function GET(req: Request) {
   try {
     const lang = new URL(req.url).searchParams.get('lang') === 'ar' ? 'AR' : 'EN';
     const pool = await getCartUpsellPool(lang);
+    // An EMPTY pool is almost always the family index failing (a transient
+    // Shopify error). Caching that at the edge would hide the slider for every
+    // shopper for minutes — so only a real answer is cacheable.
+    const cacheable = pool.items.length > 0;
     return NextResponse.json(pool, {
-      headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600' },
+      headers: {
+        'Cache-Control': cacheable ? 'public, s-maxage=120, stale-while-revalidate=600' : 'no-store',
+      },
     });
   } catch (err) {
     console.error('[/api/upsell GET]', err);

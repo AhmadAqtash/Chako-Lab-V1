@@ -158,6 +158,10 @@ const translations = {
     cart_set_add_aria: 'Add {item} to cart — {price}',
     cart_set_prev: 'Previous products',
     cart_set_next: 'More products',
+    cart_close: 'Close cart',
+    cart_qty_decrease: 'Decrease quantity',
+    cart_qty_increase: 'Increase quantity',
+    cart_remove_item: 'Remove {item}',
     // ── Dispatch promise (PDP + cart). Wording rules live in lib/dispatch.ts:
     // always "before" 2PM (never "by"), and the caveat rides in the same block.
     dispatch_lead_within: 'Order within {time}',
@@ -177,7 +181,6 @@ const translations = {
     product_buy_now_loading: 'Taking you to checkout…',
     product_buy_now_cart_hint: "Includes what's already in your cart.",
     pdp_quote_read_all: 'Read all reviews',
-    pdp_quote_aria: 'Customer review — read all reviews',
     product_save_pct: 'Save {discount}%',
     product_select_options: 'Select options',
     // Search
@@ -355,13 +358,19 @@ const translations = {
     cart_shipping_paid: '+ {fee} رسوم شحن · مجاني من {threshold} بعد الخصومات',
     cart_shipping_free: 'شحن مجاني · للطلبات من {threshold} فأكثر بعد الخصومات',
     cart_set_title: 'كوّن طقمك',
-    cart_set_sub: 'أضف واحداً من الأكثر مبيعاً — واحد لك وواحد هدية.',
+    // «وآخر تُهديه» = "and another that YOU give" — «واحد هدية» read as "one is
+    // a free gift", a buy-one-get-one offer the English never makes.
+    cart_set_sub: 'أضف واحداً من الأكثر مبيعاً — واحد لك وآخر تُهديه.',
     cart_set_unlocks: 'يجعل شحن طلبك مجانياً',
     cart_set_add: 'أضف',
     cart_set_added: 'تمت الإضافة',
     cart_set_add_aria: 'أضف {item} إلى السلة — {price}',
     cart_set_prev: 'المنتجات السابقة',
     cart_set_next: 'مزيد من المنتجات',
+    cart_close: 'إغلاق السلة',
+    cart_qty_decrease: 'تقليل الكمية',
+    cart_qty_increase: 'زيادة الكمية',
+    cart_remove_item: 'إزالة {item}',
     // ── وعد الشحن (صفحة المنتج + السلة) — أرقام لاتينية عمداً: هذه الأسطر تحمل
     // قيماً ديناميكية بأرقام لاتينية ولا يجوز خلط نظامَي أرقام في سطر واحد.
     dispatch_lead_within: 'اطلب خلال {time}',
@@ -381,7 +390,6 @@ const translations = {
     product_buy_now_loading: 'ننقلك إلى إتمام الطلب…',
     product_buy_now_cart_hint: 'يشمل ما في سلتك حالياً.',
     pdp_quote_read_all: 'اقرأ جميع التقييمات',
-    pdp_quote_aria: 'تقييم أحد العملاء — اقرأ جميع التقييمات',
     product_save_pct: 'وفّر {discount}%',
     product_select_options: 'حدّد الخيارات',
     // Search

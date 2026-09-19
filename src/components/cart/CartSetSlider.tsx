@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, Check, Truck, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Plus, Check, Truck, ChevronLeft, ChevronRight, Loader2, Ban } from 'lucide-react';
 import type { Cart } from '@/types/shopify';
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCartUpsell } from '@/lib/useCartUpsell';
 import { orderUpsell, type UpsellItem } from '@/lib/cart-upsell';
-import { freeShippingProgress, unlocksWith } from '@/lib/shipping-config';
+import { freeShippingProgress, unlocksWith, canPredictShipping } from '@/lib/shipping-config';
 import { fillText } from '@/components/ui/fill';
 import { formatPrice, extractBaseName, extractColorName, cn } from '@/lib/utils';
 import { track, numericId, type TrackItem } from '@/lib/track';
@@ -76,11 +76,20 @@ export default function CartSetSlider({ cart, basis }: Props) {
     wasLoading.current = isLoading;
   }, [isLoading]);
 
+  // "Added" is only true while the line is still in the cart. Without this, a
+  // shopper who removes the line is left with a card that says Added forever
+  // and can never be re-added.
+  const inCart = new Set(cart.lines.nodes.map((l) => l.merchandise.product.id));
+
   const below = !freeShippingProgress(basis).unlocked;
-  const unlocks = (item: UpsellItem) => below && unlocksWith(basis, parseFloat(item.price.amount));
+  // No strip while anything is discounted: it would promise an outcome computed
+  // from a catalogue price the shopper is not paying (see canPredictShipping).
+  const canPredict = canPredictShipping(cart);
+  const unlocks = (item: UpsellItem) =>
+    below && canPredict && unlocksWith(basis, parseFloat(item.price.amount));
   // In a row where SOME cards carry the strip, the others reserve its height so
   // every image lines up; the row changes height once, at the crossing.
-  const anyStrip = row.some((i) => !added.has(i.id) && unlocks(i));
+  const anyStrip = row.some((i) => !(added.has(i.id) && inCart.has(i.id)) && unlocks(i));
 
   const trackItems = useMemo<TrackItem[]>(
     () =>
@@ -180,7 +189,7 @@ export default function CartSetSlider({ cart, basis }: Props) {
         <div className="flex items-end justify-between gap-3">
           <div className="min-w-0">
             <h3 className="font-display font-bold text-base leading-5">{t('cart_set_title')}</h3>
-            <p className="set-sub mt-0.5 text-[12px] leading-[18px] text-chako-ink/60 truncate">{t('cart_set_sub')}</p>
+            <p className="set-sub mt-0.5 text-[12px] leading-[18px] text-chako-ink/70 truncate">{t('cart_set_sub')}</p>
           </div>
           <div className="hidden md:flex flex-shrink-0 gap-1">
             <button type="button" onClick={() => page(-1)} aria-label={t('cart_set_prev')} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-black/5 transition-colors">
@@ -201,7 +210,7 @@ export default function CartSetSlider({ cart, basis }: Props) {
           className="mt-2.5 -mx-4 flex gap-3 overflow-x-auto overscroll-x-contain snap-x snap-mandatory scrollbar-hide px-4 scroll-ps-4 pb-1"
         >
           {row.map((item, index) => {
-            const isAdded = added.has(item.id);
+            const isAdded = added.has(item.id) && inCart.has(item.id);
             const isGone = soldOut.has(item.id);
             const isPending = pending === item.id;
             const strip = !isAdded && !isGone && unlocks(item);
@@ -235,7 +244,7 @@ export default function CartSetSlider({ cart, basis }: Props) {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[13px] font-semibold leading-[17px]">{name}</span>
-                      {colour && <span className="block truncate text-[11px] leading-[15px] text-chako-ink/50">{colour}</span>}
+                      {colour && <span className="block truncate text-[11px] leading-[15px] text-chako-ink/70">{colour}</span>}
                       <bdi className="mt-0.5 block text-sm font-extrabold">{formatPrice(item.price)}</bdi>
                     </span>
                   </Link>
@@ -247,6 +256,9 @@ export default function CartSetSlider({ cart, basis }: Props) {
                     onClick={() => handleAdd(item, index)}
                     disabled={isAdded || isGone || isPending || isLoading || cooling}
                     aria-label={fillText(t('cart_set_add_aria'), { item: name, price: formatPrice(item.price) })}
+                    // Below 360px the "Added" / sold-out LABEL is screen-reader
+                    // only: at 320px in Arabic it grew the button to ~99px and
+                    // squeezed the text column until the price painted under it.
                     className={cn(
                       'flex min-h-[44px] min-w-[64px] flex-shrink-0 items-center justify-center gap-1 rounded-xl px-2.5 text-xs font-bold transition-colors touch-manipulation',
                       isAdded
@@ -259,9 +271,9 @@ export default function CartSetSlider({ cart, basis }: Props) {
                     {isPending ? (
                       <Loader2 size={15} className="animate-spin" aria-hidden="true" />
                     ) : isAdded ? (
-                      <><Check size={13} strokeWidth={3} aria-hidden="true" />{t('cart_set_added')}</>
+                      <><Check size={13} strokeWidth={3} aria-hidden="true" /><span className="max-[359px]:sr-only">{t('cart_set_added')}</span></>
                     ) : isGone ? (
-                      t('product_out_of_stock')
+                      <><Ban size={13} aria-hidden="true" /><span className="max-[359px]:sr-only">{t('product_out_of_stock')}</span></>
                     ) : (
                       <><Plus size={13} strokeWidth={3} aria-hidden="true" />{t('cart_set_add')}</>
                     )}

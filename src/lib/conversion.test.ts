@@ -9,8 +9,18 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { floorNice, publishable, soldProof, SALES_SNAPSHOT, SERIES_MIN, SOLD_CUSHION } from './sales-proof.ts';
-import { freeShippingProgress, unlocksWith, shippingBasis, FREE_SHIPPING_THRESHOLD } from './shipping-config.ts';
-import { pickReviewQuote } from './review-quote.ts';
+import {
+  freeShippingProgress, unlocksWith, shippingBasis, cartIsDiscounted, canPredictShipping, FREE_SHIPPING_THRESHOLD,
+} from './shipping-config.ts';
+import { pickReviewQuote as pickApproved, APPROVED_QUOTES } from './review-quote.ts';
+
+// The FILTER tests below run with the approval allow-list switched off (null),
+// so they exercise the filters themselves. Production always uses the list.
+const pickReviewQuote = (
+  reviews: Parameters<typeof pickApproved>[0],
+  isAr: boolean,
+  pinned?: string | null
+) => pickApproved(reviews, isAr, pinned, null);
 import { buildUpsellPool, orderUpsell, type UpsellItem } from './cart-upsell.ts';
 
 // ── sold proof ──────────────────────────────────────────────────────────────
@@ -91,6 +101,29 @@ test('the basis is the LOWER of subtotal and total, so a discount cannot fake an
   assert.equal(shippingBasis({ subtotalAmount: money('199'), totalAmount: money('0') }), 199, 'a zero total is not a discount');
 });
 
+test('predictions are suppressed the moment anything is discounted', () => {
+  const line = (price: string, quantity = 1) => ({ quantity, merchandise: { price: { amount: price } } });
+  const money = (amount: string) => ({ amount });
+  const plain = { cost: { subtotalAmount: money('169'), totalAmount: money('169') }, lines: { nodes: [line('169')] } };
+  // ORDER-level automatic discount: total drops below subtotal
+  const orderLevel = { cost: { subtotalAmount: money('169'), totalAmount: money('152.10') }, lines: { nodes: [line('169')] } };
+  // LINE-level automatic discount: subtotal and total agree with each other —
+  // comparing them would miss it; comparing with the catalogue value does not
+  const lineLevel = { cost: { subtotalAmount: money('152.10'), totalAmount: money('152.10') }, lines: { nodes: [line('169')] } };
+
+  assert.equal(cartIsDiscounted(plain), false);
+  assert.equal(cartIsDiscounted(orderLevel), true);
+  assert.equal(cartIsDiscounted(lineLevel), true);
+
+  assert.equal(canPredictShipping(plain), true);
+  assert.equal(canPredictShipping(null), true, 'an empty cart can be predicted…');
+  assert.equal(canPredictShipping(null, true), false, '…unless the owner has flagged a live automatic discount');
+  assert.equal(canPredictShipping(lineLevel), false);
+  // The exact false promise this guards: 152.10 + 99 "unlocks" on paper, the real cart is 241.20
+  assert.equal(unlocksWith(152.1, 99), true);
+  assert.equal(canPredictShipping(orderLevel) && unlocksWith(152.1, 99), false);
+});
+
 // ── review quote ────────────────────────────────────────────────────────────
 
 const R = (over: Partial<Parameters<typeof pickReviewQuote>[0][number]>) => ({
@@ -115,6 +148,53 @@ test('a quote may not carry a claim the store cannot stand behind', () => {
   skip('Keeps ice for 2 days straight, my whole family is obsessed with it now.');
   skip('الكوب جميل جداً والتوصيل كان ممتازاً، أنصح الجميع بتجربته فعلاً.');
   skip('جودة ممتازة مقابل السعر، الكوب يحافظ على البرودة طوال اليوم.');
+});
+
+test('delivery and performance claims cannot slip past in other words, scripts or spellings', () => {
+  const skip = (body: string) => assert.equal(pickReviewQuote([R({ body })], false), null, body);
+  // every one of these passed the first version of the filter
+  skip('Got mine the same evening I ordered, amazing service and the cup is so cute.');
+  skip('Ordered at night and received it the very next morning, love this cup so much!');
+  skip('Reached me within hours of ordering, honestly such a lovely little tumbler.');
+  skip('Came in one day and the packaging was lovely, my new favourite bottle ever.');
+  skip('Showed up the following afternoon, speedy service and a gorgeous colour too.');
+  skip('Keeps my water ice cold for two whole days, could not be happier with it.');
+  skip('Keeps ice for \u06F2 days, the whole family wants one of these tumblers now.');
+  skip('Such a bargain, worth every penny, I am buying another one for my sister.');
+  skip('استلمت الطلب ثاني يوم والكوب جميل جداً وأنصح الجميع بتجربته فعلاً.');
+  skip('يحفظ البرودة يومين كاملين والتصميم جميل جداً وأنصح به بشدة للجميع.');
+});
+
+test('a review with a reservation is not an endorsement — the real complaint that was auto-picked', () => {
+  const complaint = R({ uuid: 'cbf7c083', body: 'Great but I lost my cap. I wish it was some who connected' });
+  const sibling = R({
+    uuid: 'cb033a43', writtenFor: 'Yellow & Blue', reviewerName: 'Anonymous',
+    body: 'love it! the quality and size are better in person. cant wait to use it for my coffee and water :D',
+  });
+  assert.equal(pickReviewQuote([complaint], false), null);
+  // Pooled with a genuinely positive sibling, the sibling wins in both locales
+  assert.equal(pickReviewQuote([complaint, sibling], false)?.uuid, 'cb033a43');
+  assert.equal(pickReviewQuote([complaint, sibling], true)?.uuid, 'cb033a43');
+  for (const body of [
+    'Lovely colour however the lid leaks a little when it is completely full.',
+    'Really pretty bottle, unfortunately the straw scratched after a few washes.',
+    'الكوب جميل لكن الغطاء فيه مشكلة صغيرة عند الإغلاق بإحكام شديد.',
+  ]) assert.equal(pickReviewQuote([R({ body })], false), null, body);
+  // …without choking on ordinary praise
+  assert.ok(pickReviewQuote([R({ body: 'My daughter carries it to school every single day, she loves it.' })], false));
+  assert.ok(pickReviewQuote([R({ body: 'Keeps my water cold all day and it looks adorable on my desk.' })], false));
+});
+
+test('PRODUCTION: nothing reaches the buy box unless a person approved that exact review', () => {
+  const perfect = R({ uuid: 'never-approved-uuid' });
+  assert.equal(pickApproved([perfect], false), null, 'a flawless review is still not shown until approved');
+  assert.equal(pickApproved([perfect], false, 'never-approved-uuid'), null, 'a pin cannot bypass approval');
+  const allow = new Set(['ok-1']);
+  assert.equal(pickApproved([R({ uuid: 'ok-1' }), perfect], false, null, allow)?.uuid, 'ok-1');
+  // approval does not bypass the filters
+  assert.equal(pickApproved([R({ uuid: 'ok-1', body: 'Arrived next day and the quality is honestly amazing, love it.' })], false, null, allow), null);
+  // every shipped approval is a well-formed Judge.me uuid
+  for (const id of Array.from(APPROVED_QUOTES)) assert.match(id, /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
 });
 
 test('prefers the shopper’s language, then this colourway; ties are stable', () => {

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Truck, Check } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { fill, fillText } from '@/components/ui/fill';
-import { formatPrice, cn } from '@/lib/utils';
+import { formatPrice, formatPriceExact, cn } from '@/lib/utils';
 import { FREE_SHIPPING_THRESHOLD, SHOP_CURRENCY, freeShippingProgress } from '@/lib/shipping-config';
 
 interface Props {
@@ -38,16 +38,20 @@ export default function FreeShippingBar({ ready, hasLines, basis }: Props) {
   // the drawer simply opens on an already-unlocked cart.
   const wasUnlocked = useRef<boolean | null>(null);
   const [pop, setPop] = useState(false);
+  // The reset timer lives in a ref and is NOT an effect cleanup: a cleanup
+  // would cancel it whenever the deps change again inside the 450ms (re-lock,
+  // cart emptied) — leaving `pop` stuck true, so the next crossing never replays.
+  const popTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!ready || !hasLines) { wasUnlocked.current = null; return; }
     if (wasUnlocked.current === false && unlocked) {
       setPop(true);
-      const id = setTimeout(() => setPop(false), 450);
-      wasUnlocked.current = unlocked;
-      return () => clearTimeout(id);
+      if (popTimer.current) clearTimeout(popTimer.current);
+      popTimer.current = setTimeout(() => { popTimer.current = null; setPop(false); }, 450);
     }
     wasUnlocked.current = unlocked;
   }, [ready, hasLines, unlocked]);
+  useEffect(() => () => { if (popTimer.current) clearTimeout(popTimer.current); }, []);
 
   if (!ready) {
     return <div className="ship-seg ship-seg--bar h-16 border-b border-black/8 bg-chako-highlight/30" aria-hidden="true" />;
@@ -90,9 +94,13 @@ export default function FreeShippingBar({ ready, hasLines, basis }: Props) {
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={FREE_SHIPPING_THRESHOLD}
-          aria-valuenow={Math.min(Math.round(basis), FREE_SHIPPING_THRESHOLD)}
+          // FLOOR while locked: at AED 249.60 a rounded value would announce
+          // "250 of 250" to a screen reader while shipping is still being charged
+          aria-valuenow={unlocked ? FREE_SHIPPING_THRESHOLD : Math.min(Math.floor(basis), FREE_SHIPPING_THRESHOLD - 1)}
           aria-valuetext={fillText(t('cart_ship_aria'), {
-            current: money(Math.min(basis, FREE_SHIPPING_THRESHOLD)),
+            current: unlocked
+              ? threshold
+              : formatPriceExact({ amount: String(basis), currencyCode: SHOP_CURRENCY }),
             threshold,
           })}
           className="ship-track h-2 flex-1 overflow-hidden rounded-full bg-black/10"

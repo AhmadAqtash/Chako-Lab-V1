@@ -8,6 +8,8 @@
 // The cart API is called on every page load anyway (CartContext.initCart), so
 // this costs no extra request.
 
+const MAX_RTT_MS = 5000;
+
 let offsetMs: number | null = null;
 const listeners = new Set<() => void>();
 
@@ -23,14 +25,23 @@ export function noteServerDate(res: Response, requestStartedAt: number): void {
     const server = Date.parse(header);
     if (!Number.isFinite(server)) return;
     const received = Date.now();
+    // A request that straddles a tab freeze, a stalled connection or a device
+    // clock step is not evidence: its midpoint can sit MINUTES from the moment
+    // the server stamped the header — and a clock that runs behind is the unsafe
+    // direction (it shows a cutoff as still open). Discard it. With no earlier
+    // sample the surfaces stay on the safe wording; with one, that offset is
+    // still valid (a freeze does not change server-minus-device).
+    // Both timestamps stay on Date.now(): performance.now() can pause during
+    // suspension on iOS and would hide exactly the freeze being detected.
+    const rtt = received - requestStartedAt;
+    if (!(rtt >= 0 && rtt <= MAX_RTT_MS)) return;
     // The Date header has 1s resolution and is stamped when the response was
-    // generated; centre it in the round-trip. Good to a second or two, which is
-    // far inside the 60-second early-flip guard in lib/dispatch.ts.
-    const midpoint = requestStartedAt + (received - requestStartedAt) / 2;
-    const next = server + 500 - midpoint;
-    const first = offsetMs === null;
-    offsetMs = next;
-    if (first) listeners.forEach((l) => l());
+    // generated; centre it in the round-trip. With rtt <= 5s that is good to
+    // ~3s, far inside the 60-second early-flip guard in lib/dispatch.ts.
+    // The LATEST plausible sample wins (not the "best"): if the device clock is
+    // corrected mid-session, a pinned old offset would stay wrong for good.
+    offsetMs = server + 500 - (requestStartedAt + rtt / 2);
+    listeners.forEach((l) => l());
   } catch {
     // no offset → surfaces stay on the safe wording
   }

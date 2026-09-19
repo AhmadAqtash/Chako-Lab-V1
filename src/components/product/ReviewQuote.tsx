@@ -21,14 +21,13 @@ export default function ReviewQuote({ quote }: { quote: Quote }) {
   const isAr = language === 'ar';
 
   return (
-    <a
-      href="#reviews"
-      aria-label={t('pdp_quote_aria')}
-      className="pdp-quote block border-s-4 border-chako-highlight ps-3.5 py-1 group"
-    >
+    // No aria-label: on a link it REPLACES the content, so a screen-reader user
+    // would hear "Customer review" and never the review. The link's own text —
+    // stars, quote, name, "Read all reviews" — is the accessible name.
+    <a href="#reviews" className="pdp-quote block border-s-4 border-chako-highlight ps-3.5 py-1 group">
       <span className="flex items-center gap-2">
         <ReviewStars rating={5} size={13} />
-        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-green-700">
+        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-green-800">
           <BadgeCheck size={12} aria-hidden="true" />
           {t('reviews_verified')}
         </span>
@@ -39,7 +38,7 @@ export default function ReviewQuote({ quote }: { quote: Quote }) {
         {isAr ? '«' : '“'}{quote.text}{isAr ? '»' : '”'}
       </span>
 
-      <span className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-chako-ink/55">
+      <span className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-chako-ink/70">
         <span dir="auto">— {quote.name}</span>
         {quote.writtenFor && (
           <span className="rounded-full bg-black/5 px-2 py-0.5 text-[11px]">

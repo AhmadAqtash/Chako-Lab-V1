@@ -57,6 +57,13 @@ export const VERIFIED_THROUGH = '2027-02-28';
  * Optional owner-written notice that REPLACES the lead and promise lines (the
  * caveat stays), e.g. during Eid: { en: 'Orders placed now ship on Monday 15
  * March', ar: '…' }. null = computed copy.
+ *
+ * It OVERRIDES EVERY STATE — including the kill switch, dates past
+ * VERIFIED_THROUGH, unproven stock, and the moment before the clock arrives.
+ * It has to: those are exactly the situations in which an owner writes a
+ * notice (Eid falls after VERIFIED_THROUGH; a courier outage is what the kill
+ * switch is for), and the "always true" safe wording is NOT true during an
+ * unplanned closure.
  */
 export const DISPATCH_NOTICE: { en: string; ar: string } | null = null;
 
