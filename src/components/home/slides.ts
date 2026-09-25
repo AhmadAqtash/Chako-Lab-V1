@@ -28,13 +28,28 @@ export interface SlideText {
   subEn?: string;
   subAr?: string;
   /**
+   * Optional shorter subline for PHONES only (desktop keeps subEn/subAr).
+   * For portrait art whose clear zone cannot hold the full line.
+   */
+  subMobileEn?: string;
+  subMobileAr?: string;
+  /**
    * Where the text block sits over the desktop art — match the art's empty
    * space. 'left'/'right' are PHYSICAL sides (the art is not mirrored in RTL).
-   * 'center-top' hugs the upper band for art whose middle is busy.
+   * 'left' sits a little BELOW centre (it keeps the phone layout's top
+   * padding); 'left-center' is true vertical centre — for art whose lower
+   * left holds props. 'center-top' hugs the upper band for art whose middle
+   * is busy; 'center-top-high' sits tighter to the top edge, for art whose
+   * product rises into that band (the headline is a fixed 64px on desktop
+   * while the art shrinks with the screen, so check 1280px — the tightest).
    */
-  desktopPos: 'center' | 'left' | 'right' | 'center-top';
-  /** Where the text block sits over the mobile art. */
-  mobilePos: 'center' | 'top';
+  desktopPos: 'center' | 'left' | 'left-center' | 'right' | 'center-top' | 'center-top-high';
+  /**
+   * Where the text block sits over the mobile art. 'top-left' is PHYSICAL
+   * left, left-aligned and capped at ~half the width — for portrait art whose
+   * top-right is taken (a hand, a handle).
+   */
+  mobilePos: 'center' | 'top' | 'top-left';
   /**
    * 'ink' (default): charcoal text with a soft white halo.
    * 'bling': animated metallic gradient shimmer — for the Titanium slide.
@@ -45,9 +60,10 @@ export interface SlideText {
    * caps it so a long subline cannot run under the product. Use 'narrow' when
    * the art's clear zone is less than about half the frame — measure the art
    * rather than guessing, and remember the SUBLINE is usually the longest run,
-   * not the headline.
+   * not the headline. 'tight' (26rem) is for a centred block squeezed between
+   * two busy sides.
    */
-  width?: 'default' | 'narrow';
+  width?: 'default' | 'narrow' | 'tight';
 }
 
 export interface Slide {
@@ -77,12 +93,40 @@ export interface Slide {
 
 export const SLIDES: Slide[] = [
   {
-    // CarryGo launch (Aug 2026) — pastel podium, four bottles right of centre,
-    // clean lilac/peach gradient across the whole left third.
-    enDesktop: '/hero/slide-carrygo-desktop.jpg',
-    enMobile:  '/hero/slide-carrygo-mobile.jpg',
-    arDesktop: '/hero/slide-carrygo-desktop.jpg',
-    arMobile:  '/hero/slide-carrygo-mobile.jpg',
+    // Bawang Lite launch (Sep 2026) — the three live colourways (Toffee & Pink,
+    // White & Lemon, Pink & Mint) poolside with a straw hat, olives and cards.
+    // Busy art with no designed text zone. The CTA says "Shop Bawang", not
+    // "Shop Bawang Lite": it lands on the whole Bawang page, where the Lite
+    // is listed after the other Bawangs (Ahmad chose to keep that order).
+    // Claims come from the product descriptions: 770ml, wide straw for milk
+    // tea and toppings. No retention hours — the Lite's are not published.
+    enDesktop: '/hero/slide-bawang-lite-desktop.jpg',
+    enMobile:  '/hero/slide-bawang-lite-mobile.jpg',
+    arDesktop: '/hero/slide-bawang-lite-desktop.jpg',
+    arMobile:  '/hero/slide-bawang-lite-mobile.jpg',
+    ctaEn: 'Shop Bawang',
+    ctaAr: 'تسوق باوانج',
+    ctaHref: '/collections/bawang-cups',
+    text: {
+      headlineEn: 'Meet Bawang Lite.',
+      headlineAr: 'تعرّف على باوانج لايت.',
+      subEn: '770ml, with a wide straw made for milk tea and toppings.',
+      subAr: '٧٧٠ مل، مع شفاطة عريضة للشاي بالحليب والإضافات.',
+      // Desktop: over the straw hat (a prop), clear of the palm fronds above
+      // and the olive plate below — 'left' sat low enough to run the subline
+      // into the plate. Phone: the pool at the top is clear.
+      desktopPos: 'left-center',
+      mobilePos: 'top',
+      width: 'narrow',
+    },
+  },
+  {
+    // CarryGo (art refreshed Sep 2026) — three bottles hung by their handles
+    // on a golf club, soft green course behind.
+    enDesktop: '/hero/slide-carrygo-golf-desktop.jpg',
+    enMobile:  '/hero/slide-carrygo-golf-mobile.jpg',
+    arDesktop: '/hero/slide-carrygo-golf-desktop.jpg',
+    arMobile:  '/hero/slide-carrygo-golf-mobile.jpg',
     ctaEn: 'Shop CarryGo',
     ctaAr: 'تسوق كاري جو',
     ctaHref: '/collections/carrygo-tumblers',
@@ -93,27 +137,37 @@ export const SLIDES: Slide[] = [
       subAr: '٨٧٠ مل من كاري جو. تعبئة واحدة تكفي يومك.',
       desktopPos: 'left',
       mobilePos: 'top',
-      width: 'narrow', // bottles begin ~45% across — keep text clear of them
+      width: 'narrow', // bottles begin ~44% across — keep text clear of them
     },
   },
   {
-    // Split Cup launch (Aug 2026) — cups float centre-right over lemons and
-    // vinyl; the upper-left third of the yellow field is completely clear.
-    enDesktop: '/hero/slide-split-desktop.jpg',
-    enMobile:  '/hero/slide-split-mobile.jpg',
-    arDesktop: '/hero/slide-split-desktop.jpg',
-    arMobile:  '/hero/slide-split-mobile.jpg',
+    // Split Cup (art refreshed Sep 2026) — three cups on a purple suitcase,
+    // hand on the trolley handle, palms and sea on the left.
+    enDesktop: '/hero/slide-split-travel-desktop.jpg',
+    enMobile:  '/hero/slide-split-travel-mobile.jpg',
+    arDesktop: '/hero/slide-split-travel-desktop.jpg',
+    arMobile:  '/hero/slide-split-travel-mobile.jpg',
     ctaEn: 'Shop Split Cup',
     ctaAr: 'تسوق سبليت',
     ctaHref: '/collections/split-cups',
     text: {
       headlineEn: 'The straw comes apart.',
       headlineAr: 'الشفاطة تنفصل بالكامل.',
-      subEn: 'Finally, a straw cup you can actually clean. 570ml, two straws in the box.',
-      subAr: 'أخيراً كوب شفاطة يمكنك تنظيفه فعلاً. ٥٧٠ مل، وشفاطتان في العلبة.',
-      desktopPos: 'left',
-      mobilePos: 'top',
-      width: 'narrow', // the floating cups start ~52% across
+      // Shortened for the Sep 2026 art: the straws rise to a third of the
+      // frame height, so the block must stay short to sit above them.
+      subEn: 'Easy to clean. 570ml, two straws in the box.',
+      subAr: 'سهل التنظيف. ٥٧٠ مل، وشفاطتان في العلبة.',
+      // Phones: a hand and the trolley handle fill the top-right, so the text
+      // takes the clear sky top-left with a shorter subline that ends above
+      // the straws.
+      subMobileEn: '570ml, two straws in the box.',
+      subMobileAr: '٥٧٠ مل، وشفاطتان في العلبة.',
+      // Desktop: palms fill the left third, the trolley pole stands ~66%
+      // across and the straw tops reach ~33% down; 'tight' + high keeps the
+      // block in the clear sky between them (measured at 1280/1440/1920).
+      desktopPos: 'center-top-high',
+      mobilePos: 'top-left',
+      width: 'tight',
     },
   },
   {

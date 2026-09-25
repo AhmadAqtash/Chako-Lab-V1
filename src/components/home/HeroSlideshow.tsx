@@ -248,18 +248,26 @@ export default function HeroSlideshow() {
 
   // Text block positioning per slide — placement is PHYSICAL (the art is not
   // mirrored in RTL), alignment inside the block follows the language.
+  // Phone classes come ONLY from mobilePos and desktop classes are all md:,
+  // so each axis can be set independently. Existing combinations resolve to
+  // exactly the classes they had before.
   const textWrapClass = (pos: { desktopPos: string; mobilePos: string }) =>
     [
       'absolute inset-0 z-[3] pointer-events-none flex px-6 md:px-16',
       // mobile placement
-      pos.mobilePos === 'top' ? 'items-start pt-[12%]' : 'items-center pb-[24%]',
+      pos.mobilePos === 'center'
+        ? 'items-center pb-[24%] justify-center text-center'
+        : pos.mobilePos === 'top-left'
+          ? 'items-start pt-[12%] justify-start text-start'
+          : 'items-start pt-[12%] justify-center text-center',
       // desktop placement overrides
-      pos.desktopPos === 'center' && 'justify-center text-center md:items-center md:pb-[6%]',
-      pos.desktopPos === 'center-top' && 'justify-center text-center md:items-start md:pt-[7%]',
-      pos.desktopPos === 'left' &&
-        'justify-center text-center md:justify-start md:text-start md:items-center md:pb-0 md:ps-[7%]',
-      pos.desktopPos === 'right' &&
-        'justify-center text-center md:justify-end md:text-end md:items-center md:pb-0 md:pe-[7%]',
+      pos.desktopPos === 'center' && 'md:justify-center md:text-center md:items-center md:pb-[6%]',
+      pos.desktopPos === 'center-top' && 'md:justify-center md:text-center md:items-start md:pt-[7%]',
+      pos.desktopPos === 'center-top-high' && 'md:justify-center md:text-center md:items-start md:pt-[3%]',
+      pos.desktopPos === 'left' && 'md:justify-start md:text-start md:items-center md:pb-0 md:ps-[7%]',
+      pos.desktopPos === 'left-center' &&
+        'md:justify-start md:text-start md:items-center md:pt-0 md:pb-0 md:ps-[7%]',
+      pos.desktopPos === 'right' && 'md:justify-end md:text-end md:items-center md:pb-0 md:pe-[7%]',
     ]
       .filter(Boolean)
       .join(' ');
@@ -357,8 +365,19 @@ export default function HeroSlideshow() {
                   // Re-key on activation so the pop-in replays every visit
                   key={`text-${i}-${isActive ? navCount : 'idle'}`}
                   dir={isAr ? 'rtl' : 'ltr'}
-                  className={`max-w-xl ${
-                    s.text.width === 'narrow' ? 'md:max-w-md' : 'md:max-w-2xl'
+                  className={`${
+                    s.text.mobilePos === 'top-left'
+                      ? // English needs ~48vw for a two-word headline line;
+                        // Arabic is right-aligned, so its lines end at the
+                        // block's right edge — keep that edge further left
+                        isAr ? 'max-w-[34vw]' : 'max-w-[48vw]'
+                      : 'max-w-xl'
+                  } ${
+                    s.text.width === 'narrow'
+                      ? 'md:max-w-md'
+                      : s.text.width === 'tight'
+                        ? 'md:max-w-[26rem]'
+                        : 'md:max-w-2xl'
                   } ${isActive ? 'chakoHeroTextIn' : ''}`}
                 >
                   <p
@@ -371,8 +390,24 @@ export default function HeroSlideshow() {
                     {isAr ? s.text.headlineAr : s.text.headlineEn}
                   </p>
                   {(isAr ? s.text.subAr : s.text.subEn) && (
-                    <p className="mt-3 md:mt-4 text-base md:text-xl font-semibold text-chako-ink/75 [text-shadow:0_1px_18px_rgba(255,255,255,0.6)]">
-                      {isAr ? s.text.subAr : s.text.subEn}
+                    <p
+                      className={`mt-3 md:mt-4 text-base md:text-xl font-semibold text-chako-ink/75 [text-shadow:0_1px_18px_rgba(255,255,255,0.6)] ${
+                        // the subline wraps shorter than the headline, so it
+                        // clears whatever sits beside the top-left zone
+                        s.text.mobilePos === 'top-left' ? 'max-w-[38vw] md:max-w-none' : ''
+                      }`}
+                    >
+                      {(isAr ? s.text.subMobileAr : s.text.subMobileEn) ? (
+                        // One <p> either way: the pop-in stagger targets the
+                        // block's second child. The hidden span is display:none,
+                        // so screen readers hear only the visible line.
+                        <>
+                          <span className="md:hidden">{isAr ? s.text.subMobileAr : s.text.subMobileEn}</span>
+                          <span className="hidden md:inline">{isAr ? s.text.subAr : s.text.subEn}</span>
+                        </>
+                      ) : (
+                        isAr ? s.text.subAr : s.text.subEn
+                      )}
                     </p>
                   )}
                 </div>
